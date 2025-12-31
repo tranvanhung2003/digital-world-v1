@@ -17,10 +17,10 @@ class GeminiChatbotService {
       ) {
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         this.model = this.genAI.getGenerativeModel({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-2.5-flash-lite',
         });
         console.info(
-          '✅ Gemini AI initialized successfully with model: gemini-2.0-flash'
+          '✅ Gemini AI initialized successfully with model: gemini-2.5-flash-lite',
         );
       } else {
         console.warn('⚠️  Gemini API key not found, using fallback responses');
@@ -28,7 +28,7 @@ class GeminiChatbotService {
     } catch (error) {
       console.error(
         '❌ Failed to initialize Gemini AI:',
-        error.message || error
+        error.message || error,
       );
     }
   }
@@ -48,7 +48,7 @@ class GeminiChatbotService {
       const aiResponse = await this.getAIResponse(
         message,
         allProducts,
-        context
+        context,
       );
 
       return aiResponse;
@@ -96,7 +96,7 @@ class GeminiChatbotService {
       // Check if it's a 404 error specifically
       if (error.message && error.message.includes('404')) {
         console.error(
-          '🚨 404 Error - Model not found or API endpoint incorrect'
+          '🚨 404 Error - Model not found or API endpoint incorrect',
         );
       }
 
@@ -111,7 +111,7 @@ class GeminiChatbotService {
     const productList = products
       .map(
         (p) =>
-          `- ${p.name}: ${p.shortDescription} (Giá: ${p.price?.toLocaleString('vi-VN')}đ)`
+          `- ${p.name}: ${p.shortDescription} (Giá: ${p.price?.toLocaleString('vi-VN')}đ)`,
       )
       .join('\n');
 
@@ -185,7 +185,7 @@ LƯU Ý QUAN TRỌNG:
             const product = products.find(
               (p) =>
                 p.name.toLowerCase().includes(productName.toLowerCase()) ||
-                productName.toLowerCase().includes(p.name.toLowerCase())
+                productName.toLowerCase().includes(p.name.toLowerCase()),
             );
             if (product) {
               matchedProducts.push({
@@ -230,7 +230,7 @@ LƯU Ý QUAN TRỌNG:
     let matchedProducts = [];
     if (process.env.NODE_ENV !== 'production') {
       console.log(
-        `🔍 Searching for: "${lowerMessage}" in ${products.length} products`
+        `🔍 Searching for: "${lowerMessage}" in ${products.length} products`,
       );
     }
 
@@ -284,7 +284,7 @@ LƯU Ý QUAN TRỌNG:
           matchScore += 8;
           if (process.env.NODE_ENV !== 'production') {
             console.log(
-              `✅ Description match: "${product.name}" desc contains "${term}"`
+              `✅ Description match: "${product.name}" desc contains "${term}"`,
             );
           }
         }
@@ -296,13 +296,13 @@ LƯU Ý QUAN TRỌNG:
           const keywordMatches = product.searchKeywords.filter(
             (keyword) =>
               keyword.toLowerCase().includes(term.toLowerCase()) ||
-              term.toLowerCase().includes(keyword.toLowerCase())
+              term.toLowerCase().includes(keyword.toLowerCase()),
           );
           if (keywordMatches.length > 0) {
             if (process.env.NODE_ENV !== 'production') {
               console.log(
                 `✅ Keyword matches for "${product.name}":`,
-                keywordMatches
+                keywordMatches,
               );
             }
             matchScore += keywordMatches.length * 5;
@@ -322,7 +322,7 @@ LƯU Ý QUAN TRỌNG:
       if (matchScore > 0) {
         if (process.env.NODE_ENV !== 'production') {
           console.log(
-            `✅ Product "${product.name}" matched with score: ${matchScore}`
+            `✅ Product "${product.name}" matched with score: ${matchScore}`,
           );
         }
         matchedProducts.push({ ...product, matchScore });
@@ -335,7 +335,7 @@ LƯU Ý QUAN TRỌNG:
     // Remove duplicates
     const uniqueProducts = matchedProducts.filter(
       (product, index, self) =>
-        index === self.findIndex((p) => p.id === product.id)
+        index === self.findIndex((p) => p.id === product.id),
     );
 
     if (uniqueProducts.length > 0) {
