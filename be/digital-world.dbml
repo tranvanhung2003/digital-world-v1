@@ -1,0 +1,375 @@
+Table Address {
+  id uuid [pk]
+  userId uuid [not null, ref: > User.id]
+  name string
+  firstName string [not null]
+  lastName string [not null]
+  company string
+  address1 string [not null]
+  address2 string
+  city string [not null]
+  state string [not null]
+  zip string [not null]
+  country string [not null]
+  phone string
+  isDefault boolean [not null, default: false]
+}
+
+Table AttributeGroup {
+  id uuid [pk]
+  name string [not null]
+  description string
+  type enum [not null, default: 'custom', note: '''
+    color
+    config
+    storage
+    size
+    custom
+  ''']
+  isRequired boolean [not null, default: false]
+  sortOrder int [not null, default: 0]
+  isActive boolean [not null, default: true]
+}
+
+Table AttributeValue {
+  id uuid [pk]
+  attributeGroupId uuid [not null, ref: > AttributeGroup.id]
+  name string [not null]
+  value string [not null]
+  colorCode string
+  imageUrl string
+  priceAdjustment decimal(12,2)
+  sortOrder int
+  isActive boolean
+  affectsName boolean
+  nameTemplate string
+}
+
+Table Cart {
+  id uuid [pk]
+  userId uuid [ref: > User.id]
+  sessionId string
+  status enum [default: 'active', note: '''
+    active
+    merged
+    converted
+    abandoned
+  ''']
+}
+
+Table CartItem {
+  id uuid [pk]
+  cartId uuid [not null, ref: > Cart.id]
+  productId uuid [not null, ref: > Product.id]
+  variantId uuid [ref: > ProductVariant.id]
+  quantity int [not null, default: 1]
+  price decimal(19,2) [not null]
+  warrantyPackageIds array(uuid) [default: `[]`]
+}
+
+Table Category {
+  id uuid [pk]
+  name string [not null]
+  slug string [not null, unique]
+  description string
+  image string
+  parentId uuid [ref: > Category.id]
+  level int [not null, default: 1]
+  isActive boolean [not null, default: true]
+  sortOrder int [not null, default: 0]
+}
+
+Table Feedback {
+  id uuid [pk]
+  name string [not null]
+  email string [not null]
+  phone string
+  subject string [not null]
+  content string [not null]
+  status enum [not null, default: 'pending', note: '''
+    pending
+    reviewed
+    resolved
+  ''']
+}
+
+Table Image {
+  id uuid [pk]
+  originalName string [not null]
+  fileName string [not null, unique]
+  filePath string [not null]
+  fileSize int [not null]
+  mimeType string [not null]
+  width int
+  height int
+  category enum [not null, default: 'product', note: '''
+    product
+    thumbnail
+    user
+    review
+  ''']
+  productId uuid [ref: > Product.id]
+  userId uuid [ref: > User.id]
+  isActive boolean [default: true]
+
+  indexes {
+    (productId, userId, category, isActive) [unique]
+  }
+}
+
+Table News {
+  id uuid [pk]
+  title string [not null]
+  slug string [not null, unique]
+  content string [not null]
+  thumbnail string
+  description string
+  category string [default: 'Tin tức']
+  viewCount int [default: 0]
+  tags string
+  isPublished boolean [default: true]
+  userId uuid [ref: > User.id]
+}
+
+Table NewsletterSubscriber {
+  id uuid [pk]
+  email string [not null, unique]
+  status enum [not null, default: 'active', note: '''
+    active
+    unsubscribed
+  ''']
+}
+
+Table Order {
+  id uuid [pk]
+  number string [not null, unique]
+  userId uuid [not null, ref: > User.id]
+  status enum [not null, default: 'pending', note:'''
+    pending
+    processing
+    shipped
+    delivered
+    cancelled
+  ''']
+  shippingFirstName string [not null]
+  shippingLastName string [not null]
+  shippingCompany string
+  shippingAddress1 string [not null]
+  shippingAddress2 string
+  shippingCity string [not null]
+  shippingState string [not null]
+  shippingZip string [not null]
+  shippingCountry string [not null]
+  shippingPhone string
+  billingFirstName string [not null]
+  billingLastName string [not null]
+  billingCompany string
+  billingAddress1 string [not null]
+  billingAddress2 string
+  billingCity string [not null]
+  billingState string [not null]
+  billingZip string [not null]
+  billingCountry string [not null]
+  billingPhone string
+  paymentMethod string [not null]
+  paymentStatus enum [not null, default: 'pending', note: '''
+    pending
+    paid
+    failed
+    refunded
+  ''']
+  paymentTransactionId string
+  paymentProvider string
+  subtotal decimal(19,2) [not null]
+  tax decimal(19,2) [not null]
+  shippingCost decimal(19,2) [not null]
+  discount decimal(19,2) [default: 0]
+  total decimal(19,2) [not null]
+  notes string
+  trackingNumber string
+  shippingProvider string
+  estimatedDelivery timestamp 
+}
+
+Table OrderItem {
+  id uuid [pk]
+  orderId uuid [not null, ref: > Order.id]
+  productId uuid [not null, ref: > Product.id]
+  variantId uuid [ref: > ProductVariant.id]
+  name string [not null]
+  sku string
+  price decimal(19,2) [not null]
+  quantity int [not null]
+  subtotal decimal(19,2) [not null]
+  image string
+  attributes jsonb [default: `{}`]
+}
+
+Table Product {
+  id uuid [pk]
+  name string [not null]
+  slug string [not null, unique]
+  description string [not null]
+  shortDescription string [not null]
+  price decimal(12,2) [not null]
+  compareAtPrice decimal(12,2)
+  images string [default: '[]']
+  thumbnail string
+  inStock boolean [default: true]
+  stockQuantity int [default: 0]
+  sku string [unique]
+  status enum [default: 'active', note: '''
+    active
+    inactive
+    draft
+  ''']
+  featured boolean [default: false]
+  searchKeywords string [default: '[]']
+  seoTitle string
+  seoDescription string
+  seoKeywords string [default: '[]']
+  specifications string [default: '[]']
+  condition enum [default: 'new', note: '''
+    new
+    like-new
+    used
+    refurbished
+  ''']
+  baseName string
+  isVariantProduct boolean [default: false]
+  faqs string [default: '[]']
+}
+
+Table ProductAttribute {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  name string [not null]
+  type string [not null, default: 'custom', note: '''
+    color
+    size
+    material
+    custom
+  ''']
+  values jsonb [default: `[]`]
+  required boolean [default: false]
+  sortOrder int [default: 0]
+}
+
+Table ProductAttributeGroup {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  attributeGroupId uuid [not null, ref: > AttributeGroup.id]
+  isRequired boolean [default: false]
+  sortOrder int [default: 0]
+}
+
+Table ProductCategory {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  categoryId uuid [not null, ref: > Category.id]
+
+  indexes {
+    (productId, categoryId) [unique]
+  }
+}
+
+Table ProductSpecification {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  name string [not null]
+  value string [not null]
+  category string [default: 'General']
+  sortOrder int [default: 0]
+}
+
+Table ProductVariant {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  name string [not null]
+  sku string
+  attributes jsonb [not null, default: `{}`]
+  attributeValues jsonb [not null, default: `{}`]
+  price decimal(12,2) [not null]
+  stockQuantity int [default: 0]
+  images array(string) [default: `[]`]
+  displayName string
+  sortOrder int [default: 0]
+  isDefault boolean [default: false]
+  isAvailable boolean [default: true]
+  compareAtPrice decimal(12,2)
+  specifications jsonb [default: `{}`]
+}
+
+Table ProductWarranty {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  warrantyPackageId uuid [not null, ref: > WarrantyPackage.id]
+  isDefault boolean [default: false]
+}
+
+Table Review {
+  id uuid [pk]
+  productId uuid [not null, ref: > Product.id]
+  userId uuid [not null, ref: > User.id]
+  rating int [not null]
+  title string
+  content string [not null]
+  isVerified boolean [default: false]
+  likes int [default: 0]
+  dislikes int [default: 0]
+  images array(string) [default: `[]`]
+}
+
+Table ReviewFeedback {
+  id uuid [pk]
+  reviewId uuid [not null, ref: > Review.id]
+  userId uuid [not null, ref: > User.id]
+  isHelpful boolean [not null]
+
+  indexes {
+    (reviewId, userId) [unique]
+  }
+}
+
+Table User {
+  id uuid [pk]
+  email string [not null, unique]
+  password string [not null]
+  firstName string [not null]
+  lastName string [not null]
+  phone string
+  avatar string
+  role string [default: 'customer', note: '''
+    customer
+    admin
+    manager
+  ''']
+  isEmailVerified boolean [default: false]
+  isActive boolean [default: true]
+  verificationToken string
+  resetPasswordToken string
+  resetPasswordExpires datetime
+  stripeCustomerId string
+}
+
+Table WarrantyPackage {
+  id uuid [pk]
+  name string [not null]
+  description string
+  durationMonths int [not null]
+  price decimal(12,2) [not null, default: 0]
+  terms jsonb [default: `{}`]
+  coverage array(string) [default: `[]`]
+  isActive boolean [default: true]
+  sortOrder int [default: 0]
+}
+
+Table Wishlist {
+  id uuid [pk]
+  userId uuid [not null, ref: > User.id]
+  productId uuid [not null, ref: > Product.id]
+
+  indexes {
+    (userId, productId) [unique]
+  }
+}
