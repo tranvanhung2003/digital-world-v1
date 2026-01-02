@@ -1,18 +1,18 @@
 const winston = require('winston');
 
-// Define log format
+// Định nghĩa định dạng log
 const logFormat = winston.format.printf(({ level, message, timestamp }) => {
   return `${timestamp} ${level}: ${message}`;
 });
 
-// Create logger
+// Tạo logger với các transport
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    logFormat
+    logFormat,
   ),
   defaultMeta: { service: 'api' },
   transports: [
@@ -21,17 +21,17 @@ const logger = winston.createLogger({
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        logFormat
+        logFormat,
       ),
     }),
-    // File transport for errors
+    // File transport cho các lỗi
     new winston.transports.File({
       filename: 'logs/error.log',
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // File transport for all logs
+    // File transport cho tất cả các log
     new winston.transports.File({
       filename: 'logs/combined.log',
       maxsize: 5242880, // 5MB
