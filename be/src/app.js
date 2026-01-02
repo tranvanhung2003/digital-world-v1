@@ -12,7 +12,7 @@ const routes = require('./routes');
 const { errorHandler } = require('./middlewares/errorHandler');
 const path = require('path');
 
-// Initialize app
+// Khởi tạo app
 const app = express();
 
 // // Trust reverse proxy headers when running behind Nginx/PM2
@@ -41,18 +41,21 @@ if (process.env.CORS_ORIGIN === '*') {
   corsOptions.origin = '*';
 } else if (process.env.CORS_ORIGIN) {
   // Parse comma-separated origins if provided
-  const origins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+  const origins = process.env.CORS_ORIGIN.split(',').map((origin) =>
+    origin.trim(),
+  );
   corsOptions.origin = origins;
 } else {
   // Use default based on environment
-  corsOptions.origin = process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL || 'https://yourdomain.com'
-    : [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:5175',
-      ];
+  corsOptions.origin =
+    process.env.NODE_ENV === 'production'
+      ? process.env.FRONTEND_URL || 'https://yourdomain.com'
+      : [
+          'http://localhost:3000',
+          'http://localhost:5173',
+          'http://localhost:5174',
+          'http://localhost:5175',
+        ];
 }
 
 app.use(cors(corsOptions));

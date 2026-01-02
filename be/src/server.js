@@ -3,7 +3,9 @@ const app = require('./app');
 const sequelize = require('./config/sequelize');
 const logger = require('./utils/logger');
 
-// Kiểm tra kết nối tới database và đồng bộ hóa các model
+/**
+ * Kiểm tra kết nối tới database và đồng bộ hóa các model
+ */
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
@@ -34,34 +36,22 @@ const connectDB = async () => {
   }
 };
 
-// Add stripe column if not exists
-const addStripeColumn = async () => {
-  try {
-    await sequelize.query(`
-      ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255);
-    `);
-    logger.info('✅ stripe_customer_id column ensured');
-  } catch (error) {
-    logger.error('Error adding stripe column:', error.message);
-  }
-};
-
-// Khởi động server
+/**
+ * Khởi động server và thiết lập các xử lý lỗi toàn cục
+ */
 const startServer = async () => {
   await connectDB();
-  await addStripeColumn();
 
   const PORT = process.env.PORT || 8888;
   const server = app.listen(PORT, () => {
     logger.info(
-      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`,
+      `Server đang chạy ở chế độ ${process.env.NODE_ENV} và ở trên cổng ${PORT}`,
     );
   });
 
   // Xử lý uncaught exceptions
   process.on('uncaughtException', (err) => {
-    logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+    logger.error('UNCAUGHT EXCEPTION! 💥 Đang shutdown...');
     logger.error(err.name, err.message);
     logger.error(err.stack);
     process.exit(1);
@@ -69,7 +59,7 @@ const startServer = async () => {
 
   // Xử lý unhandled promise rejections
   process.on('unhandledRejection', (err) => {
-    logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
+    logger.error('UNHANDLED REJECTION! 💥 Đang shutdown...');
     logger.error(err.name, err.message);
     server.close(() => {
       process.exit(1);
@@ -78,7 +68,7 @@ const startServer = async () => {
 
   // Xử lý SIGTERM signal
   process.on('SIGTERM', () => {
-    logger.info('👋 SIGTERM RECEIVED. Shutting down gracefully');
+    logger.info('👋 SIGTERM RECEIVED. Đang shutdown một cách nhẹ nhàng');
     server.close(() => {
       logger.info('💥 Process terminated!');
     });
