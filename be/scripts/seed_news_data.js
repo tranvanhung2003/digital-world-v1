@@ -1,12 +1,13 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config();
 const { News, User } = require('../src/models');
 
 const SAMPLE_NEWS = [
   {
     title: 'Top 5 Laptop Gaming Đáng Mua Nhất Đầu Năm 2025',
     slug: 'top-5-laptop-gaming-2025',
-    description: 'Khám phá những mẫu laptop gaming mạnh mẽ nhất, từ hiệu năng đỉnh cao đến thiết kế ấn tượng trong tầm giá cực tốt tại ShopMini.',
+    description:
+      'Khám phá những mẫu laptop gaming mạnh mẽ nhất, từ hiệu năng đỉnh cao đến thiết kế ấn tượng trong tầm giá cực tốt tại ShopMini.',
     content: `
       <p>Năm 2025 hứa hẹn là một năm bùng nổ của thị trường laptop gaming với sự ra mắt của nhiều dòng chip và card đồ họa thế hệ mới. Tại ShopMini, chúng tôi đã tổng hợp danh sách 5 mẫu laptop gaming đáng sở hữu nhất hiện nay dựa trên tiêu chí hiệu năng, tản nhiệt và mức giá.</p>
       
@@ -27,7 +28,8 @@ const SAMPLE_NEWS = [
       
       <p>Hãy đến ngay các cửa hàng ShopMini tại Hà Nội và TP.HCM để trải nghiệm trực tiếp và nhận những phần quà hấp dẫn khi mua laptop gaming trong tháng này!</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=2068&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=2068&auto=format&fit=crop',
     category: 'Đánh giá',
     tags: 'gaming, laptop, 2025, shopmini',
     isPublished: true,
@@ -35,7 +37,8 @@ const SAMPLE_NEWS = [
   {
     title: 'Hướng Dẫn Tối Ưu Hóa Windows 11 Để Làm Việc Hiệu Quả',
     slug: 'toi-uu-hoa-windows-11-lam-viec',
-    description: 'Mẹo và thủ thuật giúp chiếc laptop của bạn chạy nhanh hơn, mượt mà hơn và giúp bạn tập trung cao độ vào công việc trên Windows 11.',
+    description:
+      'Mẹo và thủ thuật giúp chiếc laptop của bạn chạy nhanh hơn, mượt mà hơn và giúp bạn tập trung cao độ vào công việc trên Windows 11.',
     content: `
       <p>Windows 11 mang đến giao diện hiện đại, nhưng nếu không biết cách tùy chỉnh, nó có thể làm giảm hiệu suất làm việc của bạn. Dưới đây là những mẹo nhỏ nhưng cực kỳ hữu ích mà ShopMini tổng hợp dành cho bạn.</p>
       
@@ -50,7 +53,8 @@ const SAMPLE_NEWS = [
       
       <p>Nếu bạn gặp bất kỳ vấn đề gì về phần mềm hoặc muốn nâng cấp RAM cho máy tính, đừng ngần ngại mang máy qua ShopMini để được hỗ trợ kỹ thuật miễn phí nhé!</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1587614382346-4ec70a388b28?q=80&w=2070&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1587614382346-4ec70a388b28?q=80&w=2070&auto=format&fit=crop',
     category: 'Thủ thuật',
     tags: 'windows 11, office, tips, productivity',
     isPublished: true,
@@ -58,7 +62,8 @@ const SAMPLE_NEWS = [
   {
     title: 'ShopMini Khai Trương Showroom Mới Tại Quận 1, TP.HCM',
     slug: 'shopmini-khai-truong-showroom-quan-1',
-    description: 'Sự kiện khai trương showroom thứ 3 của ShopMini tại TP.HCM với hàng ngàn ưu đãi giảm giá lên đến 50% và quà tặng giá trị.',
+    description:
+      'Sự kiện khai trương showroom thứ 3 của ShopMini tại TP.HCM với hàng ngàn ưu đãi giảm giá lên đến 50% và quà tặng giá trị.',
     content: `
       <p>Chào đón thành viên mới trong gia đình ShopMini! Chúng tôi vô cùng hào hứng thông báo về việc khai trương Showroom tiếp theo tại địa chỉ sầm uất nhất TP.HCM.</p>
       
@@ -75,7 +80,8 @@ const SAMPLE_NEWS = [
       
       <p>Đây là cơ hội tuyệt vời để bạn sở hữu những món đồ công nghệ yêu thích với mức giá không tưởng. Hẹn gặp lại các bạn tại buổi lễ khai trương hoành tráng tới đây!</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop',
     category: 'Tin tức',
     tags: 'shopmini, event, khai truong, hcm',
     isPublished: true,
@@ -83,7 +89,8 @@ const SAMPLE_NEWS = [
   {
     title: 'AI Đang Thay Đổi Cách Chúng Ta Làm Việc Như Thế Nào?',
     slug: 'ai-thay-doi-cach-lam-viec',
-    description: 'Tìm hiểu tầm ảnh hưởng của Trí tuệ nhân tạo (AI) đối với các ngành nghề sáng tạo, lập trình và văn phòng trong năm 2025.',
+    description:
+      'Tìm hiểu tầm ảnh hưởng của Trí tuệ nhân tạo (AI) đối với các ngành nghề sáng tạo, lập trình và văn phòng trong năm 2025.',
     content: `
       <p>Trí tuệ nhân tạo không còn là khái niệm của tương lai, nó đang hiện diện trong mọi ngõ ngách của công việc hiện đại. Từ ChatGPT đến Midjourney, AI đang trở thành trợ thủ đắc lực giúp nâng cao năng suất.</p>
       
@@ -91,7 +98,8 @@ const SAMPLE_NEWS = [
       
       <p>Liệu AI sẽ thay thế con người hay bổ trợ cho chúng ta? Câu trả lời nằm ở cách chúng ta làm chủ công cụ này. Hãy cùng ShopMini thảo luận về xu hướng này trong buổi Workshop sắp tới nhé.</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop',
     category: 'Xu hướng',
     tags: 'ai, technology, future, 2025',
     isPublished: true,
@@ -99,7 +107,8 @@ const SAMPLE_NEWS = [
   {
     title: 'Review MacBook Pro M4: Sức Mạnh Đỉnh Cao Từ Apple Silicon',
     slug: 'review-macbook-pro-m4',
-    description: 'Đánh giá chi tiết MacBook Pro M4 mới nhất với hiệu năng vượt trội, màn hình Liquid Retina XDR và thời lượng pin huyền thoại.',
+    description:
+      'Đánh giá chi tiết MacBook Pro M4 mới nhất với hiệu năng vượt trội, màn hình Liquid Retina XDR và thời lượng pin huyền thoại.',
     content: `
       <p>Apple một lần nữa lại khẳng định vị thế dẫn đầu với dòng chip M4 mới nhất. MacBook Pro M4 mang đến những cải tiến mạnh mẽ không chỉ ở nhân xử lý mà còn ở khả năng xử lý đồ họa chuyên nghiệp.</p>
       
@@ -107,11 +116,12 @@ const SAMPLE_NEWS = [
       
       <p>Sản phẩm hiện đã có hàng tại ShopMini với đầy đủ các phiên bản cấu hình và màu sắc. Đừng bỏ lỡ chương trình trả góp 0% lãi suất cùng nhiều ưu đãi hấp dẫn dành riêng cho học sinh, sinh viên.</p>
     `,
-    thumbnail: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
+    thumbnail:
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
     category: 'Đánh giá',
     tags: 'apple, macbook pro, m4, shopmini',
     isPublished: true,
-  }
+  },
 ];
 
 async function seedNews() {
@@ -120,7 +130,9 @@ async function seedNews() {
     // Check if there is an admin user to assign the news to
     const adminUser = await User.findOne({ where: { role: 'admin' } });
     if (!adminUser) {
-      console.error('Error: No admin user found. Please create an admin user first.');
+      console.error(
+        'Error: No admin user found. Please create an admin user first.',
+      );
       process.exit(1);
     }
 
@@ -134,8 +146,8 @@ async function seedNews() {
         where: { slug: data.slug },
         defaults: {
           ...data,
-          userId: adminUser.id
-        }
+          userId: adminUser.id,
+        },
       });
 
       if (created) {

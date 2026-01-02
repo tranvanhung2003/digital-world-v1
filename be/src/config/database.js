@@ -40,10 +40,13 @@ module.exports = {
       underscored: true,
     },
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? {
-        require: true,
-        rejectUnauthorized: false,
-      } : false,
+      ssl:
+        process.env.DB_SSL === 'true'
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
     },
     pool: {
       max: 5,

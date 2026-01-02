@@ -1,4 +1,4 @@
-require('dotenv').config({ path: 'be/.env' });
+require('dotenv').config();
 const { News } = require('../src/models');
 
 async function sync() {

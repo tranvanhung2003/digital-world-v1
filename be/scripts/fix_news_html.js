@@ -1,4 +1,4 @@
-require('dotenv').config({ path: 'be/.env' });
+require('dotenv').config();
 const { News } = require('../src/models');
 function simpleUnescape(str) {
   return str
@@ -13,9 +13,15 @@ async function fix() {
   try {
     const list = await News.findAll();
     for (const item of list) {
-      if (item.content.includes('product-embed-card') && !item.content.includes('not-prose')) {
+      if (
+        item.content.includes('product-embed-card') &&
+        !item.content.includes('not-prose')
+      ) {
         console.log(`Adding not-prose to: ${item.title}`);
-        const fixed = item.content.replace(/class="product-embed-card"/g, 'class="product-embed-card not-prose"');
+        const fixed = item.content.replace(
+          /class="product-embed-card"/g,
+          'class="product-embed-card not-prose"',
+        );
         await item.update({ content: fixed });
       }
     }
