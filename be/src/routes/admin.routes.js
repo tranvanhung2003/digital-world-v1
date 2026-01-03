@@ -31,11 +31,11 @@ router.use(auditMiddleware);
 // GET /api/admin/dashboard - Thống kê tổng quan
 router.get('/dashboard', adminController.getDashboardStats);
 
-// GET /api/admin/stats - Thống kê chi tiết theo thời gian
+// GET /api/admin/stats - Thống kê chi tiết theo khoảng thời gian
 router.get(
   '/stats',
   validate(statsValidation),
-  adminController.getDetailedStats
+  adminController.getDetailedStats,
 );
 
 /**
@@ -45,21 +45,21 @@ router.get(
 router.get(
   '/users',
   validate(paginationValidation),
-  adminController.getAllUsers
+  adminController.getAllUsers,
 );
 
 // PUT /api/admin/users/:id - Cập nhật thông tin user
 router.put(
   '/users/:id',
   validate(updateUserValidation),
-  adminController.updateUser
+  adminController.updateUser,
 );
 
 // DELETE /api/admin/users/:id - Xóa user
 router.delete(
   '/users/:id',
   validate(deleteValidation),
-  adminController.deleteUser
+  adminController.deleteUser,
 );
 
 /**
@@ -69,49 +69,49 @@ router.delete(
 router.get(
   '/products',
   validate(paginationValidation),
-  adminController.getAllProducts
+  adminController.getAllProducts,
 );
 
 // GET /api/admin/products/:id - Lấy chi tiết sản phẩm
 router.get(
   '/products/:id',
   validate(getByIdValidation),
-  adminController.getProductById
+  adminController.getProductById,
 );
 
 // POST /api/admin/products - Tạo sản phẩm mới
 router.post(
   '/products',
   validate(createProductValidation),
-  adminController.createProduct
+  adminController.createProduct,
 );
 
 // PUT /api/admin/products/:id - Cập nhật sản phẩm
 router.put(
   '/products/:id',
   validate(updateProductValidation),
-  adminController.updateProduct
+  adminController.updateProduct,
 );
 
 // DELETE /api/admin/products/:id - Xóa sản phẩm
 router.delete(
   '/products/:id',
   validate(deleteValidation),
-  adminController.deleteProduct
+  adminController.deleteProduct,
 );
 
 // POST /api/admin/products/:id/clone - Clone sản phẩm
 router.post(
   '/products/:id/clone',
   validate(getByIdValidation),
-  adminController.cloneProduct
+  adminController.cloneProduct,
 );
 
 // PATCH /api/admin/products/:id/status - Cập nhật trạng thái nhanh
 router.patch(
   '/products/:id/status',
   validate(getByIdValidation),
-  adminController.toggleProductStatus
+  adminController.toggleProductStatus,
 );
 
 /**
@@ -121,14 +121,14 @@ router.patch(
 router.get(
   '/reviews',
   validate(paginationValidation),
-  adminController.getAllReviews
+  adminController.getAllReviews,
 );
 
 // DELETE /api/admin/reviews/:id - Xóa review
 router.delete(
   '/reviews/:id',
   validate(deleteValidation),
-  adminController.deleteReview
+  adminController.deleteReview,
 );
 
 /**
@@ -138,14 +138,14 @@ router.delete(
 router.get(
   '/orders',
   validate(paginationValidation),
-  adminController.getAllOrders
+  adminController.getAllOrders,
 );
 
 // PUT /api/admin/orders/:id/status - Cập nhật trạng thái đơn hàng
 router.put(
   '/orders/:id/status',
   validate(updateOrderStatusValidation),
-  adminController.updateOrderStatus
+  adminController.updateOrderStatus,
 );
 
 module.exports = router;

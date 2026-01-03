@@ -69,6 +69,9 @@ npm start
 
 ### Admin
 
+- `GET /api/admin/dashboard` - Thống kê tổng quan
+- `GET /api/admin/stats` - Thống kê chi tiết theo khoản thời gian
+
 ### Auth
 
 - `POST /api/auth/register` - Đăng ký tài khoản

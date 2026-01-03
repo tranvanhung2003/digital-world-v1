@@ -200,30 +200,30 @@ const getDetailedStats = catchAsync(async (req, res) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
 
-  // Format theo groupBy
+  // Format theo groupBy cho Postgresql (TO_CHAR)
   let dateFormat;
   switch (groupBy) {
     case 'hour':
-      dateFormat = '%Y-%m-%d %H:00:00';
+      dateFormat = 'YYYY-MM-DD HH24:00:00';
       break;
     case 'day':
-      dateFormat = '%Y-%m-%d';
+      dateFormat = 'YYYY-MM-DD';
       break;
     case 'week':
-      dateFormat = '%Y-%u';
+      dateFormat = 'IYYY-IW'; // ISO week
       break;
     case 'month':
-      dateFormat = '%Y-%m';
+      dateFormat = 'YYYY-MM';
       break;
     default:
-      dateFormat = '%Y-%m-%d';
+      dateFormat = 'YYYY-MM-DD';
   }
 
-  // Thống kê đơn hàng theo thời gian
+  // Thống kê đơn hàng theo khoảng thời gian (từ startDate đến endDate)
   const orderStats = await Order.findAll({
     attributes: [
       [
-        Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
+        Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat),
         'period',
       ],
       [Sequelize.fn('COUNT', Sequelize.col('id')), 'orderCount'],
@@ -234,14 +234,9 @@ const getDetailedStats = catchAsync(async (req, res) => {
         [Op.between]: [start, end],
       },
     },
-    group: [
-      Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
-    ],
+    group: [Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat)],
     order: [
-      [
-        Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
-        'ASC',
-      ],
+      [Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat), 'ASC'],
     ],
   });
 
@@ -249,7 +244,7 @@ const getDetailedStats = catchAsync(async (req, res) => {
   const userStats = await User.findAll({
     attributes: [
       [
-        Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
+        Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat),
         'period',
       ],
       [Sequelize.fn('COUNT', Sequelize.col('id')), 'newUsers'],
@@ -260,14 +255,9 @@ const getDetailedStats = catchAsync(async (req, res) => {
         [Op.between]: [start, end],
       },
     },
-    group: [
-      Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
-    ],
+    group: [Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat)],
     order: [
-      [
-        Sequelize.fn('DATE_FORMAT', Sequelize.col('createdAt'), dateFormat),
-        'ASC',
-      ],
+      [Sequelize.fn('TO_CHAR', Sequelize.col('created_at'), dateFormat), 'ASC'],
     ],
   });
 
