@@ -73,6 +73,7 @@ npm start
 - `GET /api/admin/stats` - Thống kê chi tiết theo khoản thời gian
 - `GET /api/admin/users` - Lấy danh sách user
 - `PUT /api/admin/users/:id` - Cập nhật thông tin user
+- `DELETE /api/admin/users/:id` - Xóa user
 
 ### Auth
 
