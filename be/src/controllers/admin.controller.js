@@ -346,6 +346,7 @@ const updateUser = catchAsync(async (req, res) => {
   const { firstName, lastName, phone, role, isEmailVerified, isActive } =
     req.body;
 
+  // Kiểm tra sự tồn tại của user
   const user = await User.findByPk(id);
   if (!user) {
     throw new AppError('Không tìm thấy người dùng', 404);
@@ -361,6 +362,7 @@ const updateUser = catchAsync(async (req, res) => {
     throw new AppError('Không thể vô hiệu hóa tài khoản của chính mình', 403);
   }
 
+  // Cập nhật thông tin user
   const updatedUser = await user.update({
     firstName: firstName || user.firstName,
     lastName: lastName || user.lastName,
