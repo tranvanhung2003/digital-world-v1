@@ -8,50 +8,60 @@ const { AppError } = require('./errorHandler');
  */
 const adminAuthenticate = async (req, res, next) => {
   try {
-    // Get token from header
+    // Lấy token từ header 'Authorization'
+    // Định dạng: Bearer <token>
     const authHeader = req.headers.authorization;
+
+    // Kiểm tra sự tồn tại của token và định dạng đúng (Bearer <token>)
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next(
-        new AppError('Cần token xác thực để truy cập admin panel', 401)
+        new AppError('Cần token xác thực để truy cập Admin Panel', 401),
       );
     }
 
+    // Trích xuất token
     const token = authHeader.split(' ')[1];
 
-    // Verify token
+    // Xác thực token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Find user
+    // Tìm user theo ID user từ token
     const user = await User.findByPk(decoded.id);
+
+    // Kiểm tra sự tồn tại của user
     if (!user) {
       return next(new AppError('Người dùng không tồn tại', 401));
     }
 
-    // Check if user has admin or manager role
+    // Kiểm tra xem user có vai trò admin hoặc manager không
     if (!['admin', 'manager'].includes(user.role)) {
-      return next(new AppError('Bạn không có quyền truy cập admin panel', 403));
+      return next(new AppError('Bạn không có quyền truy cập Admin Panel', 403));
     }
 
-    // Check if email is verified
+    // Kiểm tra xem email đã được xác minh chưa
     if (!user.isEmailVerified) {
       return next(
         new AppError(
-          'Vui lòng xác thực email trước khi truy cập admin panel',
-          401
-        )
+          'Vui lòng xác thực email trước khi truy cập Admin Panel',
+          401,
+        ),
       );
     }
 
-    // Set user on request
+    // Đặt thông tin user vào req để sử dụng trong các middleware hoặc route handler tiếp theo
     req.user = user;
+
     next();
   } catch (error) {
+    // Xử lý lỗi token không hợp lệ hoặc đã hết hạn
     if (
       error.name === 'JsonWebTokenError' ||
       error.name === 'TokenExpiredError'
     ) {
       return next(new AppError('Token không hợp lệ hoặc đã hết hạn', 401));
     }
+
+    // Chuyển lỗi cho middleware xử lý lỗi tiếp theo
     next(error);
   }
 };
@@ -67,7 +77,7 @@ const requireSuperAdmin = (req, res, next) => {
 
   if (req.user.role !== 'admin') {
     return next(
-      new AppError('Chỉ Super Admin mới có thể thực hiện hành động này', 403)
+      new AppError('Chỉ Super Admin mới có thể thực hiện hành động này', 403),
     );
   }
 

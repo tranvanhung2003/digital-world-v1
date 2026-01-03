@@ -1,6 +1,10 @@
 const { AppError } = require('./errorHandler');
 
 // Middleware to authorize users based on role
+
+/**
+ * Middleware để phân quyền người dùng dựa trên mảng Role được truyền vào
+ */
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -9,7 +13,7 @@ const authorize = (...roles) => {
 
     if (!roles.includes(req.user.role)) {
       return next(
-        new AppError('Bạn không có quyền thực hiện hành động này', 403)
+        new AppError('Bạn không có quyền thực hiện hành động này', 403),
       );
     }
 
