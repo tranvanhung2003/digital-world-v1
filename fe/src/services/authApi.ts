@@ -1,11 +1,10 @@
-import { api, baseQuery } from './api';
-import { User } from '@/types/user.types';
 import {
   AuthResponse,
   LoginCredentials,
   RegisterData,
 } from '@/types/auth.types';
-import { authenticateUser, getUserByEmail } from '@/data/mockUsers';
+import { User } from '@/types/user.types';
+import { api, baseQuery } from './api';
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -22,7 +21,7 @@ export const authApi = api.injectEndpoints({
               },
             },
             { signal },
-            undefined
+            undefined,
           );
 
           if (result.error) {
@@ -100,7 +99,7 @@ export const authApi = api.injectEndpoints({
 
           const baseUrl =
             import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-          const url = `${baseUrl}/api/auth/verify-email/${token}`;
+          const url = `${baseUrl}/auth/verify-email/${token}`;
 
           console.log('🔗 Making request to:', url);
 
@@ -184,7 +183,7 @@ export const authApi = api.injectEndpoints({
               body: userData,
             },
             { signal },
-            undefined
+            undefined,
           );
 
           if (result.error) {
@@ -315,7 +314,7 @@ export const authApi = api.injectEndpoints({
               body: { token, password },
             },
             { signal },
-            undefined
+            undefined,
           );
 
           if (result.error) {
@@ -396,7 +395,7 @@ export const authApi = api.injectEndpoints({
               body: { email },
             },
             { signal },
-            undefined
+            undefined,
           );
 
           if (result.error) {
