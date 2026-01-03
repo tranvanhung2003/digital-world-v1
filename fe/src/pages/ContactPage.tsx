@@ -24,7 +24,7 @@ const ContactPage: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -240,7 +240,7 @@ const ContactPage: React.FC = () => {
                   Email
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-400 mt-1">
-                  support@shopmini.com
+                  support@digitalworld.com
                 </p>
                 <p className="text-neutral-600 dark:text-neutral-400">
                   We&apos;ll respond within 24-48 hours

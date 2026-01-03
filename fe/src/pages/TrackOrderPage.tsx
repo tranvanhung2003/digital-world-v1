@@ -23,7 +23,7 @@ const TrackOrderPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackingResult, setTrackingResult] = useState<TrackingResult | null>(
-    null
+    null,
   );
   const [error, setError] = useState('');
 
@@ -93,7 +93,7 @@ const TrackOrderPage: React.FC = () => {
         });
       } else {
         setError(
-          'We couldn&apos;t find tracking information for the provided order number and email. Please check your information and try again.'
+          'We couldn&apos;t find tracking information for the provided order number and email. Please check your information and try again.',
         );
       }
     }, 1500);
@@ -334,7 +334,7 @@ const TrackOrderPage: React.FC = () => {
                 />
               </svg>
               <span className="text-neutral-700 dark:text-neutral-300">
-                support@shopmini.com
+                support@digitalworld.com
               </span>
             </div>
             <div className="flex items-center">

@@ -52,7 +52,7 @@ const SAMPLE_POSTS = [
     description:
       'Chào mừng bạn đến với không gian trải nghiệm công nghệ mới của chúng tôi.',
     category: 'Tin tức',
-    tags: 'shopmini, khai truong, event',
+    tags: 'digitalworld, khai truong, event',
     isPublished: true,
   },
   {

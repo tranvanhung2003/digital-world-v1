@@ -158,7 +158,7 @@ const PrivacyPolicyPage: React.FC = () => {
             If you have any questions about this Privacy Policy, please contact
             us at:
             <br />
-            Email: privacy@shopmini.com
+            Email: privacy@digitalworld.com
             <br />
             Phone: +1 (555) 123-4567
             <br />

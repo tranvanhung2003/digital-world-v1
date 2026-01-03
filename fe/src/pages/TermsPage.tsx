@@ -189,7 +189,7 @@ const TermsPage: React.FC = () => {
           <h2>15. Contact Information</h2>
           <p>
             Questions about the Terms and Conditions should be sent to us at
-            legal@shopmini.com.
+            legal@digitalworld.com.
           </p>
         </div>
       </div>

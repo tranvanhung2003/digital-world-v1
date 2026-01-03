@@ -99,7 +99,7 @@ const FAQsPage: React.FC = () => {
     {
       question: 'How can I contact customer service?',
       answer:
-        'You can contact our customer service team through various channels: email at support@shopmini.com, phone at +1 (555) 123-4567 during business hours (Mon-Fri, 9AM-6PM EST), or through the live chat feature on our website.',
+        'You can contact our customer service team through various channels: email at support@digitalworld.com, phone at +1 (555) 123-4567 during business hours (Mon-Fri, 9AM-6PM EST), or through the live chat feature on our website.',
       category: 'support',
     },
   ];

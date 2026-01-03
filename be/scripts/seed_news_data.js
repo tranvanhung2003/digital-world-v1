@@ -31,7 +31,7 @@ const SAMPLE_NEWS = [
     thumbnail:
       'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=2068&auto=format&fit=crop',
     category: 'Đánh giá',
-    tags: 'gaming, laptop, 2025, shopmini',
+    tags: 'gaming, laptop, 2025, digitalworld',
     isPublished: true,
   },
   {
@@ -61,7 +61,7 @@ const SAMPLE_NEWS = [
   },
   {
     title: 'ShopMini Khai Trương Showroom Mới Tại Quận 1, TP.HCM',
-    slug: 'shopmini-khai-truong-showroom-quan-1',
+    slug: 'digitalworld-khai-truong-showroom-quan-1',
     description:
       'Sự kiện khai trương showroom thứ 3 của ShopMini tại TP.HCM với hàng ngàn ưu đãi giảm giá lên đến 50% và quà tặng giá trị.',
     content: `
@@ -83,7 +83,7 @@ const SAMPLE_NEWS = [
     thumbnail:
       'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop',
     category: 'Tin tức',
-    tags: 'shopmini, event, khai truong, hcm',
+    tags: 'digitalworld, event, khai truong, hcm',
     isPublished: true,
   },
   {
@@ -119,7 +119,7 @@ const SAMPLE_NEWS = [
     thumbnail:
       'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
     category: 'Đánh giá',
-    tags: 'apple, macbook pro, m4, shopmini',
+    tags: 'apple, macbook pro, m4, digitalworld',
     isPublished: true,
   },
 ];
