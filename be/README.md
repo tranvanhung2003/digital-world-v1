@@ -67,6 +67,8 @@ npm start
 
 ## API Endpoints
 
+### Admin
+
 ### Auth
 
 - `POST /api/auth/register` - Đăng ký tài khoản

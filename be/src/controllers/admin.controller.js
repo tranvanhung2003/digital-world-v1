@@ -22,27 +22,40 @@ const {
 } = require('../utils/productHelpers');
 
 /**
- * Dashboard - Thống kê tổng quan
+ * Thống kê tổng quan
  */
 const getDashboardStats = catchAsync(async (req, res) => {
+  // Lấy ngày hiện tại
   const today = new Date();
+
+  // Lấy ngày đầu tháng
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // Lấy ngày đầu tháng trước
   const startOfLastMonth = new Date(
     today.getFullYear(),
     today.getMonth() - 1,
-    1
+    1,
   );
+
+  // Lấy ngày cuối tháng trước
   const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
 
-  // Thống kê tổng quan
+  // Thống kế tổng số người dùng
   const totalUsers = await User.count({ where: { role: 'customer' } });
+
+  // Thống kê tổng số sản phẩm
   const totalProducts = await Product.count();
+
+  // Thống kê tổng số đơn hàng
   const totalOrders = await Order.count();
+
+  // Thống kê tổng doanh thu
   const totalRevenue = await Order.sum('total', {
     where: { status: 'delivered' },
   });
 
-  // Thống kê theo tháng
+  // Thống kê số người dùng mới trong tháng hiện tại
   const monthlyUsers = await User.count({
     where: {
       role: 'customer',
@@ -50,10 +63,12 @@ const getDashboardStats = catchAsync(async (req, res) => {
     },
   });
 
+  // Thống kê số đơn hàng trong tháng hiện tại
   const monthlyOrders = await Order.count({
     where: { createdAt: { [Op.gte]: startOfMonth } },
   });
 
+  // Thống kê doanh thu trong tháng hiện tại
   const monthlyRevenue = await Order.sum('total', {
     where: {
       status: 'delivered',
@@ -61,7 +76,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
     },
   });
 
-  // So sánh với tháng trước
+  // Thống kê số người dùng mới trong tháng trước
   const lastMonthUsers = await User.count({
     where: {
       role: 'customer',
@@ -72,6 +87,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
     },
   });
 
+  // Thống kê số đơn hàng trong tháng trước
   const lastMonthOrders = await Order.count({
     where: {
       createdAt: {
@@ -81,6 +97,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
     },
   });
 
+  // Thống kê doanh thu trong tháng trước
   const lastMonthRevenue = await Order.sum('total', {
     where: {
       status: 'delivered',
@@ -91,18 +108,22 @@ const getDashboardStats = catchAsync(async (req, res) => {
     },
   });
 
-  // Tính tỷ lệ tăng trưởng
+  // Thống kê tốc độ tăng tưởng về số người dùng mới so với tháng trước
   const userGrowth = lastMonthUsers
     ? ((monthlyUsers - lastMonthUsers) / lastMonthUsers) * 100
     : 0;
+
+  // Thống kê tốc độ tăng trưởng về số đơn đơn hàng so với tháng trước
   const orderGrowth = lastMonthOrders
     ? ((monthlyOrders - lastMonthOrders) / lastMonthOrders) * 100
     : 0;
+
+  // Thống kê tốc độ tăng trưởng về doanh thu so với tháng trước
   const revenueGrowth = lastMonthRevenue
     ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
     : 0;
 
-  // Top sản phẩm bán chạy
+  // Thống kê top 5 sản phẩm bán chạy nhất
   const topProducts = await OrderItem.findAll({
     attributes: [
       'productId',
@@ -110,7 +131,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
       [
         Sequelize.fn(
           'SUM',
-          Sequelize.literal('quantity * "OrderItem"."price"')
+          Sequelize.literal('quantity * "OrderItem"."price"'),
         ),
         'totalRevenue',
       ],
@@ -126,11 +147,12 @@ const getDashboardStats = catchAsync(async (req, res) => {
     limit: 5,
   });
 
-  // Đơn hàng gần đây cần xử lý
+  // Thống kê số đơn hàng đang chờ xử lý
   const pendingOrders = await Order.count({
     where: { status: 'pending' },
   });
 
+  // Thống kê số đơn hàng đang xử lý
   const processingOrders = await Order.count({
     where: { status: 'processing' },
   });
@@ -442,7 +464,7 @@ const getProductById = catchAsync(async (req, res) => {
 const createProduct = catchAsync(async (req, res) => {
   console.log(
     'Create product request body:',
-    JSON.stringify(req.body, null, 2)
+    JSON.stringify(req.body, null, 2),
   );
   const {
     name,
@@ -532,7 +554,7 @@ const createProduct = catchAsync(async (req, res) => {
           id: product.id,
         },
         type: sequelize.QueryTypes.UPDATE,
-      }
+      },
     );
 
     // Cập nhật lại giá trị trong đối tượng product
@@ -567,7 +589,7 @@ const createProduct = catchAsync(async (req, res) => {
       });
 
       const validCategoryIds = (await Promise.all(categoryPromises)).filter(
-        (id) => id !== null
+        (id) => id !== null,
       );
 
       if (validCategoryIds.length > 0) {
@@ -601,7 +623,7 @@ const createProduct = catchAsync(async (req, res) => {
 
         console.log(
           `Creating attribute: ${attr.name} with values:`,
-          attrValues
+          attrValues,
         );
 
         return await ProductAttribute.create({
@@ -698,7 +720,7 @@ const createProduct = catchAsync(async (req, res) => {
           stockQuantity: totalStock,
           inStock: totalStock > 0,
         },
-        { where: { id: product.id } }
+        { where: { id: product.id } },
       );
     } catch (error) {
       console.error('Error creating variants:', error);
@@ -725,7 +747,7 @@ const createProduct = catchAsync(async (req, res) => {
 
       await ProductSpecification.bulkCreate(specificationData);
       console.log(
-        `Created ${specifications.length} specifications for product ${product.id}`
+        `Created ${specifications.length} specifications for product ${product.id}`,
       );
     } catch (error) {
       console.error('Error creating specifications:', error);
@@ -746,7 +768,7 @@ const createProduct = catchAsync(async (req, res) => {
       // Kiểm tra xem các warranty packages có tồn tại không
       console.log(
         'Looking for warranty packages with IDs:',
-        warrantyPackageIds
+        warrantyPackageIds,
       );
       const existingWarrantyPackages = await WarrantyPackage.findAll({
         where: { id: warrantyPackageIds, isActive: true },
@@ -761,12 +783,12 @@ const createProduct = catchAsync(async (req, res) => {
               warrantyPackageId: warrantyPackage.id,
               isDefault: index === 0, // Đặt warranty package đầu tiên làm mặc định
             });
-          }
+          },
         );
 
         await Promise.all(warrantyPromises);
         console.log(
-          `Created ${existingWarrantyPackages.length} warranty package associations for product ${product.id}`
+          `Created ${existingWarrantyPackages.length} warranty package associations for product ${product.id}`,
         );
       }
     } catch (error) {
@@ -814,7 +836,7 @@ const createProduct = catchAsync(async (req, res) => {
     req.user,
     'CREATE',
     product.id,
-    product.name
+    product.name,
   );
 
   res.status(201).json({
@@ -859,16 +881,16 @@ const updateProduct = catchAsync(async (req, res) => {
   console.log('updateProduct - specifications type:', typeof specifications);
   console.log(
     'updateProduct - specifications isArray:',
-    Array.isArray(specifications)
+    Array.isArray(specifications),
   );
   console.log(
     'updateProduct - hasOwnProperty specifications:',
-    req.body.hasOwnProperty('specifications')
+    req.body.hasOwnProperty('specifications'),
   );
   console.log('updateProduct - warrantyPackageIds:', warrantyPackageIds);
   console.log(
     'updateProduct - hasOwnProperty warrantyPackageIds:',
-    req.body.hasOwnProperty('warrantyPackageIds')
+    req.body.hasOwnProperty('warrantyPackageIds'),
   );
 
   const product = await Product.findByPk(id);
@@ -943,7 +965,7 @@ const updateProduct = catchAsync(async (req, res) => {
           id: product.id,
         },
         type: sequelize.QueryTypes.UPDATE,
-      }
+      },
     );
 
     // Cập nhật lại giá trị trong đối tượng product để trả về cho client
@@ -951,7 +973,7 @@ const updateProduct = catchAsync(async (req, res) => {
 
     // Log thông tin để debug
     console.log(
-      `Updated compareAtPrice to ${priceToCompare} for product ${product.id}`
+      `Updated compareAtPrice to ${priceToCompare} for product ${product.id}`,
     );
   }
 
@@ -983,7 +1005,7 @@ const updateProduct = catchAsync(async (req, res) => {
       });
 
       const validCategoryIds = (await Promise.all(categoryPromises)).filter(
-        (id) => id !== null
+        (id) => id !== null,
       );
 
       if (validCategoryIds.length > 0) {
@@ -1024,7 +1046,7 @@ const updateProduct = catchAsync(async (req, res) => {
 
           console.log(
             `Creating attribute: ${attr.name} with values:`,
-            attrValues
+            attrValues,
           );
 
           return await ProductAttribute.create({
@@ -1117,7 +1139,7 @@ const updateProduct = catchAsync(async (req, res) => {
             stockQuantity: totalStock,
             inStock: totalStock > 0,
           },
-          { where: { id } }
+          { where: { id } },
         );
       } else {
         // If no variants, reset to product base stock
@@ -1128,7 +1150,7 @@ const updateProduct = catchAsync(async (req, res) => {
               stockQuantity: stockQuantity,
               inStock: stockQuantity > 0,
             },
-            { where: { id } }
+            { where: { id } },
           );
         }
       }
@@ -1162,7 +1184,7 @@ const updateProduct = catchAsync(async (req, res) => {
 
         await ProductSpecification.bulkCreate(specificationData);
         console.log(
-          `Updated ${specifications.length} specifications for product ${id}`
+          `Updated ${specifications.length} specifications for product ${id}`,
         );
         changes.specifications = specifications.length;
       }
@@ -1189,14 +1211,14 @@ const updateProduct = catchAsync(async (req, res) => {
         // Kiểm tra xem các warranty packages có tồn tại không
         console.log(
           'Looking for warranty packages with IDs:',
-          warrantyPackageIds
+          warrantyPackageIds,
         );
         const existingWarrantyPackages = await WarrantyPackage.findAll({
           where: { id: warrantyPackageIds, isActive: true },
         });
         console.log(
           'Found warranty packages:',
-          existingWarrantyPackages.length
+          existingWarrantyPackages.length,
         );
 
         if (existingWarrantyPackages.length > 0) {
@@ -1207,12 +1229,12 @@ const updateProduct = catchAsync(async (req, res) => {
                 warrantyPackageId: warrantyPackage.id,
                 isDefault: index === 0, // Đặt warranty package đầu tiên làm mặc định
               });
-            }
+            },
           );
 
           await Promise.all(warrantyPromises);
           console.log(
-            `Created ${existingWarrantyPackages.length} warranty package associations for product ${id}`
+            `Created ${existingWarrantyPackages.length} warranty package associations for product ${id}`,
           );
         }
       }
@@ -1261,7 +1283,7 @@ const updateProduct = catchAsync(async (req, res) => {
     'UPDATE',
     product.id,
     product.name,
-    changes
+    changes,
   );
 
   res.status(200).json({
@@ -1785,7 +1807,7 @@ const cloneProduct = catchAsync(async (req, res) => {
       'CLONE',
       newProduct.id,
       newProduct.name,
-      { originalProductId: id }
+      { originalProductId: id },
     );
 
     res.status(201).json({
@@ -1817,7 +1839,8 @@ const toggleProductStatus = catchAsync(async (req, res) => {
   }
 
   // Nếu không cung cấp status, mặc định là đảo ngược giữa active và inactive
-  const newStatus = status || (product.status === 'active' ? 'inactive' : 'active');
+  const newStatus =
+    status || (product.status === 'active' ? 'inactive' : 'active');
 
   await product.update({ status: newStatus });
 
@@ -1827,7 +1850,7 @@ const toggleProductStatus = catchAsync(async (req, res) => {
     'UPDATE_STATUS',
     product.id,
     product.name,
-    { from: product.status, to: newStatus }
+    { from: product.status, to: newStatus },
   );
 
   res.status(200).json({
