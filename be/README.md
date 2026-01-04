@@ -74,6 +74,7 @@ npm start
 - `GET /api/admin/users` - Lấy danh sách user
 - `PUT /api/admin/users/:id` - Cập nhật thông tin user
 - `DELETE /api/admin/users/:id` - Xóa user
+- `GET /api/admin/products/:id` - Lấy chi tiết sản phẩm
 
 ### Auth
 

@@ -424,11 +424,11 @@ const getProductById = catchAsync(async (req, res) => {
         as: 'variants',
       },
       {
-        model: require('../models').ProductSpecification,
+        model: ProductSpecification,
         as: 'productSpecifications',
       },
       {
-        model: require('../models').WarrantyPackage,
+        model: WarrantyPackage,
         as: 'warrantyPackages',
         through: {
           attributes: ['isDefault'],
