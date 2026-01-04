@@ -8,10 +8,10 @@ const SAMPLE_WARRANTY_PACKAGES = [
     description: 'Bảo hành miễn phí 12 tháng cho lỗi nhà sản xuất',
     durationMonths: 12,
     price: 0,
-    terms: JSON.stringify({
+    terms: {
       coverage: ['Lỗi nhà sản xuất', 'Hỏng hóc do chất lượng'],
       exclusions: ['Hỏng do người dùng', 'Rơi vỡ', 'Vào nước'],
-    }),
+    },
     coverage: ['Lỗi nhà sản xuất', 'Hỏng hóc do chất lượng'],
     isActive: true,
     sortOrder: 1,
@@ -24,14 +24,14 @@ const SAMPLE_WARRANTY_PACKAGES = [
     description: 'Bảo hành 24 tháng với hỗ trợ thay thế nhanh',
     durationMonths: 24,
     price: 500000,
-    terms: JSON.stringify({
+    terms: {
       coverage: [
         'Lỗi nhà sản xuất',
         'Hỏng hóc do chất lượng',
         'Hỗ trợ thay thế',
       ],
       exclusions: ['Hỏng do người dùng', 'Rơi vỡ', 'Vào nước'],
-    }),
+    },
     coverage: ['Lỗi nhà sản xuất', 'Hỏng hóc do chất lượng', 'Hỗ trợ thay thế'],
     isActive: true,
     sortOrder: 2,
@@ -44,7 +44,7 @@ const SAMPLE_WARRANTY_PACKAGES = [
     description: 'Bảo hành 36 tháng bao gồm cả tai nạn và rơi vỡ',
     durationMonths: 36,
     price: 1200000,
-    terms: JSON.stringify({
+    terms: {
       coverage: [
         'Lỗi nhà sản xuất',
         'Hỏng hóc do chất lượng',
@@ -52,7 +52,7 @@ const SAMPLE_WARRANTY_PACKAGES = [
         'Rơi vỡ',
       ],
       exclusions: ['Mất cắp', 'Hỏng do thiên tai'],
-    }),
+    },
     coverage: [
       'Lỗi nhà sản xuất',
       'Hỏng hóc do chất lượng',
@@ -69,10 +69,7 @@ const SAMPLE_WARRANTY_PACKAGES = [
 async function seed() {
   try {
     for (const pkg of SAMPLE_WARRANTY_PACKAGES) {
-      await WarrantyPackage.findOrCreate({
-        where: { id: pkg.id },
-        defaults: pkg,
-      });
+      await WarrantyPackage.upsert(pkg);
     }
 
     console.log('Sample warranty packages seeded successfully');
