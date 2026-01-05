@@ -124,18 +124,20 @@ const getDashboardStats = catchAsync(async (req, res) => {
     ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
     : 0;
 
-  const _quantity = getField(OrderItem, 'quantity');
-  const _price = getField(OrderItem, 'price');
+  const OrderItem_quantity = getField(OrderItem, 'quantity');
+  const OrderItem_price = getField(OrderItem, 'price');
 
   // Thống kê top 5 sản phẩm bán chạy nhất
   const topProducts = await OrderItem.findAll({
     attributes: [
       'productId',
-      [Sequelize.fn('SUM', Sequelize.col(_quantity)), 'totalSold'],
+      [Sequelize.fn('SUM', Sequelize.col(OrderItem_quantity)), 'totalSold'],
       [
         Sequelize.fn(
           'SUM',
-          Sequelize.literal(`"${_quantity}" * "OrderItem"."${_price}"`),
+          Sequelize.literal(
+            `"${OrderItem_quantity}" * "OrderItem"."${OrderItem_price}"`,
+          ),
         ),
         'totalRevenue',
       ],
@@ -147,7 +149,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
       },
     ],
     group: ['productId', 'Product.id'],
-    order: [[Sequelize.fn('SUM', Sequelize.col(_quantity)), 'DESC']],
+    order: [[Sequelize.fn('SUM', Sequelize.col(OrderItem_quantity)), 'DESC']],
     limit: 5,
   });
 
