@@ -44,7 +44,9 @@ const register = async (req, res, next) => {
   }
 };
 
-// Đăng nhập người dùng
+/**
+ * Đăng nhập người dùng
+ */
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -101,7 +103,9 @@ const login = async (req, res, next) => {
   }
 };
 
-// Đăng xuất người dùng
+/**
+ * Đăng xuất người dùng
+ */
 const logout = async (req, res, next) => {
   try {
     // Trong quá trình triển khai thực tế, có thể vô hiệu hóa token.
@@ -115,7 +119,9 @@ const logout = async (req, res, next) => {
   }
 };
 
-// Xác thực email với token (GET method)
+/**
+ * Xác thực email với token (GET method)
+ */
 const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.params;
@@ -142,7 +148,9 @@ const verifyEmail = async (req, res, next) => {
   }
 };
 
-// Xác thực email với token (POST method)
+/**
+ * Xác thực email với token (POST method)
+ */
 const verifyEmailWithToken = async (req, res, next) => {
   try {
     const { token } = req.body;
@@ -169,7 +177,9 @@ const verifyEmailWithToken = async (req, res, next) => {
   }
 };
 
-// Gửi lại email xác thực
+/**
+ * Gửi lại email xác thực
+ */
 const resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -205,7 +215,9 @@ const resendVerification = async (req, res, next) => {
   }
 };
 
-// Làm mới token
+/**
+ * Làm mới token
+ */
 const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -257,7 +269,9 @@ const refreshToken = async (req, res, next) => {
   }
 };
 
-// Quên mật khẩu
+/**
+ * Quên mật khẩu
+ */
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -345,7 +359,9 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-// Lấy thông tin người dùng hiện tại
+/**
+ * Lấy thông tin người dùng hiện tại
+ */
 const getCurrentUser = async (req, res, next) => {
   try {
     // Tìm user theo ID từ token
