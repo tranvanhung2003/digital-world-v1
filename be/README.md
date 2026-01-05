@@ -88,9 +88,12 @@ npm start
 
 ### Auth
 
-- `POST /api/auth/register` - Đăng ký tài khoản
-- `POST /api/auth/login` - Đăng nhập
-- `GET /api/auth/verify-email/:token` - Xác thực email
+- `POST /api/auth/register` - Đăng ký người dùng mới
+- `POST /api/auth/login` - Đăng nhập người dùng
+- `POST /api/auth/logout` - Đăng xuất người dùng
+- `GET /api/auth/verify-email/:token` - Xác thực email với token (GET method)
+- `POST /api/auth/verify-email` - Xác thực email với token (POST method)
+- `POST /api/auth/resend-verification` - Gửi lại email xác thực
 - `POST /api/auth/refresh-token` - Làm mới token
 - `POST /api/auth/forgot-password` - Quên mật khẩu
 - `POST /api/auth/reset-password` - Đặt lại mật khẩu

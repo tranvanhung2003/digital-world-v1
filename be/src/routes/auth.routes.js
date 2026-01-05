@@ -60,7 +60,7 @@ const { authenticate } = require('../middlewares/authenticate');
 router.post(
   '/register',
   validateRequest(registerSchema),
-  authController.register
+  authController.register,
 );
 
 /**
@@ -154,7 +154,7 @@ router.get('/verify-email/:token', authController.verifyEmail);
 router.post(
   '/verify-email',
   validateRequest(verifyEmailSchema),
-  authController.verifyEmailWithToken
+  authController.verifyEmailWithToken,
 );
 
 /**
@@ -184,7 +184,7 @@ router.post(
 router.post(
   '/resend-verification',
   validateRequest(emailSchema),
-  authController.resendVerification
+  authController.resendVerification,
 );
 
 /**
@@ -239,7 +239,7 @@ router.post('/refresh-token', authController.refreshToken);
 router.post(
   '/forgot-password',
   validateRequest(forgotPasswordSchema),
-  authController.forgotPassword
+  authController.forgotPassword,
 );
 
 /**
@@ -272,7 +272,7 @@ router.post(
 router.post(
   '/reset-password',
   validateRequest(resetPasswordSchema),
-  authController.resetPassword
+  authController.resetPassword,
 );
 
 /**

@@ -4,21 +4,24 @@ const { User } = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 const emailService = require('../services/email/emailService');
 
-// Register a new user
+/**
+ * Đăng ký người dùng mới
+ */
 const register = async (req, res, next) => {
   try {
     const { email, password, firstName, lastName, phone } = req.body;
 
-    // Check if user already exists
+    // Kiểm tra nếu email đã tồn tại
     const existingUser = await User.findOne({ where: { email } });
+
     if (existingUser) {
       throw new AppError('Email đã được sử dụng', 400);
     }
 
-    // Generate verification token
+    // Tạo mã token xác thực email
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    // Create new user
+    // Tạo người dùng mới
     const user = await User.create({
       email,
       password,
@@ -28,7 +31,7 @@ const register = async (req, res, next) => {
       verificationToken,
     });
 
-    // Send verification email
+    // Gửi email xác thực
     await emailService.sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
@@ -41,48 +44,50 @@ const register = async (req, res, next) => {
   }
 };
 
-// Login user
+// Đăng nhập người dùng
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    // Tìm người dùng theo email
     const user = await User.findOne({ where: { email } });
+
+    // Nếu không tìm thấy người dùng, trả về lỗi
     if (!user) {
       throw new AppError('Email hoặc mật khẩu không đúng', 401);
     }
 
-    // Check password first
+    // Kiểm tra mật khẩu
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       throw new AppError('Email hoặc mật khẩu không đúng', 401);
     }
 
-    // Check if email is verified
+    // Kiểm tra email đã được xác thực chưa
     if (!user.isEmailVerified) {
       throw new AppError('Vui lòng xác thực email trước khi đăng nhập', 401);
     }
 
-    // Check if account is active
+    // Kiểm tra tài khoản có đang hoạt động không
     if (!user.isActive) {
       throw new AppError(
         'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên',
-        401
+        401,
       );
     }
 
-    // Generate JWT token
+    // Tạo JWT token
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN },
     );
 
-    // Generate refresh token
+    // Tạo refresh token
     const refreshToken = jwt.sign(
       { id: user.id },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
     );
 
     res.status(200).json({
@@ -96,38 +101,36 @@ const login = async (req, res, next) => {
   }
 };
 
-// Logout user
+// Đăng xuất người dùng
 const logout = async (req, res, next) => {
   try {
-    // In a real implementation, you might want to invalidate the token
-    // by adding it to a blacklist or using Redis to store invalidated tokens
+    // Trong quá trình triển khai thực tế, có thể vô hiệu hóa token.
+    // Bằng cách thêm nó vào blacklist hoặc sử dụng Redis để lưu trữ các token đã bị vô hiệu hóa.
 
-    // For now, we'll just return a 204 No Content response
+    // Hiện tại, chỉ có cách trả về phản hồi 204 No Content.
+    // Điều này sẽ yêu cầu client xóa token khỏi bộ nhớ của nó.
     res.status(204).send();
   } catch (error) {
     next(error);
   }
 };
 
-// Verify email
+// Xác thực email với token (GET method)
 const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.params;
 
-    console.log(token);
-
-    // Find user with token
+    // Tìm user với token
     const user = await User.findOne({ where: { verificationToken: token } });
-
-    console.log(user);
 
     if (!user) {
       throw new AppError('Token không hợp lệ hoặc đã hết hạn', 400);
     }
 
-    // Update user
+    // Cập nhật user
     user.isEmailVerified = true;
     user.verificationToken = null;
+
     await user.save();
 
     res.status(200).json({
@@ -139,20 +142,22 @@ const verifyEmail = async (req, res, next) => {
   }
 };
 
-// Verify email with token (POST method)
+// Xác thực email với token (POST method)
 const verifyEmailWithToken = async (req, res, next) => {
   try {
     const { token } = req.body;
 
-    // Find user with token
+    // Tìm user với token
     const user = await User.findOne({ where: { verificationToken: token } });
+
     if (!user) {
       throw new AppError('Token không hợp lệ hoặc đã hết hạn', 400);
     }
 
-    // Update user
+    // Cập nhật user
     user.isEmailVerified = true;
     user.verificationToken = null;
+
     await user.save();
 
     res.status(200).json({
@@ -164,30 +169,31 @@ const verifyEmailWithToken = async (req, res, next) => {
   }
 };
 
-// Resend verification email
+// Gửi lại email xác thực
 const resendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    // Find user
+    // Tìm user
     const user = await User.findOne({ where: { email } });
     if (!user) {
       throw new AppError('Không tìm thấy tài khoản với email này', 404);
     }
 
-    // Check if email is already verified
+    // Kiểm tra email đã được xác thực chưa
     if (user.isEmailVerified) {
       throw new AppError('Email đã được xác thực', 400);
     }
 
-    // Generate new verification token
+    // Tạo token xác thực mới
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    // Update user
+    // Cập nhật user
     user.verificationToken = verificationToken;
+
     await user.save();
 
-    // Send verification email
+    // Gửi lại email xác thực
     await emailService.sendVerificationEmail(user.email, verificationToken);
 
     res.status(200).json({
@@ -199,37 +205,39 @@ const resendVerification = async (req, res, next) => {
   }
 };
 
-// Refresh token
+// Làm mới token
 const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
+    // Kiểm tra refresh token có tồn tại không
     if (!refreshToken) {
       throw new AppError('Refresh token là bắt buộc', 401);
     }
 
-    // Verify refresh token
+    // Xác minh refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-    // Find user
+    // Tìm user
     const user = await User.findByPk(decoded.id);
+
     if (!user) {
       throw new AppError('Refresh token không hợp lệ', 401);
     }
 
-    // Check if account is active
+    // Kiểm tra tài khoản có đang hoạt động không
     if (!user.isActive) {
       throw new AppError(
         'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên',
-        401
+        401,
       );
     }
 
-    // Generate new access token
+    // Tạo access token mới
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN },
     );
 
     res.status(200).json({
@@ -242,34 +250,35 @@ const refreshToken = async (req, res, next) => {
       error.name === 'TokenExpiredError'
     ) {
       return next(
-        new AppError('Refresh token không hợp lệ hoặc đã hết hạn', 401)
+        new AppError('Refresh token không hợp lệ hoặc đã hết hạn', 401),
       );
     }
     next(error);
   }
 };
 
-// Forgot password
+// Quên mật khẩu
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    // Find user
+    // Tìm user
     const user = await User.findOne({ where: { email } });
+
     if (!user) {
       throw new AppError('Không tìm thấy tài khoản với email này', 404);
     }
 
-    // Generate reset token
+    // Tạo reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenExpires = Date.now() + 3600000; // 1 hour
 
-    // Update user
+    // Cập nhật user
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = new Date(resetTokenExpires);
     await user.save();
 
-    // Send reset password email
+    // Gửi email đặt lại mật khẩu
     await emailService.sendResetPasswordEmail(user.email, resetToken);
 
     res.status(200).json({
@@ -284,14 +293,14 @@ const forgotPassword = async (req, res, next) => {
 
 const { Op } = require('sequelize');
 
-// Reset password
+/**
+ * Đặt lại mật khẩu
+ */
 const resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
 
-    console.log(password);
-
-    // Find user with token
+    // Tìm user với token và kiểm tra thời gian hết hạn
     const user = await User.findOne({
       where: {
         resetPasswordToken: token,
@@ -300,25 +309,27 @@ const resetPassword = async (req, res, next) => {
     });
 
     if (!user) {
-      // Add debugging logs to help identify the issue
-      console.log('Token:', token);
+      // Thêm debugging logs giúp xác định vấn đề
+      console.log('Reset password token:', token);
+
       const debugUser = await User.findOne({
-        where: { resetPasswordToken: token }
+        where: { resetPasswordToken: token },
       });
+
       if (debugUser) {
-        console.log('Found user with token but expired:', {
+        console.log('Đã tìm thấy user với token nhưng đã hết hạn:', {
           resetPasswordExpires: debugUser.resetPasswordExpires,
           currentDate: new Date(),
-          isExpired: debugUser.resetPasswordExpires < new Date()
+          isExpired: debugUser.resetPasswordExpires < new Date(),
         });
       } else {
-        console.log('No user found with the provided token');
+        console.log('Không tìm thấy user với token được cung cấp.');
       }
-      
+
       throw new AppError('Token không hợp lệ hoặc đã hết hạn', 400);
     }
 
-    // Update user
+    // Cập nhật user
     user.password = password;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
@@ -334,9 +345,10 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-// Get current user
+// Lấy thông tin người dùng hiện tại
 const getCurrentUser = async (req, res, next) => {
   try {
+    // Tìm user theo ID từ token
     const user = await User.findByPk(req.user.id, {
       include: [
         {
