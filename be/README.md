@@ -78,6 +78,13 @@ npm start
 - `POST /api/admin/products` - Tạo sản phẩm mới
 - `PUT /api/admin/products/:id` - Cập nhật sản phẩm
 - `DELETE /api/admin/products/:id` - Xóa sản phẩm
+- `GET /api/admin/products` - Lấy danh sách sản phẩm với filter admin
+- `GET /api/admin/reviews` - Lấy danh sách review
+- `DELETE /api/admin/reviews/:id` - Xóa review
+- `GET /api/admin/orders` - Lấy danh sách đơn hàng
+- `PUT /api/admin/orders/:id/status` - Cập nhật trạng thái đơn hàng
+- `POST /api/admin/products/:id/clone` - Clone sản phẩm
+- `PATCH /api/admin/products/:id/status` - Cập nhật trạng thái nhanh
 
 ### Auth
 

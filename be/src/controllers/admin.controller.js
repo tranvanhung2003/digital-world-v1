@@ -1343,6 +1343,8 @@ const updateProduct = catchAsync(async (req, res) => {
  */
 const deleteProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
+
+  // Tải các model cần thiết
   const {
     CartItem,
     OrderItem,
@@ -1353,6 +1355,7 @@ const deleteProduct = catchAsync(async (req, res) => {
     sequelize,
   } = require('../models');
 
+  // Kiểm tra sự tồn tại của sản phẩm
   const product = await Product.findByPk(id);
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm', 404);
@@ -1362,14 +1365,13 @@ const deleteProduct = catchAsync(async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Xóa các bản ghi liên quan trong cart_items
+    // Xóa các bản ghi liên quan trong CartItem
     await CartItem.destroy({ where: { productId: id }, transaction });
 
-    // Xóa các bản ghi liên quan trong order_items (hoặc có thể cân nhắc giữ lại lịch sử đơn hàng)
-    // Nếu muốn giữ lại lịch sử đơn hàng, có thể bỏ dòng này
+    // Xóa các bản ghi liên quan trong OrderItem (hoặc có thể giữ lại lịch sử đơn hàng)
     // await OrderItem.destroy({ where: { productId: id }, transaction });
 
-    // Xóa các bản ghi liên quan trong wishlist
+    // Xóa các bản ghi liên quan trong Wishlist
     await Wishlist.destroy({ where: { productId: id }, transaction });
 
     // Xóa các thuộc tính của sản phẩm
@@ -1402,6 +1404,7 @@ const deleteProduct = catchAsync(async (req, res) => {
  * Quản lý Products - Lấy danh sách sản phẩm với filter admin
  */
 const getAllProducts = catchAsync(async (req, res) => {
+  // Lấy các tham số filter từ query
   const {
     page = 1,
     limit = 10,
@@ -1416,7 +1419,10 @@ const getAllProducts = catchAsync(async (req, res) => {
     stockMax,
   } = req.query;
 
+  // Tính toán offset cho phân trang
   const offset = (page - 1) * limit;
+
+  // Xây dựng where clause động dựa trên các tham số filter
   const whereClause = {};
 
   // Filter theo tìm kiếm
@@ -1496,6 +1502,7 @@ const getAllProducts = catchAsync(async (req, res) => {
     includeClause[0].where = { id: category };
   }
 
+  // Thực hiện truy vấn với phân trang và sắp xếp
   const { count, rows: products } = await Product.findAndCountAll({
     where: whereClause,
     include: includeClause,
@@ -1708,6 +1715,8 @@ const updateOrderStatus = catchAsync(async (req, res) => {
  */
 const cloneProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
+
+  // Tải các model cần thiết
   const {
     ProductCategory,
     ProductAttribute,
@@ -1754,16 +1763,17 @@ const cloneProduct = catchAsync(async (req, res) => {
   // 3. Tạo SKU mới duy nhất
   const newSku = `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-  // 4. Sử dụng transaction để clone dữ liệu
+  // 4. Sử dụng transaction khi clone dữ liệu
   const transaction = await sequelize.transaction();
 
   try {
     // Clone dữ liệu sản phẩm cơ bản
     const productData = originalProduct.get({ plain: true });
+
     delete productData.id;
     delete productData.createdAt;
     delete productData.updatedAt;
-    delete productData.slug; // Slug sẽ được generate lại bởi hook
+    delete productData.slug; // Slug sẽ được generate lại bởi hook của model
     delete productData.categories;
     delete productData.attributes;
     delete productData.variants;
@@ -1776,7 +1786,7 @@ const cloneProduct = catchAsync(async (req, res) => {
 
     const newProduct = await Product.create(productData, { transaction });
 
-    // 5. Clone các quan hệ
+    // 5. Clone các relations
 
     // Categories
     if (originalProduct.categories && originalProduct.categories.length > 0) {
@@ -1784,6 +1794,7 @@ const cloneProduct = catchAsync(async (req, res) => {
         productId: newProduct.id,
         categoryId: cat.id,
       }));
+
       await ProductCategory.bulkCreate(categoryLinks, { transaction });
     }
 
@@ -1791,11 +1802,14 @@ const cloneProduct = catchAsync(async (req, res) => {
     if (originalProduct.attributes && originalProduct.attributes.length > 0) {
       const attributeData = originalProduct.attributes.map((attr) => {
         const data = attr.get({ plain: true });
+
         delete data.id;
         delete data.createdAt;
         delete data.updatedAt;
+
         return { ...data, productId: newProduct.id };
       });
+
       await ProductAttribute.bulkCreate(attributeData, { transaction });
     }
 
@@ -1806,14 +1820,18 @@ const cloneProduct = catchAsync(async (req, res) => {
         delete data.id;
         delete data.createdAt;
         delete data.updatedAt;
+
         // Generate SKU mới cho variant dựa trên SKU mới của product
         // Giữ phần hậu tố của SKU variant nếu có
         const suffix = data.sku.includes('-')
           ? data.sku.split('-').pop()
           : Math.floor(Math.random() * 1000);
+
         data.sku = `${newSku}-${suffix}`;
+
         return { ...data, productId: newProduct.id };
       });
+
       await ProductVariant.bulkCreate(variantData, { transaction });
     }
 
@@ -1829,6 +1847,7 @@ const cloneProduct = catchAsync(async (req, res) => {
         delete data.updatedAt;
         return { ...data, productId: newProduct.id };
       });
+
       await ProductSpecification.bulkCreate(specData, { transaction });
     }
 
@@ -1874,12 +1893,17 @@ const toggleProductStatus = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
+  // Tìm sản phẩm theo ID
   const product = await Product.findByPk(id);
+
+  // Kiểm tra sự tồn tại của sản phẩm
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm', 404);
   }
 
   const validStatuses = ['active', 'inactive', 'draft'];
+
+  // Nếu cung cấp status, kiểm tra tính hợp lệ
   if (status && !validStatuses.includes(status)) {
     throw new AppError('Trạng thái không hợp lệ', 400);
   }
@@ -1888,6 +1912,7 @@ const toggleProductStatus = catchAsync(async (req, res) => {
   const newStatus =
     status || (product.status === 'active' ? 'inactive' : 'active');
 
+  // Cập nhật trạng thái sản phẩm
   await product.update({ status: newStatus });
 
   // Log audit
