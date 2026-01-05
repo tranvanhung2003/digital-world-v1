@@ -20,7 +20,7 @@ const {
   validateVariantAttributes,
   generateVariantSku,
 } = require('../utils/productHelpers');
-const { getField } = require('../utils/helpers');
+const { getField, getTableName } = require('../utils/helpers');
 
 /**
  * Thống kê tổng quan
@@ -572,8 +572,11 @@ const createProduct = catchAsync(async (req, res) => {
   if (comparePrice !== undefined) {
     const { sequelize } = require('../models');
 
+    const productTableName = getTableName(Product);
+    const Product_compareAtPrice = getField(Product, 'compareAtPrice');
+
     await sequelize.query(
-      'UPDATE products SET compare_at_price = :comparePrice WHERE id = :id',
+      `UPDATE ${productTableName} SET ${Product_compareAtPrice} = :comparePrice WHERE id = :id`,
       {
         replacements: {
           comparePrice: comparePrice,
@@ -590,23 +593,23 @@ const createProduct = catchAsync(async (req, res) => {
   // Thêm categories nếu có
   if (categoryIds && categoryIds.length > 0) {
     try {
-      // Check if we need to create categories (for demo/development purposes)
-      // In production, you would typically validate against existing categories
+      // Kiểm tra xem có cần tạo danh mục không (cho mục đích demo/development)
+      // Trong quá trình production, ta thường chọn danh mục dựa trên các danh mục hiện có
       const { Category } = require('../models');
 
-      // For each category ID, either find it or create a placeholder
+      // Đối với mỗi ID danh mục, tìm nó hoặc tạo một placeholder
       const categoryPromises = categoryIds.map(async (catId) => {
-        // Try to find the category first
+        // Thử tìm danh mục trước
         let category = await Category.findByPk(catId).catch(() => null);
 
-        // If category doesn't exist and the ID is a simple number (from mock data)
+        // Nếu danh mục không tồn tại và ID là một số đơn giản (từ mock data)
         if (!category && /^\d+$/.test(catId)) {
-          // Create a placeholder category with this ID as part of the name
-          // This is just for development/demo purposes
+          // Tạo một danh mục placeholder với ID này như một phần của tên
+          // Chỉ dành cho mục đích development/demo
           category = await Category.create({
             name: `Category ${catId}`,
             slug: `category-${catId}`,
-            description: `Auto-created category from ID ${catId}`,
+            description: `Danh mục được tạo tự động từ ID ${catId}`,
             isActive: true,
           });
         }
@@ -614,23 +617,25 @@ const createProduct = catchAsync(async (req, res) => {
         return category ? category.id : null;
       });
 
+      // Lọc ra các ID danh mục hợp lệ
       const validCategoryIds = (await Promise.all(categoryPromises)).filter(
         (id) => id !== null,
       );
 
+      // Liên kết sản phẩm với các danh mục hợp lệ
       if (validCategoryIds.length > 0) {
         await product.setCategories(validCategoryIds);
       }
     } catch (error) {
       console.error('Error handling categories:', error);
-      // Continue without categories if there's an error
+      // Tiếp tục mà không có danh mục nếu có lỗi
     }
   }
 
   // Xử lý attributes
   if (attributes && attributes.length > 0) {
     try {
-      console.log('Processing attributes:', attributes);
+      console.log('Đang xử lý attributes:', attributes);
       const attributePromises = attributes.map(async (attr) => {
         // Xử lý giá trị thuộc tính: nếu là chuỗi có dấu phẩy, tách thành mảng
         let attrValues = [];
@@ -641,6 +646,7 @@ const createProduct = catchAsync(async (req, res) => {
             .map((v) => v.trim())
             .filter((v) => v);
         } else if (Array.isArray(attr.value)) {
+          // Nếu là mảng, sử dụng trực tiếp
           attrValues = attr.value;
         } else if (attr.value) {
           // Nếu không phải chuỗi hoặc mảng nhưng có giá trị
@@ -648,7 +654,7 @@ const createProduct = catchAsync(async (req, res) => {
         }
 
         console.log(
-          `Creating attribute: ${attr.name} with values:`,
+          `Đang tạo attribute: ${attr.name} với các giá trị:`,
           attrValues,
         );
 
@@ -669,7 +675,7 @@ const createProduct = catchAsync(async (req, res) => {
   let createdVariants = [];
   if (variants && variants.length > 0) {
     try {
-      console.log('Processing variants:', variants);
+      console.log('Đang xử lý variants:', variants);
 
       // Lấy attributes để validate
       const productAttributes = await ProductAttribute.findAll({
@@ -680,7 +686,7 @@ const createProduct = catchAsync(async (req, res) => {
         // Đảm bảo variant.attributes luôn là một object
         const variantAttributes = variant.attributes || {};
 
-        console.log(`Processing variant: ${variant.name}`, {
+        console.log(`Đang xử lý variant: ${variant.name}`, {
           price: variant.price,
           stock: variant.stock,
           sku: variant.sku,
@@ -709,13 +715,13 @@ const createProduct = catchAsync(async (req, res) => {
           }
         }
 
-        // Generate SKU if not provided
+        // Tạo SKU cho biến thể nếu không được cung cấp
         const variantSku =
           variant.sku || generateVariantSku(uniqueSku, variantAttributes);
 
-        console.log(`Creating variant with SKU: ${variantSku}`);
+        console.log(`Đang tạo biến thể với SKU: ${variantSku}`);
 
-        // Generate display name for variant
+        // Tạo tên hiển thị cho biến thể
         const displayName =
           variant.displayName ||
           Object.values(variantAttributes).join(' - ') ||
@@ -739,7 +745,7 @@ const createProduct = catchAsync(async (req, res) => {
 
       createdVariants = await Promise.all(variantPromises);
 
-      // Update product total stock from variants
+      // Cập nhật lại tổng tồn kho của sản phẩm từ các biến thể
       const totalStock = calculateTotalStock(createdVariants);
       await Product.update(
         {
@@ -773,7 +779,7 @@ const createProduct = catchAsync(async (req, res) => {
 
       await ProductSpecification.bulkCreate(specificationData);
       console.log(
-        `Created ${specifications.length} specifications for product ${product.id}`,
+        `Đã tạo ${specifications.length} specifications cho sản phẩm ${product.id}`,
       );
     } catch (error) {
       console.error('Error creating specifications:', error);
@@ -793,13 +799,16 @@ const createProduct = catchAsync(async (req, res) => {
 
       // Kiểm tra xem các warranty packages có tồn tại không
       console.log(
-        'Looking for warranty packages with IDs:',
+        'Đang tìm kiếm các gói bảo hành với IDs:',
         warrantyPackageIds,
       );
       const existingWarrantyPackages = await WarrantyPackage.findAll({
         where: { id: warrantyPackageIds, isActive: true },
       });
-      console.log('Found warranty packages:', existingWarrantyPackages.length);
+      console.log(
+        'Đã tìm thấy các gói bảo hành:',
+        existingWarrantyPackages.length,
+      );
 
       if (existingWarrantyPackages.length > 0) {
         const warrantyPromises = existingWarrantyPackages.map(
@@ -814,12 +823,12 @@ const createProduct = catchAsync(async (req, res) => {
 
         await Promise.all(warrantyPromises);
         console.log(
-          `Created ${existingWarrantyPackages.length} warranty package associations for product ${product.id}`,
+          `Đã tạo ${existingWarrantyPackages.length} gói bảo hành liên kết với sản phẩm ${product.id}`,
         );
       }
     } catch (error) {
       console.error('Error creating warranty packages:', error);
-      // Continue without warranty packages if there's an error
+      // Tiếp tục mà không làm fail toàn bộ quá trình tạo sản phẩm
     }
   }
 
@@ -840,11 +849,11 @@ const createProduct = catchAsync(async (req, res) => {
         as: 'variants',
       },
       {
-        model: require('../models').ProductSpecification,
+        model: ProductSpecification,
         as: 'productSpecifications',
       },
       {
-        model: require('../models').WarrantyPackage,
+        model: WarrantyPackage,
         as: 'warrantyPackages',
         through: {
           attributes: ['isDefault'],
@@ -857,7 +866,7 @@ const createProduct = catchAsync(async (req, res) => {
   });
 
   // Log audit
-  console.log('req.user in createProduct:', req.user); // Debug log
+  console.log('req.user trong createProduct:', req.user); // Debug log
   AdminAuditService.logProductAction(
     req.user,
     'CREATE',
@@ -902,30 +911,33 @@ const updateProduct = catchAsync(async (req, res) => {
     faqs = [],
   } = req.body;
 
-  console.log('updateProduct - Request body keys:', Object.keys(req.body));
-  console.log('updateProduct - specifications:', specifications);
-  console.log('updateProduct - specifications type:', typeof specifications);
-  console.log(
-    'updateProduct - specifications isArray:',
-    Array.isArray(specifications),
-  );
-  console.log(
-    'updateProduct - hasOwnProperty specifications:',
-    req.body.hasOwnProperty('specifications'),
-  );
-  console.log('updateProduct - warrantyPackageIds:', warrantyPackageIds);
-  console.log(
-    'updateProduct - hasOwnProperty warrantyPackageIds:',
-    req.body.hasOwnProperty('warrantyPackageIds'),
-  );
+  // Debug logs để kiểm tra dữ liệu nhận được
+  // console.log('updateProduct - Request body keys:', Object.keys(req.body));
+  // console.log('updateProduct - specifications:', specifications);
+  // console.log('updateProduct - specifications type:', typeof specifications);
+  // console.log(
+  //   'updateProduct - specifications isArray:',
+  //   Array.isArray(specifications),
+  // );
+  // console.log(
+  //   'updateProduct - hasOwnProperty specifications:',
+  //   req.body.hasOwnProperty('specifications'),
+  // );
+  // console.log('updateProduct - warrantyPackageIds:', warrantyPackageIds);
+  // console.log(
+  //   'updateProduct - hasOwnProperty warrantyPackageIds:',
+  //   req.body.hasOwnProperty('warrantyPackageIds'),
+  // );
 
   const product = await Product.findByPk(id);
+
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm', 404);
   }
 
-  // Track changes for audit
+  // Theo dõi các thay đổi để ghi log
   const changes = {};
+
   if (name && name !== product.name)
     changes.name = { from: product.name, to: name };
   if (price && price !== product.price)
@@ -968,7 +980,9 @@ const updateProduct = catchAsync(async (req, res) => {
   if (req.body.hasOwnProperty('faqs')) updateData.faqs = faqs;
 
   // Cập nhật sản phẩm với dữ liệu mới
-  console.log('UpdateData before update:', updateData);
+  console.log('UpdateData trước khi update:', updateData);
+
+  // Thực hiện cập nhật sản phẩm
   const updatedProduct = await product.update(updateData);
 
   // Cập nhật compareAtPrice riêng bằng truy vấn SQL trực tiếp nếu có trong request
@@ -983,8 +997,12 @@ const updateProduct = catchAsync(async (req, res) => {
       ? compareAtPrice
       : comparePrice;
 
+    const productTableName = getTableName(Product);
+    const Product_compareAtPrice = getField(Product, 'compareAtPrice');
+
+    // Thực hiện cập nhật trực tiếp trong database
     await sequelize.query(
-      'UPDATE products SET compare_at_price = :compareAtPrice WHERE id = :id',
+      `UPDATE ${productTableName} SET ${Product_compareAtPrice} = :compareAtPrice WHERE id = :id`,
       {
         replacements: {
           compareAtPrice: priceToCompare,
@@ -999,30 +1017,30 @@ const updateProduct = catchAsync(async (req, res) => {
 
     // Log thông tin để debug
     console.log(
-      `Updated compareAtPrice to ${priceToCompare} for product ${product.id}`,
+      `Đã cập nhật compareAtPrice là ${priceToCompare} cho sản phẩm ${product.id}`,
     );
   }
 
   // Cập nhật categories nếu có
   if (categoryIds && Array.isArray(categoryIds) && categoryIds.length > 0) {
     try {
-      // Check if we need to create categories (for demo/development purposes)
-      // In production, you would typically validate against existing categories
+      // Kiểm tra xem có cần tạo danh mục không (cho mục đích demo/development)
+      // Trong quá trình production, ta thường chọn danh mục dựa trên các danh mục hiện có
       const { Category } = require('../models');
 
-      // For each category ID, either find it or create a placeholder
+      // Đối với mỗi ID danh mục, tìm nó hoặc tạo một placeholder
       const categoryPromises = categoryIds.map(async (catId) => {
-        // Try to find the category first
+        // Thử tìm danh mục trước
         let category = await Category.findByPk(catId).catch(() => null);
 
-        // If category doesn't exist and the ID is a simple number (from mock data)
+        // Nếu danh mục không tồn tại và ID là một số đơn giản (từ mock data)
         if (!category && /^\d+$/.test(catId)) {
-          // Create a placeholder category with this ID as part of the name
-          // This is just for development/demo purposes
+          // Tạo một danh mục placeholder với ID này như một phần của tên
+          // Điều này chỉ dành cho mục đích phát triển/demo
           category = await Category.create({
             name: `Category ${catId}`,
             slug: `category-${catId}`,
-            description: `Auto-created category from ID ${catId}`,
+            description: `Danh mục được tạo tự động từ ID ${catId}`,
             isActive: true,
           });
         }
@@ -1030,24 +1048,26 @@ const updateProduct = catchAsync(async (req, res) => {
         return category ? category.id : null;
       });
 
+      // Lọc ra các ID danh mục hợp lệ
       const validCategoryIds = (await Promise.all(categoryPromises)).filter(
         (id) => id !== null,
       );
 
+      // Liên kết sản phẩm với các danh mục hợp lệ
       if (validCategoryIds.length > 0) {
         await product.setCategories(validCategoryIds);
         changes.categories = validCategoryIds;
       }
     } catch (error) {
       console.error('Error handling categories:', error);
-      // Continue without categories if there's an error
+      // Tiếp tục mà không có danh mục nếu có lỗi
     }
   }
 
   // Xử lý attributes - chỉ khi request có chứa field 'attributes'
   if (req.body.hasOwnProperty('attributes') && Array.isArray(attributes)) {
     try {
-      console.log('Updating attributes:', attributes);
+      console.log('Đang cập nhật attributes:', attributes);
 
       // Xóa tất cả attributes cũ
       await ProductAttribute.destroy({ where: { productId: id } });
@@ -1064,6 +1084,7 @@ const updateProduct = catchAsync(async (req, res) => {
               .map((v) => v.trim())
               .filter((v) => v);
           } else if (Array.isArray(attr.value)) {
+            // Nếu là mảng, sử dụng trực tiếp
             attrValues = attr.value;
           } else if (attr.value) {
             // Nếu không phải chuỗi hoặc mảng nhưng có giá trị
@@ -1071,7 +1092,7 @@ const updateProduct = catchAsync(async (req, res) => {
           }
 
           console.log(
-            `Creating attribute: ${attr.name} with values:`,
+            `Đang tạo attribute: ${attr.name} với các giá trị:`,
             attrValues,
           );
 
@@ -1108,7 +1129,7 @@ const updateProduct = catchAsync(async (req, res) => {
           // Đảm bảo variant.attributes luôn là một object
           const variantAttributes = variant.attributes || {};
 
-          console.log(`Processing variant: ${variant.name}`, {
+          console.log(`Đang xử lý variant: ${variant.name}`, {
             price: variant.price,
             stock: variant.stock,
             sku: variant.sku,
@@ -1137,12 +1158,12 @@ const updateProduct = catchAsync(async (req, res) => {
             }
           }
 
-          // Generate SKU if not provided
+          // Tạo SKU cho biến thể nếu không được cung cấp
           const variantSku =
             variant.sku ||
             generateVariantSku(updatedProduct.sku, variantAttributes);
 
-          console.log(`Creating variant with SKU: ${variantSku}`);
+          console.log(`Đang tạo biến thể với SKU: ${variantSku}`);
 
           return await ProductVariant.create({
             productId: id,
@@ -1158,7 +1179,7 @@ const updateProduct = catchAsync(async (req, res) => {
         createdVariants = await Promise.all(variantPromises);
         changes.variants = variants.length;
 
-        // Update product total stock from variants
+        // Cập nhật lại tổng tồn kho của sản phẩm từ các biến thể
         const totalStock = calculateTotalStock(createdVariants);
         await Product.update(
           {
@@ -1168,7 +1189,6 @@ const updateProduct = catchAsync(async (req, res) => {
           { where: { id } },
         );
       } else {
-        // If no variants, reset to product base stock
         // Chỉ cập nhật nếu stockQuantity đã được gửi trong request
         if (req.body.hasOwnProperty('stockQuantity')) {
           await Product.update(
@@ -1192,7 +1212,7 @@ const updateProduct = catchAsync(async (req, res) => {
     Array.isArray(specifications)
   ) {
     try {
-      console.log('Updating specifications:', specifications);
+      console.log('Đang cập nhật specifications:', specifications);
       const { ProductSpecification } = require('../models');
 
       // Xóa tất cả specifications cũ
@@ -1210,12 +1230,12 @@ const updateProduct = catchAsync(async (req, res) => {
 
         await ProductSpecification.bulkCreate(specificationData);
         console.log(
-          `Updated ${specifications.length} specifications for product ${id}`,
+          `Đã cập nhật ${specifications.length} specifications cho sản phẩm ${id}`,
         );
         changes.specifications = specifications.length;
       }
     } catch (error) {
-      console.error('Error updating specifications:', error);
+      console.error('Lỗi khi cập nhật specifications:', error);
       throw error;
     }
   }
@@ -1226,24 +1246,24 @@ const updateProduct = catchAsync(async (req, res) => {
     Array.isArray(warrantyPackageIds)
   ) {
     try {
-      console.log('Updating warranty packages:', warrantyPackageIds);
+      console.log('Đang cập nhật gói bảo hành:', warrantyPackageIds);
       const { ProductWarranty, WarrantyPackage } = require('../models');
 
-      // Xóa tất cả warranty packages cũ
+      // Xóa tất cả gói bảo hành cũ
       await ProductWarranty.destroy({ where: { productId: id } });
 
-      // Tạo warranty packages mới
+      // Tạo gói bảo hành mới
       if (warrantyPackageIds.length > 0) {
-        // Kiểm tra xem các warranty packages có tồn tại không
+        // Kiểm tra xem các gói bảo hành có tồn tại không
         console.log(
-          'Looking for warranty packages with IDs:',
+          'Đang tìm kiếm các gói bảo hành với IDs:',
           warrantyPackageIds,
         );
         const existingWarrantyPackages = await WarrantyPackage.findAll({
           where: { id: warrantyPackageIds, isActive: true },
         });
         console.log(
-          'Found warranty packages:',
+          'Đã tìm thấy các gói bảo hành:',
           existingWarrantyPackages.length,
         );
 
@@ -1260,13 +1280,13 @@ const updateProduct = catchAsync(async (req, res) => {
 
           await Promise.all(warrantyPromises);
           console.log(
-            `Created ${existingWarrantyPackages.length} warranty package associations for product ${id}`,
+            `Đã tạo ${existingWarrantyPackages.length} gói bảo hành liên kết với sản phẩm ${id}`,
           );
         }
       }
     } catch (error) {
-      console.error('Error updating warranty packages:', error);
-      // Continue without warranty packages if there's an error
+      console.error('Lỗi khi cập nhật gói bảo hành:', error);
+      // Tiếp tục mà không làm fail toàn bộ quá trình cập nhật sản phẩm
     }
   }
 
@@ -1287,11 +1307,11 @@ const updateProduct = catchAsync(async (req, res) => {
         as: 'variants',
       },
       {
-        model: require('../models').ProductSpecification,
+        model: ProductSpecification,
         as: 'productSpecifications',
       },
       {
-        model: require('../models').WarrantyPackage,
+        model: WarrantyPackage,
         as: 'warrantyPackages',
         through: {
           attributes: ['isDefault'],
