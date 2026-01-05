@@ -1,7 +1,7 @@
 const { User } = require('../src/models');
 const { v4: uuidv4 } = require('uuid');
 
-async function seedAdminUser() {
+async function seed() {
   try {
     console.log('Bắt đầu seed tài khoản admin');
 
@@ -44,4 +44,4 @@ async function seedAdminUser() {
   }
 }
 
-seedAdminUser();
+seed();
