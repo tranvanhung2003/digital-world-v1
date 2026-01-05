@@ -1,6 +1,6 @@
 const { WarrantyPackage } = require('../src/models');
 
-const SAMPLE_WARRANTY_PACKAGES = [
+const SEED_WARRANTY_PACKAGES = [
   {
     id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'Bảo hành cơ bản',
@@ -67,14 +67,14 @@ const SAMPLE_WARRANTY_PACKAGES = [
 
 async function seed() {
   try {
-    for (const pkg of SAMPLE_WARRANTY_PACKAGES) {
+    for (const pkg of SEED_WARRANTY_PACKAGES) {
       await WarrantyPackage.upsert(pkg);
     }
 
-    console.log('Sample warranty packages seeded successfully');
+    console.log('Seed warranty packages thành công.');
     process.exit(0);
   } catch (error) {
-    console.error('Error seeding warranty packages:', error);
+    console.error('Lỗi khi seed warranty packages:', error);
     process.exit(1);
   }
 }

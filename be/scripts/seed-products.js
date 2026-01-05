@@ -38,28 +38,35 @@ function getSpecificationCategory(specName) {
 
 const DEFAULT_FAQS = [
   {
-    question: 'Chính sách bảo hành khi mua sản phẩm này tại cửa hàng như thế nào?',
-    answer: 'Sản phẩm được bảo hành chính hãng 12 tháng. Trong 15 ngày đầu, nếu có lỗi từ nhà sản xuất, quý khách sẽ được đổi sản phẩm mới hoặc hoàn tiền 100%.',
+    question:
+      'Chính sách bảo hành khi mua sản phẩm này tại cửa hàng như thế nào?',
+    answer:
+      'Sản phẩm được bảo hành chính hãng 12 tháng. Trong 15 ngày đầu, nếu có lỗi từ nhà sản xuất, quý khách sẽ được đổi sản phẩm mới hoặc hoàn tiền 100%.',
   },
   {
     question: 'Tôi có thể thanh toán qua những hình thức nào?',
-    answer: 'Chúng tôi hỗ trợ đa dạng các hình thức thanh toán bao gồm: Tiền mặt khi nhận hàng (COD), Chuyển khoản ngân hàng, và Thanh toán qua thẻ tín dụng/thẻ ghi nợ.',
+    answer:
+      'Chúng tôi hỗ trợ đa dạng các hình thức thanh toán bao gồm: Tiền mặt khi nhận hàng (COD), Chuyển khoản ngân hàng, và Thanh toán qua thẻ tín dụng/thẻ ghi nợ.',
   },
   {
     question: 'Cửa hàng có chính sách trả góp khi mua sản phẩm này không?',
-    answer: 'Có, chúng tôi hỗ trợ trả góp 0% lãi suất qua thẻ tín dụng của hơn 20 ngân hàng liên kết. Thủ tục nhanh gọn, xét duyệt trong 15 phút.',
+    answer:
+      'Có, chúng tôi hỗ trợ trả góp 0% lãi suất qua thẻ tín dụng của hơn 20 ngân hàng liên kết. Thủ tục nhanh gọn, xét duyệt trong 15 phút.',
   },
   {
     question: 'So với phiên bản cũ, sản phẩm này có gì khác biệt?',
-    answer: 'Sản phẩm thế hệ mới được nâng cấp đáng kể về hiệu năng, thời lượng pin và thiết kế mỏng nhẹ hơn. Đặc biệt là hệ thống tản nhiệt được cải tiến giúp máy hoạt động mát mẻ hơn.',
+    answer:
+      'Sản phẩm thế hệ mới được nâng cấp đáng kể về hiệu năng, thời lượng pin và thiết kế mỏng nhẹ hơn. Đặc biệt là hệ thống tản nhiệt được cải tiến giúp máy hoạt động mát mẻ hơn.',
   },
   {
     question: 'Ai nên mua sản phẩm này?',
-    answer: 'Sản phẩm phù hợp với doanh nhân, nhân viên văn phòng, lập trình viên và những người làm công việc sáng tạo nội dung cần một chiếc máy mạnh mẽ, bền bỉ và di động.',
+    answer:
+      'Sản phẩm phù hợp với doanh nhân, nhân viên văn phòng, lập trình viên và những người làm công việc sáng tạo nội dung cần một chiếc máy mạnh mẽ, bền bỉ và di động.',
   },
   {
     question: 'Sản phẩm này có bền không?',
-    answer: 'Sản phẩm đạt tiêu chuẩn độ bền quân đội MIL-STD-810H, chịu được va đập, rung lắc, nhiệt độ khắc nghiệt và độ ẩm cao. Vỏ máy được làm từ sợi carbon và hợp kim magie siêu bền.',
+    answer:
+      'Sản phẩm đạt tiêu chuẩn độ bền quân đội MIL-STD-810H, chịu được va đập, rung lắc, nhiệt độ khắc nghiệt và độ ẩm cao. Vỏ máy được làm từ sợi carbon và hợp kim magie siêu bền.',
   },
 ];
 
@@ -1185,7 +1192,7 @@ async function importProducts() {
     for (const productData of sampleProducts) {
       // Tìm category
       const category = createdCategories.find(
-        (cat) => cat.name === productData.category
+        (cat) => cat.name === productData.category,
       );
 
       // Tạo product
@@ -1223,7 +1230,7 @@ async function importProducts() {
       if (productData.specifications) {
         let sortOrder = 0;
         for (const [specName, specValue] of Object.entries(
-          productData.specifications
+          productData.specifications,
         )) {
           const specification = await ProductSpecification.create({
             productId: product.id,
@@ -1272,7 +1279,7 @@ async function importProducts() {
       // Cập nhật tổng stock cho product
       const totalStock = createdVariants.reduce(
         (sum, variant) => sum + variant.stockQuantity,
-        0
+        0,
       );
       await product.update({
         stockQuantity: totalStock,
@@ -1280,7 +1287,7 @@ async function importProducts() {
       });
 
       console.log(
-        `✅ Đã tạo sản phẩm: ${product.name} (${createdSpecifications.length} specs, ${createdAttributes.length} attributes, ${createdVariants.length} variants, ${totalStock} stock)`
+        `✅ Đã tạo sản phẩm: ${product.name} (${createdSpecifications.length} specs, ${createdAttributes.length} attributes, ${createdVariants.length} variants, ${totalStock} stock)`,
       );
     }
 
@@ -1289,7 +1296,7 @@ async function importProducts() {
     console.log(`   - ${sampleProducts.length} sản phẩm`);
     console.log(`   - ${createdCategories.length} danh mục`);
     console.log(
-      `   - Tổng variants: ${sampleProducts.reduce((sum, p) => sum + p.variants.length, 0)}`
+      `   - Tổng variants: ${sampleProducts.reduce((sum, p) => sum + p.variants.length, 0)}`,
     );
   } catch (error) {
     console.error('❌ Lỗi import:', error);
