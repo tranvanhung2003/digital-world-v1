@@ -3,8 +3,6 @@ const { v4: uuidv4 } = require('uuid');
 
 async function seed() {
   try {
-    console.log('Bắt đầu seed tài khoản admin');
-
     const adminData = {
       id: uuidv4(),
       email: 'admin@gmail.com',

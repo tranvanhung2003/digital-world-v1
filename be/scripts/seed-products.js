@@ -6,11 +6,11 @@ const {
   ProductSpecification,
   OrderItem,
   CartItem,
-  sequelize,
 } = require('../src/models');
-const { v4: uuidv4 } = require('uuid');
 
-// Helper function để phân loại specifications
+/**
+ * Helper function để phân loại specifications
+ */
 function getSpecificationCategory(specName) {
   const categories = {
     'Hiệu năng': ['cpu', 'ram', 'graphics', 'storage'],
@@ -25,14 +25,17 @@ function getSpecificationCategory(specName) {
     Khác: ['certification', 'warranty', 'accessories'],
   };
 
+  // Chuyển tên thông số kỹ thuật thành chữ thường để so sánh
   const lowerSpecName = specName.toLowerCase();
 
+  // Duyệt qua các danh mục và từ khóa để xác định danh mục phù hợp
   for (const [category, keywords] of Object.entries(categories)) {
     if (keywords.some((keyword) => lowerSpecName.includes(keyword))) {
       return category;
     }
   }
 
+  // Nếu không khớp với danh mục nào, trả về 'Thông số chung'
   return 'Thông số chung';
 }
 
