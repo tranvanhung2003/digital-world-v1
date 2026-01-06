@@ -28,7 +28,7 @@ const app = express();
 //   }),
 // );
 
-// Kích hoạt CORS
+// Cấu hình CORS
 const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -36,17 +36,19 @@ const corsOptions = {
   exposedHeaders: ['Set-Cookie'],
 };
 
-// Kiểm tra xem CORS origin có được đặt thành wildcard trong biến môi trường hay không
 if (process.env.CORS_ORIGIN === '*') {
+  // Case CORS_ORIGIN được cung cấp và có giá trị '*'
   corsOptions.origin = '*';
 } else if (process.env.CORS_ORIGIN) {
-  // Nếu được cung cấp, phân tích các origins phân tách bằng dấu phẩy
+  // Case CORS_ORIGIN được cung cấp và có giá trị không phải '*'
+  // Tách chuỗi các origin dựa trên dấu phẩy và loại bỏ khoảng trắng thừa
   const origins = process.env.CORS_ORIGIN.split(',').map((origin) =>
     origin.trim(),
   );
 
   corsOptions.origin = origins;
 } else {
+  // Case CORS_ORIGIN không được cung cấp
   // Sử dụng các giá trị mặc định dựa trên môi trường chạy
   corsOptions.origin =
     process.env.NODE_ENV === 'production'
@@ -88,8 +90,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Cookie parser
 app.use(cookieParser());
 
-// // Đã comment để cho phép HTML trong phần nội dung Tin tức
 // // Sanitize dữ liệu đầu vào để ngăn chặn các cuộc tấn công XSS
+// // Đã comment để cho phép HTML trong phần nội dung Tin tức
 // app.use(xss());
 
 // Compression middleware để nén các response bodies
@@ -109,7 +111,7 @@ app.get('/api-docs.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
-// Xử lý 404 routes
+// Xử lý các route không tồn tại
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'fail',
@@ -117,7 +119,7 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
+// Trình xử lý lỗi toàn cục
 app.use(errorHandler);
 
 module.exports = app;

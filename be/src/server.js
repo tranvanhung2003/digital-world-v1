@@ -37,7 +37,7 @@ const connectDB = async () => {
 };
 
 /**
- * Khởi động server và thiết lập các xử lý lỗi toàn cục
+ * Khởi động server và thiết lập các trình xử lý lỗi toàn cục
  */
 const startServer = async () => {
   await connectDB();
