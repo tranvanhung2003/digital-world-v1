@@ -1146,10 +1146,8 @@ Laptop MSI Modern 14 C12MO-660VN đã có mặt tại cửa hàng CellphoneS, đ
   },
 ];
 
-async function importProducts() {
+async function seed() {
   try {
-    console.log('🚀 Bắt đầu import sản phẩm...');
-
     // Xóa dữ liệu cũ theo thứ tự để tránh foreign key constraint
     await OrderItem.destroy({ where: {} });
     await CartItem.destroy({ where: {} });
@@ -1159,7 +1157,7 @@ async function importProducts() {
     await Product.destroy({ where: {} });
     await Category.destroy({ where: {} });
 
-    console.log('🗑️ Đã xóa dữ liệu cũ');
+    console.log('Đã xóa tất cả dữ liệu cũ');
 
     // Tạo categories
     const categories = [
@@ -1294,20 +1292,19 @@ async function importProducts() {
       );
     }
 
-    console.log('🎉 Import thành công!');
+    console.log('Seed products thành công.');
     console.log(`📊 Tổng kết:`);
     console.log(`   - ${sampleProducts.length} sản phẩm`);
     console.log(`   - ${createdCategories.length} danh mục`);
     console.log(
       `   - Tổng variants: ${sampleProducts.reduce((sum, p) => sum + p.variants.length, 0)}`,
     );
+
+    process.exit(0);
   } catch (error) {
-    console.error('❌ Lỗi import:', error);
+    console.error('Lỗi khi seed products:', error);
+    process.exit(1);
   }
 }
 
-// Chạy import
-importProducts().then(() => {
-  console.log('🏁 Hoàn tất import');
-  process.exit(0);
-});
+seed();

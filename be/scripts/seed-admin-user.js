@@ -23,8 +23,7 @@ async function seed() {
       console.log('Tài khoản admin đã tồn tại');
       console.log(`Email: ${adminData.email}`);
       console.log('Mật khẩu: (giữ nguyên mật khẩu hiện tại)');
-
-      return;
+      process.exit(0);
     }
 
     // Tạo tài khoản admin mới
@@ -35,10 +34,10 @@ async function seed() {
     console.log('Tạo tài khoản admin thành công');
     console.log(`Email: ${adminData.email}`);
     console.log(`Mật khẩu: ${adminData.password}`);
+    process.exit(0);
   } catch (error) {
     console.error('Lỗi khi tạo tài khoản admin:', error);
-  } finally {
-    process.exit(0);
+    process.exit(1);
   }
 }
 

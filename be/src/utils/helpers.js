@@ -3,7 +3,7 @@
  */
 
 const getTableName = (model) => {
-  if (model.getTableName) {
+  if (model && model.getTableName) {
     const tableName = model.getTableName();
 
     if (typeof tableName === 'object' && tableName.tableName) {
@@ -17,7 +17,7 @@ const getTableName = (model) => {
 };
 
 const getField = (model, attribute) => {
-  if (model.rawAttributes && model.rawAttributes[attribute]) {
+  if (model && model.rawAttributes && model.rawAttributes[attribute]) {
     return model.rawAttributes[attribute].field || attribute;
   }
 
