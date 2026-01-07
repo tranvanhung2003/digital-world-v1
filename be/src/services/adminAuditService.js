@@ -8,7 +8,13 @@ class AdminAuditService {
   /**
    * Log hoạt động CRUD trên user
    */
-  static logUserAction(adminUser, action, targetUserId, changes = {}) {
+  static logUserAction(
+    adminUser,
+    action,
+    targetUserId,
+    changes = {},
+    ip = null,
+  ) {
     if (!adminUser) {
       console.error('AdminAuditService.logUserAction: adminUser is undefined');
       return;
@@ -22,7 +28,7 @@ class AdminAuditService {
       targetUserId,
       changes,
       timestamp: new Date().toISOString(),
-      ip: null, // Sẽ được set từ req.ip
+      ip,
     };
 
     logger.info('ADMIN_USER_ACTION', logData);
@@ -36,11 +42,12 @@ class AdminAuditService {
     action,
     productId,
     productName,
-    changes = {}
+    changes = {},
+    ip = null,
   ) {
     if (!adminUser) {
       console.error(
-        'AdminAuditService.logProductAction: adminUser is undefined'
+        'AdminAuditService.logProductAction: adminUser is undefined',
       );
       return;
     }
@@ -54,7 +61,7 @@ class AdminAuditService {
       productName,
       changes,
       timestamp: new Date().toISOString(),
-      ip: null,
+      ip,
     };
 
     logger.info('ADMIN_PRODUCT_ACTION', logData);
@@ -63,7 +70,19 @@ class AdminAuditService {
   /**
    * Log hoạt động trên order
    */
-  static logOrderAction(adminUser, action, orderId, orderCode, changes = {}) {
+  static logOrderAction(
+    adminUser,
+    action,
+    orderId,
+    orderCode,
+    changes = {},
+    ip = null,
+  ) {
+    if (!adminUser) {
+      console.error('AdminAuditService.logOrderAction: adminUser is undefined');
+      return;
+    }
+
     const logData = {
       adminId: adminUser.id,
       adminEmail: adminUser.email,
@@ -73,7 +92,7 @@ class AdminAuditService {
       orderCode,
       changes,
       timestamp: new Date().toISOString(),
-      ip: null,
+      ip,
     };
 
     logger.info('ADMIN_ORDER_ACTION', logData);
@@ -82,7 +101,21 @@ class AdminAuditService {
   /**
    * Log hoạt động xóa review
    */
-  static logReviewAction(adminUser, action, reviewId, userId, productId) {
+  static logReviewAction(
+    adminUser,
+    action,
+    reviewId,
+    userId,
+    productId,
+    ip = null,
+  ) {
+    if (!adminUser) {
+      console.error(
+        'AdminAuditService.logReviewAction: adminUser is undefined',
+      );
+      return;
+    }
+
     const logData = {
       adminId: adminUser.id,
       adminEmail: adminUser.email,
@@ -92,7 +125,7 @@ class AdminAuditService {
       userId,
       productId,
       timestamp: new Date().toISOString(),
-      ip: null,
+      ip,
     };
 
     logger.info('ADMIN_REVIEW_ACTION', logData);
@@ -101,7 +134,14 @@ class AdminAuditService {
   /**
    * Log việc truy cập dashboard và thống kê
    */
-  static logDashboardAccess(adminUser, endpoint, filters = {}) {
+  static logDashboardAccess(adminUser, endpoint, filters = {}, ip = null) {
+    if (!adminUser) {
+      console.error(
+        'AdminAuditService.logDashboardAccess: adminUser is undefined',
+      );
+      return;
+    }
+
     const logData = {
       adminId: adminUser.id,
       adminEmail: adminUser.email,
@@ -110,16 +150,16 @@ class AdminAuditService {
       endpoint,
       filters,
       timestamp: new Date().toISOString(),
-      ip: null,
+      ip,
     };
 
     logger.info('ADMIN_DASHBOARD_ACCESS', logData);
   }
 
   /**
-   * Log failed authentication attempts
+   * Log xác thực thất bại của admin
    */
-  static logFailedAuth(email, reason, ip) {
+  static logFailedAuth(email, reason, ip = null) {
     const logData = {
       email,
       reason,
@@ -131,9 +171,16 @@ class AdminAuditService {
   }
 
   /**
-   * Log successful login
+   * Log đăng nhập thành công của admin
    */
-  static logSuccessfulLogin(adminUser, ip) {
+  static logSuccessfulLogin(adminUser, ip = null) {
+    if (!adminUser) {
+      console.error(
+        'AdminAuditService.logSuccessfulLogin: adminUser is undefined',
+      );
+      return;
+    }
+
     const logData = {
       adminId: adminUser.id,
       adminEmail: adminUser.email,
@@ -151,35 +198,29 @@ class AdminAuditService {
  * Middleware để thêm IP vào audit logs
  */
 const auditMiddleware = (req, res, next) => {
-  // Override audit methods để include IP
-  const originalLogUserAction = AdminAuditService.logUserAction;
-  const originalLogProductAction = AdminAuditService.logProductAction;
-  const originalLogOrderAction = AdminAuditService.logOrderAction;
-  const originalLogReviewAction = AdminAuditService.logReviewAction;
-  const originalLogDashboardAccess = AdminAuditService.logDashboardAccess;
+  const ip = req.ip || req.connection.remoteAddress;
+
+  const originalMethods = {
+    logUserAction: AdminAuditService.logUserAction,
+    logProductAction: AdminAuditService.logProductAction,
+    logOrderAction: AdminAuditService.logOrderAction,
+    logReviewAction: AdminAuditService.logReviewAction,
+    logDashboardAccess: AdminAuditService.logDashboardAccess,
+  };
 
   AdminAuditService.logUserAction = (
     adminUser,
     action,
     targetUserId,
-    changes = {}
+    changes = {},
   ) => {
-    if (!adminUser) {
-      console.error('AdminAuditService.logUserAction: adminUser is undefined');
-      return;
-    }
-
-    const logData = {
-      adminId: adminUser.id,
-      adminEmail: adminUser.email,
-      adminRole: adminUser.role,
+    return originalMethods.logUserAction(
+      adminUser,
       action,
       targetUserId,
       changes,
-      timestamp: new Date().toISOString(),
-      ip: req.ip || req.connection.remoteAddress,
-    };
-    logger.info('ADMIN_USER_ACTION', logData);
+      ip,
+    );
   };
 
   AdminAuditService.logProductAction = (
@@ -187,27 +228,16 @@ const auditMiddleware = (req, res, next) => {
     action,
     productId,
     productName,
-    changes = {}
+    changes = {},
   ) => {
-    if (!adminUser) {
-      console.error(
-        'AdminAuditService.logProductAction: adminUser is undefined'
-      );
-      return;
-    }
-
-    const logData = {
-      adminId: adminUser.id,
-      adminEmail: adminUser.email,
-      adminRole: adminUser.role,
+    return originalMethods.logProductAction(
+      adminUser,
       action,
       productId,
       productName,
       changes,
-      timestamp: new Date().toISOString(),
-      ip: req.ip || req.connection.remoteAddress,
-    };
-    logger.info('ADMIN_PRODUCT_ACTION', logData);
+      ip,
+    );
   };
 
   AdminAuditService.logOrderAction = (
@@ -215,20 +245,16 @@ const auditMiddleware = (req, res, next) => {
     action,
     orderId,
     orderCode,
-    changes = {}
+    changes = {},
   ) => {
-    const logData = {
-      adminId: adminUser.id,
-      adminEmail: adminUser.email,
-      adminRole: adminUser.role,
+    return originalMethods.logOrderAction(
+      adminUser,
       action,
       orderId,
       orderCode,
       changes,
-      timestamp: new Date().toISOString(),
-      ip: req.ip || req.connection.remoteAddress,
-    };
-    logger.info('ADMIN_ORDER_ACTION', logData);
+      ip,
+    );
   };
 
   AdminAuditService.logReviewAction = (
@@ -236,47 +262,33 @@ const auditMiddleware = (req, res, next) => {
     action,
     reviewId,
     userId,
-    productId
+    productId,
   ) => {
-    const logData = {
-      adminId: adminUser.id,
-      adminEmail: adminUser.email,
-      adminRole: adminUser.role,
+    return originalMethods.logReviewAction(
+      adminUser,
       action,
       reviewId,
       userId,
       productId,
-      timestamp: new Date().toISOString(),
-      ip: req.ip || req.connection.remoteAddress,
-    };
-    logger.info('ADMIN_REVIEW_ACTION', logData);
+      ip,
+    );
   };
 
   AdminAuditService.logDashboardAccess = (
     adminUser,
     endpoint,
-    filters = {}
+    filters = {},
   ) => {
-    const logData = {
-      adminId: adminUser.id,
-      adminEmail: adminUser.email,
-      adminRole: adminUser.role,
-      action: 'DASHBOARD_ACCESS',
-      endpoint,
-      filters,
-      timestamp: new Date().toISOString(),
-      ip: req.ip || req.connection.remoteAddress,
-    };
-    logger.info('ADMIN_DASHBOARD_ACCESS', logData);
+    return originalMethods.logDashboardAccess(adminUser, endpoint, filters, ip);
   };
 
-  // Restore original methods after request
+  // Khôi phục các phương thức gốc sau khi xử lý xong request
   res.on('finish', () => {
-    AdminAuditService.logUserAction = originalLogUserAction;
-    AdminAuditService.logProductAction = originalLogProductAction;
-    AdminAuditService.logOrderAction = originalLogOrderAction;
-    AdminAuditService.logReviewAction = originalLogReviewAction;
-    AdminAuditService.logDashboardAccess = originalLogDashboardAccess;
+    AdminAuditService.logUserAction = originalMethods.logUserAction;
+    AdminAuditService.logProductAction = originalMethods.logProductAction;
+    AdminAuditService.logOrderAction = originalMethods.logOrderAction;
+    AdminAuditService.logReviewAction = originalMethods.logReviewAction;
+    AdminAuditService.logDashboardAccess = originalMethods.logDashboardAccess;
   });
 
   next();
