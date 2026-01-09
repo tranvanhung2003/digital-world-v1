@@ -437,7 +437,7 @@ const deleteUser = catchAsync(async (req, res) => {
 const getProductById = catchAsync(async (req, res) => {
   const { id } = req.params;
 
-  // Tìm sản phẩm theo ID kèm các quan hệ liên quan
+  // Tìm sản phẩm theo ID và bao gồm các quan hệ
   const product = await Product.findByPk(id, {
     include: [
       {
@@ -841,7 +841,7 @@ const createProduct = catchAsync(async (req, res) => {
     }
   }
 
-  // Lấy lại product với attributes và variants
+  // Lấy lại product và bao gồm các quan hệ
   const productWithRelations = await Product.findByPk(product.id, {
     include: [
       {
@@ -920,24 +920,7 @@ const updateProduct = catchAsync(async (req, res) => {
     faqs = [],
   } = req.body;
 
-  // Debug logs để kiểm tra dữ liệu nhận được
-  // console.log('updateProduct - Request body keys:', Object.keys(req.body));
-  // console.log('updateProduct - specifications:', specifications);
-  // console.log('updateProduct - specifications type:', typeof specifications);
-  // console.log(
-  //   'updateProduct - specifications isArray:',
-  //   Array.isArray(specifications),
-  // );
-  // console.log(
-  //   'updateProduct - hasOwnProperty specifications:',
-  //   req.body.hasOwnProperty('specifications'),
-  // );
-  // console.log('updateProduct - warrantyPackageIds:', warrantyPackageIds);
-  // console.log(
-  //   'updateProduct - hasOwnProperty warrantyPackageIds:',
-  //   req.body.hasOwnProperty('warrantyPackageIds'),
-  // );
-
+  // Kiểm tra sự tồn tại của sản phẩm
   const product = await Product.findByPk(id);
 
   if (!product) {
@@ -978,7 +961,6 @@ const updateProduct = catchAsync(async (req, res) => {
   if (req.body.hasOwnProperty('status')) updateData.status = status;
   if (req.body.hasOwnProperty('featured')) updateData.featured = featured;
   if (req.body.hasOwnProperty('searchKeywords')) {
-    console.log('Updating searchKeywords:', searchKeywords);
     updateData.searchKeywords = searchKeywords;
   }
   if (req.body.hasOwnProperty('seoTitle')) updateData.seoTitle = seoTitle;
@@ -1068,7 +1050,7 @@ const updateProduct = catchAsync(async (req, res) => {
         changes.categories = validCategoryIds;
       }
     } catch (error) {
-      console.error('Error handling categories:', error);
+      console.error('Lỗi khi xử lý danh mục:', error);
       // Tiếp tục mà không có danh mục nếu có lỗi
     }
   }
@@ -1086,6 +1068,7 @@ const updateProduct = catchAsync(async (req, res) => {
         const attributePromises = attributes.map(async (attr) => {
           // Xử lý giá trị thuộc tính: nếu là chuỗi có dấu phẩy, tách thành mảng
           let attrValues = [];
+
           if (typeof attr.value === 'string') {
             // Tách chuỗi thành mảng dựa trên dấu phẩy và loại bỏ khoảng trắng
             attrValues = attr.value
@@ -1115,12 +1098,13 @@ const updateProduct = catchAsync(async (req, res) => {
         changes.attributes = attributes.length;
       }
     } catch (error) {
-      console.error('Error updating attributes:', error);
-      throw error; // Ném lỗi để transaction có thể rollback
+      console.error('Lỗi khi cập nhật thuộc tính:', error);
+      throw error; // Phải ném lỗi vì thuộc tính là bắt buộc
     }
   }
 
   // Xử lý variants - chỉ khi request có chứa field 'variants'
+  // Request có thể chứa field 'variants' khi và chỉ khi sản phẩm có biến thể
   if (req.body.hasOwnProperty('variants') && Array.isArray(variants)) {
     try {
       // Xóa tất cả variants cũ
@@ -1128,6 +1112,7 @@ const updateProduct = catchAsync(async (req, res) => {
 
       // Tạo variants mới
       let createdVariants = [];
+
       if (variants.length > 0) {
         // Lấy attributes để validate
         const productAttributes = await ProductAttribute.findAll({
@@ -1151,7 +1136,7 @@ const updateProduct = catchAsync(async (req, res) => {
             Object.keys(variantAttributes).length > 0
           ) {
             try {
-              // Tạm thời bỏ qua validation để đảm bảo biến thể được tạo
+              // Bỏ qua validation để đảm bảo biến thể được tạo
               // const isValid = validateVariantAttributes(
               //   productAttributes,
               //   variantAttributes
@@ -1198,7 +1183,8 @@ const updateProduct = catchAsync(async (req, res) => {
           { where: { id } },
         );
       } else {
-        // Chỉ cập nhật nếu stockQuantity đã được gửi trong request
+        // Chỉ cập nhật nếu 'stockQuantity' đã được gửi trong request
+        // Request có thể chứa field 'stockQuantity' khi và chỉ khi sản phẩm không có biến thể
         if (req.body.hasOwnProperty('stockQuantity')) {
           await Product.update(
             {
@@ -1210,7 +1196,7 @@ const updateProduct = catchAsync(async (req, res) => {
         }
       }
     } catch (error) {
-      console.error('Error updating variants:', error);
+      console.error('Lỗi khi cập nhật biến thể:', error);
       throw error;
     }
   }
@@ -1268,9 +1254,11 @@ const updateProduct = catchAsync(async (req, res) => {
           'Đang tìm kiếm các gói bảo hành với IDs:',
           warrantyPackageIds,
         );
+
         const existingWarrantyPackages = await WarrantyPackage.findAll({
           where: { id: warrantyPackageIds, isActive: true },
         });
+
         console.log(
           'Đã tìm thấy các gói bảo hành:',
           existingWarrantyPackages.length,
@@ -1288,6 +1276,7 @@ const updateProduct = catchAsync(async (req, res) => {
           );
 
           await Promise.all(warrantyPromises);
+
           console.log(
             `Đã tạo ${existingWarrantyPackages.length} gói bảo hành liên kết với sản phẩm ${id}`,
           );
@@ -1299,7 +1288,7 @@ const updateProduct = catchAsync(async (req, res) => {
     }
   }
 
-  // Lấy lại product với attributes, variants và specifications
+  // Lấy lại product và bao gồm các quan hệ
   const productWithRelations = await Product.findByPk(id, {
     include: [
       {
@@ -1477,6 +1466,7 @@ const getAllProducts = catchAsync(async (req, res) => {
     };
   }
 
+  // Xây dựng include clause để lấy các quan hệ cần thiết
   const includeClause = [
     {
       model: Category,
@@ -1548,7 +1538,10 @@ const getAllReviews = catchAsync(async (req, res) => {
     sortOrder = 'DESC',
   } = req.query;
 
+  // Tính toán offset cho phân trang
   const offset = (page - 1) * limit;
+
+  // Xây dựng where clause động dựa trên các tham số filter
   const whereClause = {};
 
   // Filter theo product
@@ -1566,6 +1559,7 @@ const getAllReviews = catchAsync(async (req, res) => {
     include: [
       {
         model: User,
+        as: 'user',
         attributes: ['id', 'firstName', 'lastName', 'avatar'],
       },
       {
@@ -1626,7 +1620,10 @@ const getAllOrders = catchAsync(async (req, res) => {
     endDate,
   } = req.query;
 
+  // Tính toán offset cho phân trang
   const offset = (page - 1) * limit;
+
+  // Xây dựng where clause động dựa trên các tham số filter
   const whereClause = {};
 
   // Filter theo status
@@ -1692,6 +1689,7 @@ const updateOrderStatus = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { status, note } = req.body;
 
+  // Kiểm tra trạng thái hợp lệ
   const validStatuses = [
     'pending',
     'processing',
@@ -1703,11 +1701,13 @@ const updateOrderStatus = catchAsync(async (req, res) => {
     throw new AppError('Trạng thái đơn hàng không hợp lệ', 400);
   }
 
+  // Kiểm tra sự tồn tại của đơn hàng
   const order = await Order.findByPk(id);
   if (!order) {
     throw new AppError('Không tìm thấy đơn hàng', 404);
   }
 
+  // Cập nhật trạng thái đơn hàng
   const updatedOrder = await order.update({
     status,
     note: note || order.note,
@@ -1732,10 +1732,11 @@ const cloneProduct = catchAsync(async (req, res) => {
     ProductVariant,
     ProductSpecification,
     ProductWarranty,
+    WarrantyPackage,
     sequelize,
   } = require('../models');
 
-  // 1. Tìm sản phẩm gốc với đầy đủ các quan hệ
+  // Tìm sản phẩm gốc với đầy đủ các quan hệ
   const originalProduct = await Product.findByPk(id, {
     include: [
       { model: Category, as: 'categories' },
@@ -1743,42 +1744,45 @@ const cloneProduct = catchAsync(async (req, res) => {
       { model: ProductVariant, as: 'variants' },
       { model: ProductSpecification, as: 'productSpecifications' },
       {
-        model: require('../models').WarrantyPackage,
+        model: WarrantyPackage,
         as: 'warrantyPackages',
         through: { attributes: ['isDefault'] },
       },
     ],
   });
 
+  // Nếu không tìm thấy sản phẩm gốc, trả về lỗi
   if (!originalProduct) {
     throw new AppError('Không tìm thấy sản phẩm gốc', 404);
   }
 
-  // 2. Tạo tên duy nhất cho sản phẩm clone
+  // Tạo tên duy nhất cho sản phẩm clone
   let newName = originalProduct.name;
   let count = 1;
-  let exists = true;
-  while (exists) {
+
+  while (true) {
     const testName = `${originalProduct.name} (${count})`;
     const existing = await Product.findOne({ where: { name: testName } });
+
     if (!existing) {
       newName = testName;
-      exists = false;
+      break;
     } else {
       count++;
     }
   }
 
-  // 3. Tạo SKU mới duy nhất
+  // Tạo SKU mới duy nhất
   const newSku = `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-  // 4. Sử dụng transaction khi clone dữ liệu
+  // Sử dụng transaction khi clone dữ liệu
   const transaction = await sequelize.transaction();
 
   try {
     // Clone dữ liệu sản phẩm cơ bản
     const productData = originalProduct.get({ plain: true });
 
+    // Xóa các trường tự động sinh và cần clone lại
     delete productData.id;
     delete productData.createdAt;
     delete productData.updatedAt;
@@ -1789,13 +1793,14 @@ const cloneProduct = catchAsync(async (req, res) => {
     delete productData.productSpecifications;
     delete productData.warrantyPackages;
 
+    // Cập nhật tên, SKU và trạng thái cho sản phẩm mới clone
     productData.name = newName;
     productData.sku = newSku;
     productData.status = 'draft'; // Mặc định là bản nháp để admin kiểm tra lại
 
     const newProduct = await Product.create(productData, { transaction });
 
-    // 5. Clone các relations
+    // Clone các relations
 
     // Categories
     if (originalProduct.categories && originalProduct.categories.length > 0) {
@@ -1812,6 +1817,7 @@ const cloneProduct = catchAsync(async (req, res) => {
       const attributeData = originalProduct.attributes.map((attr) => {
         const data = attr.get({ plain: true });
 
+        // Xóa các trường tự động sinh
         delete data.id;
         delete data.createdAt;
         delete data.updatedAt;
@@ -1826,6 +1832,8 @@ const cloneProduct = catchAsync(async (req, res) => {
     if (originalProduct.variants && originalProduct.variants.length > 0) {
       const variantData = originalProduct.variants.map((variant) => {
         const data = variant.get({ plain: true });
+
+        // Xóa các trường tự động sinh
         delete data.id;
         delete data.createdAt;
         delete data.updatedAt;
@@ -1851,9 +1859,12 @@ const cloneProduct = catchAsync(async (req, res) => {
     ) {
       const specData = originalProduct.productSpecifications.map((spec) => {
         const data = spec.get({ plain: true });
+
+        // Xóa các trường tự động sinh
         delete data.id;
         delete data.createdAt;
         delete data.updatedAt;
+
         return { ...data, productId: newProduct.id };
       });
 
@@ -1870,6 +1881,7 @@ const cloneProduct = catchAsync(async (req, res) => {
         warrantyPackageId: wp.id,
         isDefault: wp.ProductWarranty?.isDefault || false,
       }));
+
       await ProductWarranty.bulkCreate(warrantyData, { transaction });
     }
 
@@ -1890,7 +1902,7 @@ const cloneProduct = catchAsync(async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
-    console.error('Error in cloneProduct:', error);
+    console.error('Lỗi khi clone sản phẩm:', error);
     throw error;
   }
 });
