@@ -9,34 +9,43 @@ const {
 const { addressSchema } = require('../validators/address.validator');
 const { authenticate } = require('../middlewares/authenticate');
 
-// All routes require authentication
+// TẤT CẢ CÁC ROUTE ĐỀU YÊU CẦU XÁC THỰC
 router.use(authenticate);
 
 // Profile routes
 router.put(
-  '/profile',
+  '/profile', // PUT /api/users/profile - Cập nhật thông tin cá nhân
   validateRequest(updateUserSchema),
-  userController.updateProfile
+  userController.updateProfile,
 );
 router.post(
-  '/change-password',
+  '/change-password', // POST /api/users/change-password - Đổi mật khẩu
   validateRequest(changePasswordSchema),
-  userController.changePassword
+  userController.changePassword,
 );
 
 // Address routes
-router.get('/addresses', userController.getAddresses);
+router.get(
+  '/addresses', // GET /api/users/addresses - Lấy danh sách địa chỉ
+  userController.getAddresses,
+);
 router.post(
-  '/addresses',
+  '/addresses', // POST /api/users/addresses - Thêm địa chỉ mới
   validateRequest(addressSchema),
-  userController.addAddress
+  userController.addAddress,
 );
 router.put(
-  '/addresses/:id',
+  '/addresses/:id', // PUT /api/users/addresses/:id - Cập nhật địa chỉ
   validateRequest(addressSchema),
-  userController.updateAddress
+  userController.updateAddress,
 );
-router.delete('/addresses/:id', userController.deleteAddress);
-router.patch('/addresses/:id/default', userController.setDefaultAddress);
+router.delete(
+  '/addresses/:id', // DELETE /api/users/addresses/:id - Xóa địa chỉ
+  userController.deleteAddress,
+);
+router.patch(
+  '/addresses/:id/default', // PATCH /api/users/addresses/:id/default - Đặt địa chỉ mặc định
+  userController.setDefaultAddress,
+);
 
 module.exports = router;

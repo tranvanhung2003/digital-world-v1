@@ -1,24 +1,29 @@
 const { User, Address } = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 
-// Update user profile
+/**
+ * Cập nhật thông tin cá nhân
+ */
 const updateProfile = async (req, res, next) => {
   try {
     const { firstName, lastName, phone, avatar } = req.body;
     const userId = req.user.id;
 
-    // Find user
+    // Tìm người dùng
     const user = await User.findByPk(userId);
+
+    // Nếu không tìm thấy người dùng, trả về lỗi
     if (!user) {
       throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    // Update user
+    // Cập nhật thông tin người dùng
     user.firstName = firstName || user.firstName;
     user.lastName = lastName || user.lastName;
     user.phone = phone !== undefined ? phone : user.phone;
     user.avatar = avatar || user.avatar;
 
+    // Lưu thay đổi
     await user.save();
 
     res.status(200).json({
@@ -30,25 +35,31 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-// Change password
+/**
+ * Đổi mật khẩu
+ */
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
 
-    // Find user
+    // Tìm người dùng
     const user = await User.findByPk(userId);
+
+    // Nếu không tìm thấy người dùng, trả về lỗi
     if (!user) {
       throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    // Check current password
+    // Kiểm tra mật khẩu hiện tại
     const isMatch = await user.comparePassword(currentPassword);
+
+    // Nếu mật khẩu không đúng, trả về lỗi
     if (!isMatch) {
       throw new AppError('Mật khẩu hiện tại không đúng', 401);
     }
 
-    // Update password
+    // Cập nhật mật khẩu
     user.password = newPassword;
     await user.save();
 
@@ -61,12 +72,14 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-// Get user addresses
+/**
+ * Lấy danh sách địa chỉ
+ */
 const getAddresses = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // Find addresses
+    // Tìm địa chỉ của người dùng
     const addresses = await Address.findAll({
       where: { userId },
       order: [
@@ -84,27 +97,31 @@ const getAddresses = async (req, res, next) => {
   }
 };
 
-// Add new address
+/**
+ * Thêm địa chỉ mới
+ */
 const addAddress = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const addressData = req.body;
 
-    // Check if this is the first address
+    // Đếm số địa chỉ hiện có của người dùng
     const addressCount = await Address.count({ where: { userId } });
+
+    // Nếu chưa có địa chỉ nào, đặt địa chỉ mới là mặc định
     if (addressCount === 0) {
       addressData.isDefault = true;
     }
 
-    // If setting as default, update other addresses
+    // Nếu đặt địa chỉ mới này là mặc định, thì cập nhật địa chỉ mặc định cũ là false
     if (addressData.isDefault) {
       await Address.update(
         { isDefault: false },
-        { where: { userId, isDefault: true } }
+        { where: { userId, isDefault: true } },
       );
     }
 
-    // Create address
+    // Tạo địa chỉ mới
     const address = await Address.create({
       ...addressData,
       userId,
@@ -119,31 +136,34 @@ const addAddress = async (req, res, next) => {
   }
 };
 
-// Update address
+/**
+ * Cập nhật địa chỉ
+ */
 const updateAddress = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
     const addressData = req.body;
 
-    // Find address
+    // Tìm địa chỉ
     const address = await Address.findOne({
       where: { id, userId },
     });
 
+    // Nếu không tìm thấy địa chỉ, trả về lỗi
     if (!address) {
       throw new AppError('Không tìm thấy địa chỉ', 404);
     }
 
-    // If setting as default, update other addresses
+    // Nếu đặt địa chỉ này là mặc định, thì cập nhật địa chỉ mặc định cũ là false
     if (addressData.isDefault && !address.isDefault) {
       await Address.update(
         { isDefault: false },
-        { where: { userId, isDefault: true } }
+        { where: { userId, isDefault: true } },
       );
     }
 
-    // Update address
+    // Cập nhật địa chỉ
     await address.update(addressData);
 
     res.status(200).json({
@@ -155,25 +175,28 @@ const updateAddress = async (req, res, next) => {
   }
 };
 
-// Delete address
+/**
+ * Xóa địa chỉ
+ */
 const deleteAddress = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Find address
+    // Tìm địa chỉ
     const address = await Address.findOne({
       where: { id, userId },
     });
 
+    // Nếu không tìm thấy địa chỉ, trả về lỗi
     if (!address) {
       throw new AppError('Không tìm thấy địa chỉ', 404);
     }
 
-    // Delete address
+    // Xóa địa chỉ
     await address.destroy();
 
-    // If deleted address was default, set another address as default
+    // Nếu địa chỉ bị xóa là mặc định, đặt một địa chỉ khác làm mặc định (địa chỉ mới nhất)
     if (address.isDefault) {
       const anotherAddress = await Address.findOne({
         where: { userId },
@@ -195,28 +218,31 @@ const deleteAddress = async (req, res, next) => {
   }
 };
 
-// Set default address
+/**
+ * Đặt địa chỉ mặc định
+ */
 const setDefaultAddress = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Find address
+    // Tìm địa chỉ
     const address = await Address.findOne({
       where: { id, userId },
     });
 
+    // Nếu không tìm thấy địa chỉ, trả về lỗi
     if (!address) {
       throw new AppError('Không tìm thấy địa chỉ', 404);
     }
 
-    // Update other addresses
+    // Cập nhật địa chỉ mặc định cũ thành false
     await Address.update(
       { isDefault: false },
-      { where: { userId, isDefault: true } }
+      { where: { userId, isDefault: true } },
     );
 
-    // Set as default
+    // Đặt địa chỉ này thành mặc định
     address.isDefault = true;
     await address.save();
 
