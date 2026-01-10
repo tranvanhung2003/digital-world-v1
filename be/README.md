@@ -163,6 +163,7 @@ npm start
 - `DELETE /api/reviews/:id` - Xóa đánh giá
 - `GET /api/reviews/admin/all` - Lấy tất cả đánh giá (Admin)
 - `PATCH /api/reviews/admin/:id/verify` - Xác minh đánh giá (Admin)
+- `PUT /api/reviews/:id/helpful` - Đánh dấu đánh giá là hữu ích hoặc không hữu ích
 
 ### Wishlist
 

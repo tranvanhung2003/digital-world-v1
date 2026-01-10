@@ -9,23 +9,25 @@ const {
 const { AppError } = require('../middlewares/errorHandler');
 const { Op } = require('sequelize');
 
-// Create review
+/**
+ * Tạo đánh giá mới
+ */
 const createReview = async (req, res, next) => {
   try {
     const { productId, rating, title, comment, images } = req.body;
     const userId = req.user.id;
 
-    // Check if product exists
+    // Kiểm tra xem sản phẩm có tồn tại không
     const product = await Product.findByPk(productId);
     if (!product) {
       throw new AppError('Sản phẩm không tồn tại', 404);
     }
 
-    // Check if user has purchased the product
+    // Kiểm tra xem người dùng đã mua sản phẩm chưa
     const hasPurchased = await Order.findOne({
       where: {
         userId,
-        status: 'delivered', // Only delivered orders can be reviewed
+        status: 'delivered', // Chỉ các đơn hàng đã được giao mới được đánh giá
       },
       include: [
         {
@@ -37,20 +39,22 @@ const createReview = async (req, res, next) => {
       ],
     });
 
+    // Nếu chưa mua, không cho phép đánh giá
     if (!hasPurchased) {
       throw new AppError('Bạn cần mua sản phẩm trước khi đánh giá', 403);
     }
 
-    // Check if user has already reviewed this product
+    // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
     const existingReview = await Review.findOne({
       where: { userId, productId },
     });
 
+    // Nếu đã đánh giá, không cho phép đánh giá lại
     if (existingReview) {
       throw new AppError('Bạn đã đánh giá sản phẩm này rồi', 400);
     }
 
-    // Create review
+    // Tạo đánh giá
     const review = await Review.create({
       productId,
       userId,
@@ -58,10 +62,10 @@ const createReview = async (req, res, next) => {
       title,
       content: comment,
       images: images || [],
-      isVerified: true, // Auto-verify since we checked purchase
+      isVerified: true, // Tự động xác minh vì đã kiểm tra mua hàng
     });
 
-    // Get review with user info
+    // Lấy đánh giá cùng thông tin người dùng
     const createdReview = await Review.findByPk(review.id, {
       include: [
         {
@@ -72,16 +76,18 @@ const createReview = async (req, res, next) => {
       ],
     });
 
-    // Update product rating
+    // Lấy tất cả đánh giá của sản phẩm để cập nhật điểm đánh giá trung bình
     const productReviews = await Review.findAll({
       where: { productId },
       attributes: ['rating'],
     });
 
+    // Tính điểm đánh giá trung bình mới
     const avgRating =
       productReviews.reduce((sum, review) => sum + review.rating, 0) /
       productReviews.length;
 
+    // Cập nhật điểm đánh giá và số lượng đánh giá cho sản phẩm
     await product.update({
       rating: avgRating,
       reviewCount: productReviews.length,
@@ -96,23 +102,26 @@ const createReview = async (req, res, next) => {
   }
 };
 
-// Update review
+/**
+ * Cập nhật đánh giá
+ */
 const updateReview = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { rating, title, comment, images } = req.body;
     const userId = req.user.id;
 
-    // Find review
+    // Tìm đánh giá
     const review = await Review.findOne({
       where: { id, userId },
     });
 
+    // Nếu không tìm thấy đánh giá, trả về lỗi
     if (!review) {
       throw new AppError('Không tìm thấy đánh giá', 404);
     }
 
-    // Update review
+    // Cập nhật đánh giá
     await review.update({
       rating: rating !== undefined ? rating : review.rating,
       title: title !== undefined ? title : review.title,
@@ -121,7 +130,7 @@ const updateReview = async (req, res, next) => {
       isVerified: true,
     });
 
-    // Get updated review with user info
+    // Lấy đánh giá đã cập nhật cùng thông tin người dùng
     const updatedReview = await Review.findByPk(review.id, {
       include: [
         {
@@ -132,21 +141,23 @@ const updateReview = async (req, res, next) => {
       ],
     });
 
-    // Update product rating
+    // Lấy tất cả đánh giá của sản phẩm để cập nhật điểm đánh giá trung bình
     const productReviews = await Review.findAll({
       where: { productId: review.productId },
       attributes: ['rating'],
     });
 
+    // Tính điểm đánh giá trung bình mới
     const avgRating =
       productReviews.reduce((sum, review) => sum + review.rating, 0) /
       productReviews.length;
 
+    // Cập nhật điểm đánh giá cho sản phẩm
     await Product.update(
       {
         rating: avgRating,
       },
-      { where: { id: review.productId } }
+      { where: { id: review.productId } },
     );
 
     res.status(200).json({
@@ -158,32 +169,37 @@ const updateReview = async (req, res, next) => {
   }
 };
 
-// Delete review
+/**
+ * Xóa đánh giá
+ */
 const deleteReview = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Find review
+    // Tìm đánh giá
     const review = await Review.findOne({
       where: { id, userId },
     });
 
+    // Nếu không tìm thấy đánh giá, trả về lỗi
     if (!review) {
       throw new AppError('Không tìm thấy đánh giá', 404);
     }
 
+    // Lấy productId trước khi xóa
     const productId = review.productId;
 
-    // Delete review
+    // Xóa đánh giá
     await review.destroy();
 
-    // Update product rating
+    // Lấy tất cả đánh giá của sản phẩm để cập nhật điểm đánh giá trung bình
     const productReviews = await Review.findAll({
       where: { productId },
       attributes: ['rating'],
     });
 
+    // Nếu còn đánh giá, tính điểm trung bình mới, nếu không thì đặt về 0
     if (productReviews.length > 0) {
       const avgRating =
         productReviews.reduce((sum, review) => sum + review.rating, 0) /
@@ -194,7 +210,7 @@ const deleteReview = async (req, res, next) => {
           rating: avgRating,
           reviewCount: productReviews.length,
         },
-        { where: { id: productId } }
+        { where: { id: productId } },
       );
     } else {
       await Product.update(
@@ -202,7 +218,7 @@ const deleteReview = async (req, res, next) => {
           rating: 0,
           reviewCount: 0,
         },
-        { where: { id: productId } }
+        { where: { id: productId } },
       );
     }
 
@@ -215,7 +231,9 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
-// Get product reviews
+/**
+ * Lấy đánh giá của sản phẩm
+ */
 const getProductReviews = async (req, res, next) => {
   try {
     const { productId } = req.params;
@@ -228,7 +246,7 @@ const getProductReviews = async (req, res, next) => {
       withImages,
     } = req.query;
 
-    // Map sort options to actual database columns
+    // Tạo map các tùy chọn sắp xếp với các cột và thứ tự tương ứng trong cơ sở dữ liệu
     const sortMapping = {
       newest: ['createdAt', 'DESC'],
       oldest: ['createdAt', 'ASC'],
@@ -237,15 +255,18 @@ const getProductReviews = async (req, res, next) => {
       most_helpful: ['likes', 'DESC'],
     };
 
+    // Lấy cột và thứ tự sắp xếp từ map, mặc định là 'createdAt' và 'DESC' nếu không tìm thấy
     const [sortColumn, sortOrder] = sortMapping[sort] || ['createdAt', 'DESC'];
 
-    // Check if product exists
+    // Kiểm tra xem sản phẩm có tồn tại không
     const product = await Product.findByPk(productId);
+
+    // Nếu không tồn tại, trả về lỗi 404
     if (!product) {
       throw new AppError('Sản phẩm không tồn tại', 404);
     }
 
-    // Build where clause with filters
+    // Xây dựng điều kiện lọc
     const whereClause = { productId };
 
     if (rating) {
@@ -256,7 +277,7 @@ const getProductReviews = async (req, res, next) => {
       whereClause.isVerified = verified === 'true';
     }
 
-    // Get reviews
+    //Lấy các đánh giá
     const { count, rows: reviews } = await Review.findAndCountAll({
       where: whereClause,
       include: [
@@ -285,13 +306,15 @@ const getProductReviews = async (req, res, next) => {
   }
 };
 
-// Get user reviews
+/**
+ * Lấy đánh giá của người dùng
+ */
 const getUserReviews = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { page = 1, limit = 10 } = req.query;
 
-    // Get reviews
+    // Lấy các đánh giá của người dùng
     const { count, rows: reviews } = await Review.findAndCountAll({
       where: { userId },
       include: [
@@ -319,17 +342,21 @@ const getUserReviews = async (req, res, next) => {
   }
 };
 
-// Admin: Get all reviews
+/**
+ * Lấy tất cả đánh giá (Admin)
+ */
 const getAllReviews = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, verified } = req.query;
 
+    // Xây dựng điều kiện lọc
     const whereConditions = {};
+
     if (verified !== undefined) {
       whereConditions.isVerified = verified === 'true';
     }
 
-    // Get reviews
+    // Lấy tất cả đánh giá kèm thông tin người dùng và sản phẩm
     const { count, rows: reviews } = await Review.findAndCountAll({
       where: whereConditions,
       include: [
@@ -362,19 +389,23 @@ const getAllReviews = async (req, res, next) => {
   }
 };
 
-// Admin: Verify review
+/**
+ * Xác minh đánh giá (Admin)
+ */
 const verifyReview = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { isVerified } = req.body;
 
-    // Find review
+    // Tìm đánh giá
     const review = await Review.findByPk(id);
+
+    // Nếu không tìm thấy đánh giá, trả về lỗi
     if (!review) {
       throw new AppError('Không tìm thấy đánh giá', 404);
     }
 
-    // Update review
+    // Cập nhật trạng thái xác minh của đánh giá
     await review.update({ isVerified });
 
     res.status(200).json({
@@ -392,55 +423,60 @@ const verifyReview = async (req, res, next) => {
   }
 };
 
-// Mark review as helpful or not
+/**
+ * Đánh dấu đánh giá là hữu ích hoặc không hữu ích
+ */
 const markReviewHelpful = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { helpful } = req.body;
     const userId = req.user.id;
 
-    // Find review
+    // Tìm đánh giá
     const review = await Review.findByPk(id);
+
+    // Nếu không tìm thấy đánh giá, trả về lỗi
     if (!review) {
       throw new AppError('Không tìm thấy đánh giá', 404);
     }
 
-    // Check if user is not reviewing their own review
+    // Kiểm tra để tránh người dùng tự đánh giá đánh giá của chính họ
     if (review.userId === userId) {
       throw new AppError('Bạn không thể đánh giá đánh giá của chính mình', 400);
     }
 
-    // Find existing review feedback
+    // Tìm phản hồi đánh giá hiện có
     const reviewFeedback = await ReviewFeedback.findOne({
       where: { reviewId: id, userId },
     });
 
     if (reviewFeedback) {
-      // Update existing feedback
+      // Case người dùng đã từng phản hồi đánh giá này, cập nhật nếu có thay đổi
       if (reviewFeedback.isHelpful !== helpful) {
-        // Update review counts
         if (helpful) {
-          // Change from dislike to like
+          // Chuyển từ không hữu ích sang hữu ích
           await review.increment('likes');
           await review.decrement('dislikes');
         } else {
-          // Change from like to dislike
+          // Chuyển từ hữu ích sang không hữu ích
           await review.decrement('likes');
           await review.increment('dislikes');
         }
 
-        // Update feedback
+        // Cập nhật phản hồi đánh giá hiện có
         await reviewFeedback.update({ isHelpful: helpful });
       }
     } else {
-      // Create new feedback
+      // Case người dùng chưa từng phản hồi đánh giá này
+
+      // Tạo phản hồi đánh giá mới
       await ReviewFeedback.create({
         reviewId: id,
         userId,
         isHelpful: helpful,
       });
 
-      // Update review counts
+      // Cập nhật số lượt hữu ích hoặc không hữu ích cho đánh giá
       if (helpful) {
         await review.increment('likes');
       } else {
@@ -448,7 +484,7 @@ const markReviewHelpful = async (req, res, next) => {
       }
     }
 
-    // Get updated review
+    // Lấy lại đánh giá đã cập nhật
     const updatedReview = await Review.findByPk(id);
 
     res.status(200).json({

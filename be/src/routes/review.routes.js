@@ -71,7 +71,7 @@ const { authorize } = require('../middlewares/authorize');
  *           description: Last update date
  */
 
-// Public routes
+// PUBLIC ROUTES
 
 /**
  * @swagger
@@ -125,7 +125,10 @@ const { authorize } = require('../middlewares/authorize');
  *       404:
  *         description: Product not found
  */
-router.get('/product/:productId', reviewController.getProductReviews);
+router.get(
+  '/product/:productId', // GET /api/reviews/product/:productId - Lấy đánh giá của sản phẩm
+  reviewController.getProductReviews,
+);
 
 // User routes (authenticated)
 
@@ -144,7 +147,10 @@ router.get('/product/:productId', reviewController.getProductReviews);
  *         description: Not authenticated
  */
 router.use('/user', authenticate);
-router.get('/user', reviewController.getUserReviews);
+router.get(
+  '/user', // GET /api/reviews/user - Lấy đánh giá của người dùng
+  reviewController.getUserReviews,
+);
 
 /**
  * @swagger
@@ -191,10 +197,10 @@ router.get('/user', reviewController.getUserReviews);
  *         description: Product not found
  */
 router.post(
-  '/',
+  '/', // POST /api/reviews - Tạo đánh giá mới
   authenticate,
   validateRequest(reviewSchema),
-  reviewController.createReview
+  reviewController.createReview,
 );
 
 /**
@@ -244,10 +250,10 @@ router.post(
  *         description: Review not found
  */
 router.put(
-  '/:id',
+  '/:id', // PUT /api/reviews/:id - Cập nhật đánh giá
   authenticate,
   validateRequest(reviewSchema),
-  reviewController.updateReview
+  reviewController.updateReview,
 );
 
 /**
@@ -275,7 +281,11 @@ router.put(
  *       404:
  *         description: Review not found
  */
-router.delete('/:id', authenticate, reviewController.deleteReview);
+router.delete(
+  '/:id', // DELETE /api/reviews/:id - Xóa đánh giá
+  authenticate,
+  reviewController.deleteReview,
+);
 
 /**
  * @swagger
@@ -315,13 +325,13 @@ router.delete('/:id', authenticate, reviewController.deleteReview);
  *         description: Review not found
  */
 router.put(
-  '/:id/helpful',
+  '/:id/helpful', // PUT /api/reviews/:id/helpful - Đánh dấu đánh giá là hữu ích hoặc không hữu ích
   authenticate,
   validateRequest(reviewHelpfulSchema),
-  reviewController.markReviewHelpful
+  reviewController.markReviewHelpful,
 );
 
-// Admin routes
+// ADMIN ROUTES
 
 /**
  * @swagger
@@ -353,10 +363,10 @@ router.put(
  *         description: Not authorized
  */
 router.get(
-  '/admin/all',
+  '/admin/all', // GET /api/reviews/admin/all - Lấy tất cả đánh giá (Admin)
   authenticate,
   authorize('admin'),
-  reviewController.getAllReviews
+  reviewController.getAllReviews,
 );
 
 /**
@@ -396,10 +406,10 @@ router.get(
  *         description: Review not found
  */
 router.patch(
-  '/admin/:id/verify',
+  '/admin/:id/verify', // PATCH /api/reviews/admin/:id/verify - Xác minh đánh giá (Admin)
   authenticate,
   authorize('admin'),
-  reviewController.verifyReview
+  reviewController.verifyReview,
 );
 
 module.exports = router;

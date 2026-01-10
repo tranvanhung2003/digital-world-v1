@@ -43,7 +43,7 @@ router.use('/contact', contactRoutes);
 router.get('/health', (req, res) => {
   res.status(200).json({
     status: 'success',
-    message: 'API is running',
+    message: 'API đang hoạt động bình thường',
     timestamp: new Date().toISOString(),
   });
 });
