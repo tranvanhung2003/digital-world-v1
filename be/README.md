@@ -172,6 +172,16 @@ npm start
 - `GET /api/wishlist/check/:productId` - Kiểm tra sản phẩm có trong danh sách yêu thích
 - `DELETE /api/wishlist` - Xóa tất cả sản phẩm trong danh sách yêu thích
 
+### News
+
+- `GET /api/news` - Lấy tất cả tin tức với phân trang và lọc
+- `GET /api/news/slug/:slug` - Lấy tin tức theo slug
+- `GET /api/news/slug/:slug/related` - Lấy tin tức liên quan
+- `GET /api/news/:id` - Lấy tin tức theo ID
+- `POST /api/news` - Tạo tin tức mới (Admin)
+- `PUT /api/news/:id` - Cập nhật tin tức (Admin)
+- `DELETE /api/news/:id` - Xóa tin tức (Admin)
+
 ### Images
 
 - `POST /api/images/upload` - Tải lên một ảnh
