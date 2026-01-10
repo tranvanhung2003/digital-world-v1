@@ -1,7 +1,9 @@
 const { Wishlist, Product } = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 
-// Get user wishlist
+/**
+ * Lấy danh sách yêu thích
+ */
 const getWishlist = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -35,23 +37,28 @@ const getWishlist = async (req, res, next) => {
   }
 };
 
-// Add product to wishlist
+/**
+ * Thêm sản phẩm vào danh sách yêu thích
+ */
 const addToWishlist = async (req, res, next) => {
   try {
     const { productId } = req.body;
     const userId = req.user.id;
 
-    // Check if product exists
+    // Kiểm tra sản phẩm có tồn tại không
     const product = await Product.findByPk(productId);
+
+    // Nếu không tồn tại, trả về lỗi
     if (!product) {
       throw new AppError('Sản phẩm không tồn tại', 404);
     }
 
-    // Check if product is already in wishlist
+    // Kiểm tra sản phẩm đã có trong danh sách yêu thích chưa
     const existingItem = await Wishlist.findOne({
       where: { userId, productId },
     });
 
+    // Nếu đã có, trả về thông báo
     if (existingItem) {
       return res.status(200).json({
         status: 'success',
@@ -59,7 +66,7 @@ const addToWishlist = async (req, res, next) => {
       });
     }
 
-    // Add to wishlist
+    // Thêm sản phẩm vào danh sách yêu thích
     await Wishlist.create({
       userId,
       productId,
@@ -74,22 +81,25 @@ const addToWishlist = async (req, res, next) => {
   }
 };
 
-// Remove product from wishlist
+/**
+ * Xóa sản phẩm khỏi danh sách yêu thích
+ */
 const removeFromWishlist = async (req, res, next) => {
   try {
     const { productId } = req.params;
     const userId = req.user.id;
 
-    // Check if product is in wishlist
+    // Kiểm tra sản phẩm có trong danh sách yêu thích không
     const wishlistItem = await Wishlist.findOne({
       where: { userId, productId },
     });
 
+    // Nếu không có, trả về lỗi
     if (!wishlistItem) {
       throw new AppError('Sản phẩm không có trong danh sách yêu thích', 404);
     }
 
-    // Remove from wishlist
+    // Xóa sản phẩm khỏi danh sách yêu thích
     await wishlistItem.destroy();
 
     res.status(200).json({
@@ -101,13 +111,15 @@ const removeFromWishlist = async (req, res, next) => {
   }
 };
 
-// Check if product is in wishlist
+/**
+ * Kiểm tra sản phẩm có trong danh sách yêu thích hay không
+ */
 const checkWishlist = async (req, res, next) => {
   try {
     const { productId } = req.params;
     const userId = req.user.id;
 
-    // Check if product is in wishlist
+    // Kiểm tra sản phẩm có trong danh sách yêu thích hay không
     const wishlistItem = await Wishlist.findOne({
       where: { userId, productId },
     });
@@ -123,12 +135,14 @@ const checkWishlist = async (req, res, next) => {
   }
 };
 
-// Clear wishlist
+/**
+ * Xóa tất cả sản phẩm trong danh sách yêu thích
+ */
 const clearWishlist = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // Delete all wishlist items
+    // Xóa tất cả sản phẩm trong danh sách yêu thích của người dùng
     await Wishlist.destroy({
       where: { userId },
     });

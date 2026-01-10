@@ -170,7 +170,7 @@ npm start
 - `GET /api/wishlist` - Lấy danh sách yêu thích
 - `POST /api/wishlist` - Thêm sản phẩm vào danh sách yêu thích
 - `DELETE /api/wishlist/:productId` - Xóa sản phẩm khỏi danh sách yêu thích
-- `GET /api/wishlist/check/:productId` - Kiểm tra sản phẩm có trong danh sách yêu thích
+- `GET /api/wishlist/check/:productId` - Kiểm tra sản phẩm có trong danh sách yêu thích hay không
 - `DELETE /api/wishlist` - Xóa tất cả sản phẩm trong danh sách yêu thích
 
 ### Warranty Packages
