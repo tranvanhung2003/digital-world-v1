@@ -58,7 +58,7 @@ const { authenticate } = require('../middlewares/authenticate');
  *         description: Email already exists
  */
 router.post(
-  '/register',
+  '/register', // POST /api/auth/register - Đăng ký người dùng mới
   validateRequest(registerSchema),
   authController.register,
 );
@@ -90,7 +90,11 @@ router.post(
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', validateRequest(loginSchema), authController.login);
+router.post(
+  '/login', // POST /api/auth/login - Đăng nhập người dùng
+  validateRequest(loginSchema),
+  authController.login,
+);
 
 /**
  * @swagger
@@ -106,7 +110,11 @@ router.post('/login', validateRequest(loginSchema), authController.login);
  *       401:
  *         description: Not authenticated
  */
-router.post('/logout', authenticate, authController.logout);
+router.post(
+  '/logout', // POST /api/auth/logout - Đăng xuất người dùng
+  authenticate,
+  authController.logout,
+);
 
 /**
  * @swagger
@@ -126,7 +134,10 @@ router.post('/logout', authenticate, authController.logout);
  *       400:
  *         description: Invalid or expired token
  */
-router.get('/verify-email/:token', authController.verifyEmail);
+router.get(
+  '/verify-email/:token', // GET /api/auth/verify-email/:token - Xác thực email với token (GET method)
+  authController.verifyEmail,
+);
 
 /**
  * @swagger
@@ -152,7 +163,7 @@ router.get('/verify-email/:token', authController.verifyEmail);
  *         description: Invalid or expired token
  */
 router.post(
-  '/verify-email',
+  '/verify-email', // POST /api/auth/verify-email - Xác thực email với token (POST method)
   validateRequest(verifyEmailSchema),
   authController.verifyEmailWithToken,
 );
@@ -182,7 +193,7 @@ router.post(
  *         description: User not found
  */
 router.post(
-  '/resend-verification',
+  '/resend-verification', // POST /api/auth/resend-verification - Gửi lại email xác thực
   validateRequest(emailSchema),
   authController.resendVerification,
 );
@@ -210,7 +221,10 @@ router.post(
  *       401:
  *         description: Invalid or expired refresh token
  */
-router.post('/refresh-token', authController.refreshToken);
+router.post(
+  '/refresh-token', // POST /api/auth/refresh-token - Làm mới token
+  authController.refreshToken,
+);
 
 /**
  * @swagger
@@ -237,7 +251,7 @@ router.post('/refresh-token', authController.refreshToken);
  *         description: User not found
  */
 router.post(
-  '/forgot-password',
+  '/forgot-password', // POST /api/auth/forgot-password - Quên mật khẩu
   validateRequest(forgotPasswordSchema),
   authController.forgotPassword,
 );
@@ -270,7 +284,7 @@ router.post(
  *         description: Invalid or expired token
  */
 router.post(
-  '/reset-password',
+  '/reset-password', // POST /api/auth/reset-password - Đặt lại mật khẩu
   validateRequest(resetPasswordSchema),
   authController.resetPassword,
 );
@@ -289,6 +303,10 @@ router.post(
  *       401:
  *         description: Not authenticated
  */
-router.get('/me', authenticate, authController.getCurrentUser);
+router.get(
+  '/me',
+  authenticate, // GET /api/auth/me - Lấy thông tin người dùng hiện tại
+  authController.getCurrentUser,
+);
 
 module.exports = router;
