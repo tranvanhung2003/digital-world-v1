@@ -119,6 +119,7 @@ npm start
 - `POST /api/categories` - Tạo danh mục mới (Admin)
 - `PUT /api/categories/:id` - Cập nhật danh mục (Admin)
 - `DELETE /api/categories/:id` - Xóa danh mục (Admin)
+- `GET /api/categories/featured` - Lấy các danh mục nổi bật
 
 ### Products
 

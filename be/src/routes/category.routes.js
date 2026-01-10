@@ -65,7 +65,7 @@ const { authorize } = require('../middlewares/authorize');
  *           description: Last update date
  */
 
-// Public routes
+// PUBLIC ROUTES
 
 /**
  * @swagger
@@ -93,7 +93,10 @@ const { authorize } = require('../middlewares/authorize');
  *       200:
  *         description: List of categories
  */
-router.get('/', categoryController.getAllCategories);
+router.get(
+  '/', // GET /api/categories - Lấy tất cả danh mục
+  categoryController.getAllCategories,
+);
 
 /**
  * @swagger
@@ -105,7 +108,10 @@ router.get('/', categoryController.getAllCategories);
  *       200:
  *         description: Category tree
  */
-router.get('/tree', categoryController.getCategoryTree);
+router.get(
+  '/tree', // GET /api/categories/tree - Lấy cây danh mục
+  categoryController.getCategoryTree,
+);
 
 /**
  * @swagger
@@ -117,7 +123,10 @@ router.get('/tree', categoryController.getCategoryTree);
  *       200:
  *         description: List of featured categories
  */
-router.get('/featured', categoryController.getFeaturedCategories);
+router.get(
+  '/featured', // GET /api/categories/featured - Lấy các danh mục nổi bật
+  categoryController.getFeaturedCategories,
+);
 
 /**
  * @swagger
@@ -138,7 +147,10 @@ router.get('/featured', categoryController.getFeaturedCategories);
  *       404:
  *         description: Category not found
  */
-router.get('/slug/:slug', categoryController.getCategoryBySlug);
+router.get(
+  '/slug/:slug', // GET /api/categories/slug/:slug - Lấy danh mục theo slug
+  categoryController.getCategoryBySlug,
+);
 
 /**
  * @swagger
@@ -184,7 +196,10 @@ router.get('/slug/:slug', categoryController.getCategoryBySlug);
  *       404:
  *         description: Category not found
  */
-router.get('/:id/products', categoryController.getProductsByCategory);
+router.get(
+  '/:id/products', // GET /api/categories/:id/products - Lấy sản phẩm theo danh mục
+  categoryController.getProductsByCategory,
+);
 
 /**
  * @swagger
@@ -205,9 +220,12 @@ router.get('/:id/products', categoryController.getProductsByCategory);
  *       404:
  *         description: Category not found
  */
-router.get('/:id', categoryController.getCategoryById);
+router.get(
+  '/:id', // GET /api/categories/:id - Lấy danh mục theo ID
+  categoryController.getCategoryById,
+);
 
-// Admin routes
+// ADMIN ROUTES
 
 /**
  * @swagger
@@ -251,11 +269,11 @@ router.get('/:id', categoryController.getCategoryById);
  *         description: Not authorized
  */
 router.post(
-  '/',
+  '/', // POST /api/categories - Tạo danh mục mới (Admin)
   authenticate,
   authorize('admin'),
   validateRequest(categorySchema),
-  categoryController.createCategory
+  categoryController.createCategory,
 );
 
 /**
@@ -305,11 +323,11 @@ router.post(
  *         description: Category not found
  */
 router.put(
-  '/:id',
+  '/:id', // PUT /api/categories/:id - Cập nhật danh mục (Admin)
   authenticate,
   authorize('admin'),
   validateRequest(categorySchema),
-  categoryController.updateCategory
+  categoryController.updateCategory,
 );
 
 /**
@@ -338,10 +356,10 @@ router.put(
  *         description: Category not found
  */
 router.delete(
-  '/:id',
+  '/:id', // DELETE /api/categories/:id - Xóa danh mục (Admin)
   authenticate,
   authorize('admin'),
-  categoryController.deleteCategory
+  categoryController.deleteCategory,
 );
 
 module.exports = router;

@@ -1,8 +1,11 @@
-const { Category, Product, sequelize } = require('../models');
+const { Category, Product, sequelize, ProductCategory } = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 const { Op } = require('sequelize');
+const { getTableName, getField } = require('../utils/helpers');
 
-// Get all categories
+/**
+ * Lấy tất cả danh mục
+ */
 const getAllCategories = async (req, res, next) => {
   try {
     // Lấy danh sách danh mục
@@ -13,30 +16,36 @@ const getAllCategories = async (req, res, next) => {
       ],
     });
 
+    const productCategoryTableName = getTableName(ProductCategory);
+    const ProductCategory_categoryId = getField(ProductCategory, 'categoryId');
+    const ProductCategory_productId = getField(ProductCategory, 'productId');
+
     // Lấy số lượng sản phẩm cho mỗi danh mục
     const categoryCounts = await sequelize.query(
       `
       SELECT 
-        category_id, 
-        COUNT(DISTINCT product_id) as product_count 
+        ${ProductCategory_categoryId}, 
+        COUNT(DISTINCT ${ProductCategory_productId}) as product_count 
       FROM 
-        product_categories 
+        ${productCategoryTableName} 
       GROUP BY 
-        category_id
+        ${ProductCategory_categoryId}
     `,
-      { type: sequelize.QueryTypes.SELECT }
+      { type: sequelize.QueryTypes.SELECT, logging: console.log },
     );
 
     // Tạo map từ category_id đến product_count
     const countMap = {};
     categoryCounts.forEach((item) => {
-      countMap[item.category_id] = parseInt(item.product_count);
+      countMap[item[ProductCategory_categoryId]] = parseInt(item.product_count);
     });
 
     // Thêm productCount vào mỗi danh mục
     const categoriesWithCount = categories.map((category) => {
       const categoryData = category.toJSON();
+
       categoryData.productCount = countMap[category.id] || 0;
+
       return categoryData;
     });
 
@@ -49,10 +58,12 @@ const getAllCategories = async (req, res, next) => {
   }
 };
 
-// Get category tree
+/**
+ * Lấy cây danh mục
+ */
 const getCategoryTree = async (req, res, next) => {
   try {
-    // Get all categories
+    // Lấy tất cả danh mục
     const allCategories = await Category.findAll({
       where: { isActive: true },
       order: [
@@ -61,11 +72,11 @@ const getCategoryTree = async (req, res, next) => {
       ],
     });
 
-    // Build tree structure
+    // Xây dựng cấu trúc cây
     const rootCategories = [];
     const categoryMap = {};
 
-    // Create map of categories
+    // Tạo map các danh mục
     allCategories.forEach((category) => {
       categoryMap[category.id] = {
         ...category.toJSON(),
@@ -73,15 +84,17 @@ const getCategoryTree = async (req, res, next) => {
       };
     });
 
-    // Build tree
+    // Xây dựng cây danh mục
     allCategories.forEach((category) => {
       if (category.parentId) {
+        // Nếu có danh mục cha, thêm nó vào con của danh mục cha
         if (categoryMap[category.parentId]) {
           categoryMap[category.parentId].children.push(
-            categoryMap[category.id]
+            categoryMap[category.id],
           );
         }
       } else {
+        // Nếu không có danh mục cha, đó là danh mục gốc
         rootCategories.push(categoryMap[category.id]);
       }
     });
@@ -95,7 +108,9 @@ const getCategoryTree = async (req, res, next) => {
   }
 };
 
-// Get category by ID
+/**
+ * Lấy danh mục theo ID
+ */
 const getCategoryById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -128,7 +143,9 @@ const getCategoryById = async (req, res, next) => {
   }
 };
 
-// Get category by slug
+/**
+ * Lấy danh mục theo slug
+ */
 const getCategoryBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
@@ -162,13 +179,15 @@ const getCategoryBySlug = async (req, res, next) => {
   }
 };
 
-// Create category
+/**
+ * Tạo danh mục mới (Admin)
+ */
 const createCategory = async (req, res, next) => {
   try {
     const { name, description, image, parentId, isActive, sortOrder } =
       req.body;
 
-    // Check if parent category exists
+    // Nếu có danh mục cha, kiểm tra xem nó có tồn tại không
     if (parentId) {
       const parentCategory = await Category.findByPk(parentId);
       if (!parentCategory) {
@@ -176,7 +195,7 @@ const createCategory = async (req, res, next) => {
       }
     }
 
-    // Create category
+    // Tạo danh mục
     const category = await Category.create({
       name,
       description,
@@ -184,7 +203,7 @@ const createCategory = async (req, res, next) => {
       parentId,
       isActive,
       sortOrder,
-      level: parentId ? 2 : 1, // Simple level calculation
+      level: parentId ? 2 : 1, // Nếu có danh mục cha thì level = 2, ngược lại = 1
     });
 
     res.status(201).json({
@@ -196,46 +215,49 @@ const createCategory = async (req, res, next) => {
   }
 };
 
-// Update category
+/**
+ * Cập nhật danh mục (Admin)
+ */
 const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, description, image, parentId, isActive, sortOrder } =
       req.body;
 
-    // Find category
+    // Tìm danh mục
     const category = await Category.findByPk(id);
     if (!category) {
       throw new AppError('Không tìm thấy danh mục', 404);
     }
 
-    // Check if parent category exists
+    // Nếu parentId được cung cấp và khác với parentId hiện tại của danh mục
+    // thì mới tiến hành kiểm tra và cập nhật
     if (parentId && parentId !== category.parentId) {
-      // Check if parent is not the category itself
+      // Kiểm tra để tránh việc một danh mục trở thành cha của chính nó
       if (parentId === id) {
         throw new AppError(
           'Danh mục không thể là danh mục cha của chính nó',
-          400
+          400,
         );
       }
 
+      // Kiểm tra xem danh mục cha có tồn tại không
       const parentCategory = await Category.findByPk(parentId);
       if (!parentCategory) {
         throw new AppError('Danh mục cha không tồn tại', 400);
       }
 
-      // Check if parent is not a child of this category (prevent circular reference)
+      // Kiểm tra để đảm bảo danh mục cha không phải là con của danh mục hiện tại (tránh tham chiếu vòng)
       const childCategories = await Category.findAll({
         where: { parentId: id },
       });
-
       const childIds = childCategories.map((child) => child.id);
       if (childIds.includes(parentId)) {
         throw new AppError('Không thể chọn danh mục con làm danh mục cha', 400);
       }
     }
 
-    // Update category
+    // Cập nhật chỉ những trường được cung cấp trong req.body
     await category.update({
       name: name !== undefined ? name : category.name,
       description:
@@ -244,7 +266,7 @@ const updateCategory = async (req, res, next) => {
       parentId: parentId !== undefined ? parentId : category.parentId,
       isActive: isActive !== undefined ? isActive : category.isActive,
       sortOrder: sortOrder !== undefined ? sortOrder : category.sortOrder,
-      level: parentId ? 2 : 1, // Simple level calculation
+      level: parentId ? 2 : 1, // Nếu có danh mục cha thì level = 2, ngược lại = 1
     });
 
     res.status(200).json({
@@ -256,27 +278,30 @@ const updateCategory = async (req, res, next) => {
   }
 };
 
-// Delete category
+/**
+ * Xóa danh mục (Admin)
+ */
 const deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Find category
+    // Tìm danh mục
     const category = await Category.findByPk(id);
     if (!category) {
       throw new AppError('Không tìm thấy danh mục', 404);
     }
 
-    // Check if category has children
+    // Kiểm tra xem danh mục có danh mục con không
     const childCategories = await Category.findAll({
       where: { parentId: id },
     });
 
+    // Nếu có danh mục con, không cho phép xóa
     if (childCategories.length > 0) {
       throw new AppError('Không thể xóa danh mục có danh mục con', 400);
     }
 
-    // Check if category has products
+    // Kiểm tra xem danh mục có sản phẩm không
     const productCount = await Product.count({
       include: [
         {
@@ -287,11 +312,12 @@ const deleteCategory = async (req, res, next) => {
       ],
     });
 
+    // Nếu có sản phẩm, không cho phép xóa
     if (productCount > 0) {
       throw new AppError('Không thể xóa danh mục có sản phẩm', 400);
     }
 
-    // Delete category
+    // Xóa danh mục
     await category.destroy();
 
     res.status(200).json({
@@ -303,7 +329,9 @@ const deleteCategory = async (req, res, next) => {
   }
 };
 
-// Get products by category
+/**
+ * Lấy sản phẩm theo danh mục
+ */
 const getProductsByCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -314,20 +342,21 @@ const getProductsByCategory = async (req, res, next) => {
       order = 'DESC',
     } = req.query;
 
-    // Find category
+    // Tìm danh mục
     const category = await Category.findByPk(id);
     if (!category) {
       throw new AppError('Không tìm thấy danh mục', 404);
     }
 
-    // Get all child category IDs
+    // Lấy tất cả danh mục con
     const childCategories = await Category.findAll({
       where: { parentId: id },
     });
 
+    // Tạo mảng ID danh mục bao gồm cả danh mục hiện tại và tất cả danh mục con
     const categoryIds = [id, ...childCategories.map((cat) => cat.id)];
 
-    // Get products
+    // Lấy các sản phẩm thuộc về các danh mục trong categoryIds
     const { count, rows: products } = await Product.findAndCountAll({
       include: [
         {
@@ -356,10 +385,12 @@ const getProductsByCategory = async (req, res, next) => {
   }
 };
 
-// Get featured categories
+/**
+ * Lấy các danh mục nổi bật
+ */
 const getFeaturedCategories = async (req, res, next) => {
   try {
-    // Get featured categories (those with featured products)
+    // Lấy các danh mục nổi bật (nghĩa là các danh mục có sản phẩm nổi bật)
     const categories = await Category.findAll({
       include: [
         {
@@ -376,7 +407,7 @@ const getFeaturedCategories = async (req, res, next) => {
       ],
     });
 
-    // If no featured categories found, return top-level categories
+    // Nếu không tìm thấy danh mục nổi bật, trả về các danh mục top-level
     if (categories.length === 0) {
       const topCategories = await Category.findAll({
         where: {
