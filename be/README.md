@@ -155,6 +155,17 @@ npm start
 - `GET /api/orders/admin/all` - Lấy tất cả đơn hàng (Admin)
 - `PATCH /api/orders/admin/:id/status` - Cập nhật trạng thái đơn hàng (Admin)
 
+### Payments
+
+- `POST /api/payment/webhook` - Xử lý webhook Stripe
+- `POST /api/payment/sepay-webhook` - Xử lý webhook SePay
+- `POST /api/payment/create-payment-intent` - Tạo payment intent Stripe
+- `POST /api/payment/confirm-payment` - Xác nhận thanh toán Stripe
+- `POST /api/payment/create-customer` - Tạo khách hàng Stripe
+- `GET /api/payment/payment-methods` - Lấy phương thức thanh toán Stripe
+- `POST /api/payment/create-setup-intent` - Tạo setup intent để lưu phương thức thanh toán Stripe
+- `POST /api/payment/refund` - Tạo hoàn tiền Stripe (Admin)
+
 ### Reviews
 
 - `GET /api/reviews/product/:productId` - Lấy đánh giá của sản phẩm

@@ -1,25 +1,35 @@
 const stripeService = require('../services/payment/stripeService');
-const { Order, User, OrderItem, Product, ProductVariant } = require('../models');
+const {
+  Order,
+  User,
+  OrderItem,
+  Product,
+  ProductVariant,
+} = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 const { Op } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-// Create payment intent
+/**
+ * Tạo payment intent Stripe
+ */
 const createPaymentIntent = async (req, res, next) => {
   try {
     const { amount, currency = 'usd', orderId } = req.body;
     const userId = req.user.id;
 
+    // Nếu không có amount hoặc amount <= 0 thì báo lỗi
     if (!amount || amount <= 0) {
-      throw new AppError('Invalid amount', 400);
+      throw new AppError('Amount không hợp lệ', 400);
     }
 
-    // Create payment intent with metadata
-    console.log('Creating payment intent with metadata:', {
+    // Tạo payment intent kèm metadata userId và orderId (nếu có)
+    console.log('Đang tạo payment intent với metadata:', {
       userId,
       orderId: orderId || '',
     });
 
+    // Tạo payment intent
     const paymentIntent = await stripeService.createPaymentIntent({
       amount,
       currency,
@@ -29,7 +39,7 @@ const createPaymentIntent = async (req, res, next) => {
       },
     });
 
-    console.log('Payment intent created:', {
+    console.log('Đã tạo payment intent:', {
       id: paymentIntent.paymentIntentId,
       metadata: paymentIntent.metadata,
     });
@@ -43,44 +53,50 @@ const createPaymentIntent = async (req, res, next) => {
   }
 };
 
-// Confirm payment
+/**
+ * Xác nhận thanh toán Stripe
+ */
 const confirmPayment = async (req, res, next) => {
   try {
     const { paymentIntentId } = req.body;
 
+    // Nếu không có paymentIntentId thì báo lỗi
     if (!paymentIntentId) {
-      throw new AppError('Payment intent ID is required', 400);
+      throw new AppError('Payment intent ID là bắt buộc', 400);
     }
 
+    // Xác nhận payment intent
     const paymentIntent =
       await stripeService.confirmPaymentIntent(paymentIntentId);
 
-    console.log('Payment Intent Retrieved:', {
+    console.log('Payment Intent đã xác nhận:', {
       id: paymentIntent.id,
       status: paymentIntent.status,
       metadata: paymentIntent.metadata,
     });
 
-    // Update order payment status if orderId exists in metadata
+    // Cập nhật trạng thái đơn hàng nếu có orderId trong metadata
     if (paymentIntent.metadata.orderId) {
-      console.log('Updating order:', paymentIntent.metadata.orderId);
-      console.log('Payment Intent Status:', paymentIntent.status);
+      console.log('Đang cập nhật đơn hàng:', paymentIntent.metadata.orderId);
+      console.log('Trạng thái Payment Intent:', paymentIntent.status);
 
-      // First check if order exists
+      // Đầu tiên kiểm tra đơn hàng có tồn tại không
       const existingOrder = await Order.findByPk(
-        paymentIntent.metadata.orderId
+        paymentIntent.metadata.orderId,
       );
+
       console.log(
-        'Existing order found:',
+        'Đã tìm thấy đơn hàng hiện tại:',
         existingOrder
           ? {
               id: existingOrder.id,
               number: existingOrder.number,
               currentPaymentStatus: existingOrder.paymentStatus,
             }
-          : 'Order not found'
+          : 'Không tìm thấy đơn hàng',
       );
 
+      // Chỉ cập nhật đơn hàng khi tồn tại đơn hàng và trạng thái thanh toán thành công
       if (existingOrder && paymentIntent.status === 'succeeded') {
         const updateResult = await Order.update(
           {
@@ -92,16 +108,18 @@ const confirmPayment = async (req, res, next) => {
           },
           {
             where: { id: paymentIntent.metadata.orderId },
-          }
+          },
         );
-        console.log('Order update result:', updateResult);
 
-        // Verify the update
+        console.log('Kết quả cập nhật đơn hàng:', updateResult);
+
+        // Xác nhận lại đơn hàng sau khi cập nhật
         const updatedOrder = await Order.findByPk(
-          paymentIntent.metadata.orderId
+          paymentIntent.metadata.orderId,
         );
+
         console.log(
-          'Order after update:',
+          'Đơn hàng sau khi cập nhật:',
           updatedOrder
             ? {
                 id: updatedOrder.id,
@@ -110,43 +128,56 @@ const confirmPayment = async (req, res, next) => {
                 paymentStatus: updatedOrder.paymentStatus, // Trạng thái thanh toán
                 paymentTransactionId: updatedOrder.paymentTransactionId,
               }
-            : 'Order not found after update'
+            : 'Không tìm thấy đơn hàng sau khi cập nhật',
         );
-        
-        // Now reduce inventory since payment is confirmed for Stripe
+
+        // Bây giờ giảm tồn kho vì thanh toán đã được xác nhận qua Stripe
         if (updatedOrder) {
           const { OrderItem, Product, ProductVariant } = require('../models');
-          
-          // Get order items to reduce inventory
+
+          // Lấy các mục đơn hàng để giảm tồn kho
           const orderItems = await OrderItem.findAll({
-            where: { orderId: updatedOrder.id }
+            where: { orderId: updatedOrder.id },
           });
 
           for (const item of orderItems) {
+            // Có 2 case: sản phẩm có biển thể và không có biến thể
             if (item.variantId) {
-              // Reduce stock for product variant using decrement method
+              // Case sản phẩm có biến thể
+
+              // Giảm tồn kho cho biến thể sản phẩm bằng phương thức decrement
               await ProductVariant.decrement(
                 { stockQuantity: item.quantity },
-                { where: { id: item.variantId } }
+                { where: { id: item.variantId } },
               );
             } else {
-              // Reduce stock for product using decrement method
+              // Case sản phẩm không có biến thể
+
+              // Giảm tồn kho cho sản phẩm bằng phương thức decrement
               await Product.decrement(
                 { stockQuantity: item.quantity },
-                { where: { id: item.productId } }
+                { where: { id: item.productId } },
               );
             }
           }
-          
-          console.log(`Inventory reduced for order ${updatedOrder.id} after Stripe payment confirmation`);
+
+          console.log(
+            `Đã giảm tồn kho cho đơn hàng ${updatedOrder.id} sau khi xác nhận thanh toán qua Stripe`,
+          );
         }
       } else if (!existingOrder) {
-        console.log('Order not found for ID:', paymentIntent.metadata.orderId);
+        console.log(
+          'Không tìm thấy đơn hàng với ID:',
+          paymentIntent.metadata.orderId,
+        );
       } else {
-        console.log('Payment not succeeded, status:', paymentIntent.status);
+        console.log(
+          'Thanh toán không thành công, trạng thái:',
+          paymentIntent.status,
+        );
       }
     } else {
-      console.log('No orderId found in payment intent metadata');
+      console.log('Không tìm thấy orderId trong metadata của payment intent');
     }
 
     res.status(200).json({
@@ -168,26 +199,30 @@ const confirmPayment = async (req, res, next) => {
   }
 };
 
-// Create customer
+/**
+ * Tạo khách hàng Stripe
+ */
 const createCustomer = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findByPk(userId);
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    // Check if user already has a Stripe customer ID
+    // Kiểm tra xem người dùng đã có Stripe customer ID chưa
     if (user.stripeCustomerId) {
+      // Nếu đã có, lấy thông tin khách hàng từ Stripe
       const customer = await stripeService.getCustomer(user.stripeCustomerId);
+
       return res.status(200).json({
         status: 'success',
         data: { customer },
       });
     }
 
-    // Create new Stripe customer
+    // Nếu chưa có, tạo khách hàng mới trên Stripe
     const customer = await stripeService.createCustomer({
       email: user.email,
       name: `${user.firstName} ${user.lastName}`,
@@ -196,7 +231,7 @@ const createCustomer = async (req, res, next) => {
       },
     });
 
-    // Save Stripe customer ID to user
+    // Lưu Stripe customer ID vào user
     await user.update({ stripeCustomerId: customer.id });
 
     res.status(201).json({
@@ -208,12 +243,15 @@ const createCustomer = async (req, res, next) => {
   }
 };
 
-// Get payment methods
+/**
+ * Lấy phương thức thanh toán Stripe
+ */
 const getPaymentMethods = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findByPk(userId);
 
+    // Nếu không tìm thấy user hoặc user không có stripeCustomerId thì trả về mảng rỗng
     if (!user || !user.stripeCustomerId) {
       return res.status(200).json({
         status: 'success',
@@ -221,8 +259,9 @@ const getPaymentMethods = async (req, res, next) => {
       });
     }
 
+    // Lấy phương thức thanh toán từ Stripe dựa trên stripeCustomerId
     const paymentMethods = await stripeService.getPaymentMethods(
-      user.stripeCustomerId
+      user.stripeCustomerId,
     );
 
     res.status(200).json({
@@ -234,28 +273,35 @@ const getPaymentMethods = async (req, res, next) => {
   }
 };
 
-// Create setup intent for saving payment methods
+/**
+ * Tạo setup intent để lưu phương thức thanh toán Stripe
+ */
 const createSetupIntent = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findByPk(userId);
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    // Create customer if doesn't exist
+    // Kiểm tra xem người dùng đã có Stripe customer ID chưa
     let customerId = user.stripeCustomerId;
     if (!customerId) {
+      // Nếu chưa có, tạo khách hàng mới trên Stripe
+
       const customer = await stripeService.createCustomer({
         email: user.email,
         name: `${user.firstName} ${user.lastName}`,
         metadata: { userId: user.id },
       });
+
       customerId = customer.id;
+
       await user.update({ stripeCustomerId: customerId });
     }
 
+    // Tạo setup intent
     const setupIntent = await stripeService.createSetupIntent(customerId);
 
     res.status(200).json({
@@ -267,31 +313,44 @@ const createSetupIntent = async (req, res, next) => {
   }
 };
 
-// Handle Stripe webhooks
+/**
+ * Xử lý webhook Stripe
+ */
 const handleWebhook = async (req, res, next) => {
   try {
-    // For sandbox/development, temporarily skip webhook verification
-    console.log('Webhook received in sandbox mode');
-    return res.status(200).json({ received: true });
+    /**
+     * Đối với sandbox/development, tạm thời bỏ qua việc xác thực webhook
+     */
+    console.log('Webhook đã được nhận ở chế độ sandbox/development');
+    // return res.status(200).json({ received: true });
 
-    // Uncomment below when you have real webhook secret
-    // const signature = req.headers['stripe-signature'];
-    // const payload = req.body;
-    // const event = await stripeService.handleWebhook(payload, signature);
+    /**
+     * Đối với production, xác thực webhook bằng signature khi có webhook secret
+     */
+    // Lấy signature từ header và payload từ body
+    const signature = req.headers['stripe-signature'];
+    const payload = req.body;
 
-    // Handle different event types
+    // Xử lý webhook và xác thực signature
+    const event = await stripeService.handleWebhook(payload, signature);
+
+    // Xử lý các loại event khác nhau
     switch (event.type) {
       case 'payment_intent.succeeded':
+        // Case thanh toán thành công
         await handlePaymentSucceeded(event.data.object);
         break;
       case 'payment_intent.payment_failed':
+        // Case thanh toán thất bại
         await handlePaymentFailed(event.data.object);
         break;
       case 'customer.created':
-        console.log('Customer created:', event.data.object.id);
+        // Case khách hàng được tạo
+        console.log('Khách hàng đã được tạo:', event.data.object.id);
         break;
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Các case khác chưa xử lý
+        console.log(`Loại event chưa được xử lý: ${event.type}`);
     }
 
     res.status(200).json({ received: true });
@@ -300,7 +359,9 @@ const handleWebhook = async (req, res, next) => {
   }
 };
 
-// Helper function to handle successful payments
+/**
+ * Helper function để xử lý thanh toán thành công Stripe
+ */
 const handlePaymentSucceeded = async (paymentIntent) => {
   try {
     if (paymentIntent.metadata.orderId) {
@@ -313,43 +374,49 @@ const handlePaymentSucceeded = async (paymentIntent) => {
         },
         {
           where: { id: paymentIntent.metadata.orderId },
-        }
+        },
       );
-      
-      // Now reduce inventory since payment is confirmed via Stripe webhook
+
+      // Bây giờ giảm tồn kho vì thanh toán đã được xác nhận qua webhook Stripe
       const { OrderItem, Product, ProductVariant } = require('../models');
-      
-      // Get order items to reduce inventory
+
+      // Lấy các mục đơn hàng để giảm tồn kho
       const orderItems = await OrderItem.findAll({
-        where: { orderId: paymentIntent.metadata.orderId }
+        where: { orderId: paymentIntent.metadata.orderId },
       });
 
       for (const item of orderItems) {
         if (item.variantId) {
-          // Reduce stock for product variant using decrement method
+          // Case sản phẩm có biến thể
+
+          // Giảm tồn kho cho biến thể sản phẩm bằng phương thức decrement
           await ProductVariant.decrement(
             { stockQuantity: item.quantity },
-            { where: { id: item.variantId } }
+            { where: { id: item.variantId } },
           );
         } else {
-          // Reduce stock for product using decrement method
+          // Case sản phẩm không có biến thể
+
+          // Giảm tồn kho cho sản phẩm bằng phương thức decrement
           await Product.decrement(
             { stockQuantity: item.quantity },
-            { where: { id: item.productId } }
+            { where: { id: item.productId } },
           );
         }
       }
-      
+
       console.log(
-        `Payment succeeded and inventory reduced for order: ${paymentIntent.metadata.orderId}`
+        `Thanh toán thành công và đã giảm tồn kho cho đơn hàng: ${paymentIntent.metadata.orderId}`,
       );
     }
   } catch (error) {
-    console.error('Error handling payment succeeded:', error);
+    console.error('Lỗi khi xử lý thanh toán thành công:', error);
   }
 };
 
-// Helper function to handle failed payments
+/**
+ * Helper function để xử lý thanh toán thất bại Stripe
+ */
 const handlePaymentFailed = async (paymentIntent) => {
   try {
     if (paymentIntent.metadata.orderId) {
@@ -361,42 +428,52 @@ const handlePaymentFailed = async (paymentIntent) => {
         },
         {
           where: { id: paymentIntent.metadata.orderId },
-        }
+        },
       );
       console.log(
-        `Payment failed for order: ${paymentIntent.metadata.orderId}`
+        `Thanh toán thất bại với đơn hàng: ${paymentIntent.metadata.orderId}`,
       );
     }
   } catch (error) {
-    console.error('Error handling payment failed:', error);
+    console.error('Lỗi khi xử lý thanh toán thất bại:', error);
   }
 };
 
-// Create refund
+/**
+ * Tạo hoàn tiền Stripe (Admin)
+ */
 const createRefund = async (req, res, next) => {
   try {
+    // Lấy thông tin hoàn tiền từ request body
     const { orderId, amount, reason } = req.body;
 
+    // Nếu không có orderId thì báo lỗi
     if (!orderId) {
-      throw new AppError('Order ID is required', 400);
+      throw new AppError('ID đơn hàng là bắt buộc', 400);
     }
 
+    // Nếu không tìm thấy đơn hàng thì báo lỗi
     const order = await Order.findByPk(orderId);
     if (!order) {
-      throw new AppError('Order not found', 404);
+      throw new AppError('Không tìm thấy đơn hàng', 404);
     }
 
+    // Nếu đơn hàng không có paymentTransactionId thì báo lỗi
     if (!order.paymentTransactionId) {
-      throw new AppError('No payment transaction found for this order', 400);
+      throw new AppError(
+        'Không tìm thấy payment transaction cho đơn hàng này',
+        400,
+      );
     }
 
+    // Tạo hoàn tiền qua Stripe
     const refund = await stripeService.createRefund({
       paymentIntentId: order.paymentTransactionId,
       amount,
       reason,
     });
 
-    // Update order payment status
+    // Cập nhật trạng thái thanh toán của đơn hàng thành "refunded"
     await order.update({
       paymentStatus: 'refunded',
     });
@@ -410,61 +487,86 @@ const createRefund = async (req, res, next) => {
   }
 };
 
-// Verify SePay webhook using API key authentication
+/**
+ * Helper function để xác thực SePay webhook bằng API key
+ * Trả về true nếu hợp lệ, false nếu không hợp lệ
+ */
 const verifySePayApiKey = (req) => {
-  // SePay sends API key in Authorization header as "Authorization": "Apikey API_KEY_CUA_BAN"
+  // SePay sẽ gửi API key trong header Authorization dưới dạng "Authorization": "Apikey SEPAY_YOUR_API_KEY"
   const authHeader = req.headers.authorization;
-  
+
+  // Nếu không có header Authorization thì trả về false
   if (!authHeader) {
-    console.error('No Authorization header provided in SePay webhook');
+    console.error('Không tìm thấy header Authorization trong webhook SePay');
     return false;
   }
-  
-  // Check if the header starts with "Apikey "
+
+  // Kiểm tra xem định dạng header có đúng không (bắt đầu bằng "Apikey ")
   if (!authHeader.startsWith('Apikey ')) {
-    console.error('Invalid Authorization header format in SePay webhook');
+    console.error(
+      'Định dạng header Authorization không hợp lệ trong webhook SePay',
+    );
     return false;
   }
-  
-  // Extract the API key from the header
-  const providedApiKey = authHeader.substring(7).trim(); // Remove "Apikey " prefix
+
+  // Trích xuất API key từ header
+  const providedApiKey = authHeader.substring(7).trim(); // Xóa tiền tố "Apikey "
+
+  // Lấy API key thực tế từ biến môi trường
   const expectedApiKey = process.env.SEPAY_API_KEY;
-  
+
+  // Nếu không có API key cấu hình trong biến môi trường thì cảnh báo
   if (!expectedApiKey) {
-    console.warn('SePay API key not configured in environment variables');
-    // In development, you might want to allow the webhook without API key verification
-    return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+    console.warn('SePay API key không được cấu hình trong biến môi trường');
+    // Trong development, có thể cho phép webhook mà không cần xác thực API key
+    // Trả về true để tiếp tục xử lý webhook nếu ở môi trường development hoặc test
+    return (
+      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    );
   }
-  
-  // Compare the provided API key with the expected one
-  // Use constant-time comparison to prevent timing attacks
+
+  // Nếu không đang ở môi trường development hoặc test, tiến hành so sánh
+  // So sánh API key được cung cấp với API key thực tế
+  // Sử dụng constant-time comparison để tránh tấn công timing attack
+
+  // Nếu dùng so sánh thông thường (===) có thể bị tấn công timing attack
+  // vì thời gian so sánh có thể rò rỉ thông tin về độ dài và nội dung của API key
+  // Thời gian so sánh cao hay thấp có thể giúp kẻ tấn công đoán được API key từng ký tự một
+  // Thời gian so sánh càng dài chứng tỏ API key càng giống với API key thực tế
+  // Việc so sánh sẽ dừng lại khi phát hiện ký tự khác biệt đầu tiên tính từ đầu chuỗi
+
   const expectedLength = expectedApiKey.length;
   const providedLength = providedApiKey.length;
   let mismatch = expectedLength !== providedLength;
-  
+
   for (let i = 0; i < Math.max(expectedLength, providedLength); i++) {
     const expectedChar = expectedApiKey.charCodeAt(i) || 0;
     const providedChar = providedApiKey.charCodeAt(i) || 0;
     mismatch |= expectedChar ^ providedChar;
   }
-  
+
   if (mismatch !== 0) {
-    console.error('Invalid SePay API key provided');
+    console.error('API key được cung cấp không hợp lệ');
     return false;
   }
-  
+
   return true;
 };
 
-// Handle SePay webhook
+/**
+ * Xử lý webhook SePay
+ */
 const handleSePayWebhook = async (req, res, next) => {
   try {
-    // Verify the webhook source using API key authentication
+    // Xác minh nguồn webhook bằng cách xác thực API key
     if (!verifySePayApiKey(req)) {
-      console.error('Invalid SePay API key');
-      return res.status(401).json({ error: 'Unauthorized webhook request' });
+      console.error('SePay API key không hợp lệ');
+      return res.status(401).json({
+        error: 'Webhook request không được phép vì API key không hợp lệ',
+      });
     }
 
+    // Lấy dữ liệu từ body
     const {
       id,
       gateway,
@@ -477,109 +579,134 @@ const handleSePayWebhook = async (req, res, next) => {
       accumulated,
       subAccount,
       referenceCode,
-      description
+      description,
     } = req.body;
 
-    console.log('SePay webhook received:', { id, transferAmount, content, transferType });
+    console.log('Đã nhận webhook SePay với dữ liệu:', {
+      id,
+      transferAmount,
+      content,
+      transferType,
+    });
 
-    // Validate required fields
+    // Nếu thiếu các trường bắt buộc thì trả về lỗi
     if (!id || !transferType || !transferAmount || !transactionDate) {
-      console.log('Missing required fields in SePay webhook');
-      return res.status(400).json({ error: 'Missing required fields' });
+      console.log('Thiếu các trường bắt buộc trong webhook SePay');
+      return res.status(400).json({ error: 'Thiếu các trường bắt buộc' });
     }
 
-    // Validate data types
+    // Validate kiểu dữ liệu của các trường
     if (typeof id !== 'number' && typeof id !== 'string') {
-      console.log('Invalid transaction ID type in SePay webhook');
-      return res.status(400).json({ error: 'Invalid transaction ID type' });
+      console.log(
+        'Kiểu dữ liệu của transaction ID trong webhook SePay không hợp lệ',
+      );
+      return res
+        .status(400)
+        .json({ error: 'Kiểu dữ liệu của transaction ID không hợp lệ' });
     }
-    
-    if (typeof transferAmount !== 'number' || typeof transferType !== 'string') {
-      console.log('Invalid data types in SePay webhook');
-      return res.status(400).json({ error: 'Invalid data types' });
+    if (
+      typeof transferAmount !== 'number' ||
+      typeof transferType !== 'string'
+    ) {
+      console.log('Kiểu dữ liệu không hợp lệ trong webhook SePay');
+      return res.status(400).json({ error: 'Kiểu dữ liệu không hợp lệ' });
     }
 
-    // Validate transfer amount is positive
+    // Kiểm tra số tiền giao dịch phải là số dương
     if (transferAmount <= 0) {
-      console.log('Invalid transfer amount:', transferAmount);
-      return res.status(400).json({ error: 'Transfer amount must be positive' });
+      console.log('Số tiền giao dịch không hợp lệ:', transferAmount);
+      return res
+        .status(400)
+        .json({ error: 'Số tiền giao dịch phải là số dương' });
     }
 
-    // Validate transfer type
+    // Kiểm tra loại giao dịch
     if (!['in', 'out'].includes(transferType)) {
-      console.log('Invalid transfer type:', transferType);
-      return res.status(400).json({ error: 'Invalid transfer type' });
+      console.log('Loại giao dịch không hợp lệ:', transferType);
+      return res.status(400).json({ error: 'Loại giao dịch không hợp lệ' });
     }
 
-    // Only process incoming transactions (money coming in)
+    // Chỉ xử lý các giao dịch tiền vào (incoming)
     if (transferType !== 'in') {
-      console.log('Ignoring outgoing transaction');
-      return res.status(200).json({ received: true, message: 'Outgoing transaction ignored' });
+      console.log('Bỏ qua giao dịch tiền ra');
+      return res
+        .status(200)
+        .json({ received: true, message: 'Bỏ qua giao dịch tiền ra' });
     }
 
-    // Validate transaction date format
+    // Xác thực định dạng ngày giao dịch
     const parsedTransactionDate = new Date(transactionDate);
     if (isNaN(parsedTransactionDate.getTime())) {
-      console.log('Invalid transaction date format:', transactionDate);
-      return res.status(400).json({ error: 'Invalid transaction date format' });
+      console.log('Định dạng ngày giao dịch không hợp lệ:', transactionDate);
+      return res
+        .status(400)
+        .json({ error: 'Định dạng ngày giao dịch không hợp lệ' });
     }
 
-    // Extract order ID from content or code (you can customize this based on your format)
-    // For example, if the content contains order number like "Order #ORD-12345 for payment"
-    // or if the code contains the order ID
+    // Trích xuất ID đơn hàng từ nội dung chuyển khoản hoặc mã
+    // Có thể tùy chỉnh dựa theo định dạng mong muốn
+    // Ví dụ: nếu nội dung chuyển khoản chứa Order number như "Đơn hàng #ORD-12345 để thanh toán"
+    // hoặc nếu mã chứa ID đơn hàng
+
     let orderId = null;
-    
-    // Try to extract order ID from content
+
+    // Thử trích xuất order ID từ nội dung chuyển khoản
     if (content) {
-      // Look for order ID in the content (adjust the pattern according to your format)
-      // This regex looks for patterns like:
+      // Tìm ID đơn hàng trong nội dung (điều chỉnh pattern theo định dạng mong muốn)
+
       // - ORD-12345, ORDER-12345
       // - ORD12345, ORDER12345 (without hyphen - like your example ORD251100012)
       // - order_123, order123
       // - SEPAY followed by number like SEPAY2845 (where 2845 might be order ID)
       // - Any 6+ digit number that might be an order ID
       const patterns = [
-        /ORD[-_]?(\d+)/i,                 // Matches ORD12345 or ORD-12345 or ORD_12345
-        /ORDER[-_]?(\d+)/i,               // Matches ORDER12345 or ORDER-12345 or ORDER_12345
-        /ORD[-_]?\w+/i,                   // Matches full order numbers like ORD251100012
-        /ORDER[-_]?\w+/i,                 // Matches full order numbers like ORDERXXXXXXXX
-        /order[-_\s]?(\d+)/i,             // Matches order_123, order-123, order123
-        /SEPAY(\d+)/i,                    // Matches SEPAY2845 pattern (from your example)
-        /SEPAY[-_\s]?(\d+)/i,             // Matches SEPAY_2845, SEPAY-2845, SEPAY 2845
-        /\b(\d{6,})\b/                   // Matches any 6+ digit number
+        /ORD[-_]?(\d+)/i, // Sẽ khớp với ORD12345, ORD-12345, ORD_12345
+        /ORDER[-_]?(\d+)/i, // Sẽ khớp với ORDER12345, ORDER-12345, ORDER_12345
+        /ORD[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORD251100012
+        /ORDER[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORDERXXXXXXXX
+        /order[-_\s]?(\d+)/i, // Sẽ khớp với order_123, order-123, order123
+        /SEPAY(\d+)/i, // Sẽ khớp với SEPAY2845
+        /SEPAY[-_\s]?(\d+)/i, // Sẽ khớp với SEPAY_2845, SEPAY-2845, SEPAY 2845
+        /\b(\d{6,})\b/, // Sẽ khớp với bất kỳ số nào có 6 chữ số trở lên
       ];
-      
+
+      // Thử từng pattern để tìm kiếm orderId
       for (const pattern of patterns) {
         const match = content.match(pattern);
+
         if (match) {
-          // Use the full match for order number patterns like ORD251100012, or captured group for others
-          // This will match the entire ORD251100012 string if it fits the ORD[-_]?\w+ pattern
           orderId = match[0];
+
           if (orderId) {
+            // Nếu tìm thấy orderId, loại bỏ khoảng trắng thừa và dừng việc tìm kiếm
             orderId = orderId.trim();
-            break; // Found a match, stop looking
+            break;
           }
         }
       }
     }
-    
-    // Also try to extract from code if not found in content
+
+    // Thử trích xuất từ ​​mã nếu không tìm thấy trong nội dung chuyển khoản
     if (!orderId && code) {
       const codePatterns = [
-        /ORD[-_]?(\d+)/i,                 // Matches ORD12345 or ORD-12345 or ORD_12345
-        /ORDER[-_]?(\d+)/i,               // Matches ORDER12345 or ORDER-12345 or ORDER_12345
-        /ORD[-_]?\w+/i,                   // Matches full order numbers like ORD251100012
-        /ORDER[-_]?\w+/i,                 // Matches full order numbers like ORDERXXXXXXXX
-        /order[-_\s]?(\d+)/i,             // Matches order_123, order-123, order123
-        /SEPAY(\d+)/i,                    // Matches SEPAY2845 pattern (from your example)
-        /SEPAY[-_\s]?(\d+)/i,             // Matches SEPAY_2845, SEPAY-2845, SEPAY 2845
-        /\b(\d{6,})\b/                   // Matches any 6+ digit number
+        /ORD[-_]?(\d+)/i, // Sẽ khớp với ORD12345, ORD-12345, ORD_12345
+        /ORDER[-_]?(\d+)/i, // Sẽ khớp với ORDER12345, ORDER-12345, ORDER_12345
+        /ORD[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORD251100012
+        /ORDER[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORDERXXXXXXXX
+        /order[-_\s]?(\d+)/i, // Sẽ khớp với order_123, order-123, order123
+        /SEPAY(\d+)/i, // Sẽ khớp với SEPAY2845
+        /SEPAY[-_\s]?(\d+)/i, // Sẽ khớp với SEPAY_2845, SEPAY-2845, SEPAY 2845
+        /\b(\d{6,})\b/, // Sẽ khớp với bất kỳ số nào có 6 chữ số trở lên
       ];
-      
+
+      // Thử từng pattern để tìm kiếm orderId
       for (const pattern of codePatterns) {
         const match = code.match(pattern);
+
         if (match) {
+          // Nếu tìm thấy orderId, loại bỏ khoảng trắng thừa và dừng việc tìm kiếm
           orderId = match[0];
+
           if (orderId) {
             orderId = orderId.trim();
             break;
@@ -588,23 +715,27 @@ const handleSePayWebhook = async (req, res, next) => {
       }
     }
 
-    // If we still can't find an order ID, use the referenceCode
+    // Nếu vẫn không tìm thấy order ID, thử truy xuất từ referenceCode
     if (!orderId && referenceCode) {
       const refPatterns = [
-        /ORD[-_]?(\d+)/i,                 // Matches ORD12345 or ORD-12345 or ORD_12345
-        /ORDER[-_]?(\d+)/i,               // Matches ORDER12345 or ORDER-12345 or ORDER_12345
-        /ORD[-_]?\w+/i,                   // Matches full order numbers like ORD251100012
-        /ORDER[-_]?\w+/i,                 // Matches full order numbers like ORDERXXXXXXXX
-        /order[-_\s]?(\d+)/i,             // Matches order_123, order-123, order123
-        /SEPAY(\d+)/i,                    // Matches SEPAY2845 pattern (from your example)
-        /SEPAY[-_\s]?(\d+)/i,             // Matches SEPAY_2845, SEPAY-2845, SEPAY 2845
-        /\b(\d{6,})\b/                   // Matches any 6+ digit number
+        /ORD[-_]?(\d+)/i, // Sẽ khớp với ORD12345, ORD-12345, ORD_12345
+        /ORDER[-_]?(\d+)/i, // Sẽ khớp với ORDER12345, ORDER-12345, ORDER_12345
+        /ORD[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORD251100012
+        /ORDER[-_]?\w+/i, // Sẽ khớp với order number đầy đủ như ORDERXXXXXXXX
+        /order[-_\s]?(\d+)/i, // Sẽ khớp với order_123, order-123, order123
+        /SEPAY(\d+)/i, // Sẽ khớp với SEPAY2845
+        /SEPAY[-_\s]?(\d+)/i, // Sẽ khớp với SEPAY_2845, SEPAY-2845, SEPAY 2845
+        /\b(\d{6,})\b/, // Sẽ khớp với bất kỳ số nào có 6 chữ số trở lên
       ];
-      
+
+      // Thử từng pattern để tìm kiếm orderId
       for (const pattern of refPatterns) {
         const match = referenceCode.match(pattern);
+
         if (match) {
+          // Nếu tìm thấy orderId, loại bỏ khoảng trắng thừa và dừng việc tìm kiếm
           orderId = match[0];
+
           if (orderId) {
             orderId = orderId.trim();
             break;
@@ -613,208 +744,218 @@ const handleSePayWebhook = async (req, res, next) => {
       }
     }
 
+    // Nếu không tìm thấy orderId thì trả về thành công nhưng không xử lý gì thêm
     if (!orderId) {
-      console.log('No order ID found in webhook data');
-      return res.status(200).json({ 
-        received: true, 
-        message: 'No order ID found in transaction, processed successfully' 
+      console.log('Không tìm thấy ID đơn hàng trong webhook SePay');
+      return res.status(200).json({
+        received: true,
+        message:
+          'Không tìm thấy ID đơn hàng trong giao dịch, đã xử lý thành công',
       });
     }
 
-    console.log('Looking for order with ID:', orderId);
+    console.log('Đang tìm đơn hàng với ID:', orderId);
 
-    // Find the order in the database
     let order = null;
-    
-    // Try multiple ways to find the order
+
+    // Thử nhiều cách để tìm đơn hàng
     try {
-      // First, try to find by exact order number (like ORD-12345, which is stored in the 'number' field)
-      order = await Order.findOne({ 
-        where: { 
-          number: orderId 
-        } 
+      // Đầu tiên, tìm kiếm theo số đơn hàng chính xác (như ORD-12345, được lưu trong trường 'number')
+      order = await Order.findOne({
+        where: {
+          number: orderId,
+        },
       });
-      
-      // If not found, try variations of the order number format
-      // This handles cases where the stored format has hyphens but the webhook doesn't (or vice versa)
+
+      // Nếu không tìm thấy, thử các biến thể của định dạng order number
+      // Vì có thể có sự khác biệt về định dạng giữa webhook và DB
+
       if (!order) {
-        // Try to find with hyphens (e.g., if webhook has "ORD251100012" but DB has "ORD-2511-00012")
-        // Insert hyphens at likely positions: after "ORD" and before last 4 digits
+        // Nếu orderId bắt đầu với "ORD" và có độ dài lớn hơn 7 ký tự
+        // Ví dụ: webhook có "ORD251100012" nhưng DB lưu là "ORD-2511-00012"
         if (orderId.startsWith('ORD') && orderId.length > 7) {
+          // Chèn dấu gạch ngang sau "ORD" và sau 4 ký tự tiếp theo
           const formattedOrderId = `${orderId.substring(0, 3)}-${orderId.substring(3, 7)}-${orderId.substring(7)}`;
-          order = await Order.findOne({ 
-            where: { 
-              number: formattedOrderId 
-            } 
+
+          order = await Order.findOne({
+            where: {
+              number: formattedOrderId,
+            },
           });
         }
       }
-      
-      // If still not found, try the reverse: if webhook has hyphens, remove them for DB lookup
+
+      // Nếu vẫn không tìm thấy, thử loại bỏ dấu gạch ngang nếu có, và tìm kiếm lại
       if (!order && orderId.includes('-')) {
         const unformattedOrderId = orderId.replace(/-/g, '');
-        order = await Order.findOne({ 
-          where: { 
-            number: unformattedOrderId 
-          } 
+
+        order = await Order.findOne({
+          where: {
+            number: unformattedOrderId,
+          },
         });
-        
-        // Also try pattern-based hyphen insertion in reverse
+
+        // Nếu vẫn không tìm thấy, chèn lại dấu gạch ngang theo định dạng chuẩn và tìm kiếm lại
         if (!order) {
           const formattedOrderId = `${unformattedOrderId.substring(0, 3)}-${unformattedOrderId.substring(3, 7)}-${unformattedOrderId.substring(7)}`;
-          order = await Order.findOne({ 
-            where: { 
-              number: formattedOrderId 
-            } 
+
+          order = await Order.findOne({
+            where: {
+              number: formattedOrderId,
+            },
           });
         }
       }
-      
-      // If still not found, try looking for a numeric ID match in the 'number' field
-      // Some systems use numeric order numbers like "12345"
+
+      // Nếu vẫn không tìm thấy, trích xuất phần số từ orderId và tìm kiếm
       if (!order) {
+        // Trích xuất phần số từ orderId
         const numericPart = parseInt(orderId.replace(/\D/g, ''));
+
+        // Nếu phần số hợp lệ, thử tìm kiếm
         if (!isNaN(numericPart)) {
-          // Try matching against the number field if it contains the numeric part
-          order = await Order.findOne({ 
-            where: { 
-              number: { [Op.iLike]: `%${numericPart}%` } 
-            } 
+          // Tìm kiếm đơn hàng có trường 'number' chứa phần số này
+          order = await Order.findOne({
+            where: {
+              number: { [Op.iLike]: `%${numericPart}%` },
+            },
           });
         }
       }
-      
-      // If we still haven't found it, try a more comprehensive search
+
+      // Nếu vẫn chưa tìm thấy, thử tìm đơn hàng có trường 'number' chứa toàn bộ orderId
       if (!order) {
-        // Try partial matching with the original order ID
-        order = await Order.findOne({ 
-          where: { 
-            [Op.or]: [
-              { number: { [Op.iLike]: `%${orderId}%` } },  // Partial match in order number
-            ]
-          }
+        order = await Order.findOne({
+          where: {
+            [Op.or]: [{ number: { [Op.iLike]: `%${orderId}%` } }],
+          },
         });
       }
     } catch (error) {
-      console.error('Database error finding order:', error);
-      return res.status(500).json({ error: 'Error processing order' });
+      console.error('Lỗi cơ sở dữ liệu khi tìm đơn hàng:', error);
+      return res.status(500).json({ error: 'Lỗi xử lý đơn hàng' });
     }
 
+    // Nếu không tìm thấy đơn hàng sau mọi cách, trả về thành công nhưng không xử lý gì thêm
     if (!order) {
-      console.log('Order not found:', orderId);
-      return res.status(200).json({ 
-        received: true, 
-        message: `Order with ID ${orderId} not found, processed successfully` 
+      console.log('Không tìm thấy đơn hàng với ID:', orderId);
+      return res.status(200).json({
+        received: true,
+        message: `Không tìm thấy đơn hàng với ID ${orderId}, đã xử lý thành công`,
       });
     }
 
-    // Verify that the transfer amount matches the order total
-    // Note: In the Order model, the total field is called 'total' (not 'totalAmount')
-    const orderTotal = parseFloat(order.total); // Get the 'total' field from the Order model
-    const transferAmountInVND = transferAmount; // SePay transfers amount in VND
-    
-    console.log('Comparing amounts:', {
+    // Kiểm tra số tiền chuyển có khớp với tổng tiền của đơn hàng không
+    const orderTotal = parseFloat(order.total);
+
+    console.log('Đang so sánh số tiền chuyển và tổng tiền của đơn hàng:', {
       orderNumber: order.number,
       orderTotal: orderTotal,
       transferAmount: transferAmount,
-      isMatch: Math.abs(orderTotal - transferAmount) < 0.01 // Using small tolerance for floating point comparison
+      // Sử dụng dung sai nhỏ để so sánh dấu phẩy động
+      isMatch: Math.abs(orderTotal - transferAmount) < 0.01,
     });
 
-    // Check if amount matches (allowing for small differences due to rounding)
+    // Kiểm tra xem số tiền có khớp không (cho phép sai số nhỏ do làm tròn)
     if (Math.abs(orderTotal - transferAmount) > 0.01) {
-      console.log(`Amount mismatch: Order total ${orderTotal} vs Transfer amount ${transferAmount}`);
-      
-      // You might want to still acknowledge the webhook but log the mismatch
-      // or you might want to return an error to indicate the issue
-      return res.status(200).json({ 
-        received: true, 
-        message: 'Amount mismatch detected, processed successfully' 
+      console.log(
+        `Số tiền không khớp: Tổng tiền của đơn hàng ${orderTotal} so với Số tiền chuyển ${transferAmount}`,
+      );
+
+      return res.status(200).json({
+        received: true,
+        message: 'Số tiền không khớp, đã xử lý thành công',
       });
     }
 
-    // Prevent duplicate processing - check if this transaction ID already processed
-    if (order.paymentTransactionId && order.paymentTransactionId === id.toString()) {
-      console.log('Duplicate webhook received for transaction ID:', id);
-      return res.status(200).json({ 
-        received: true, 
-        message: 'Webhook already processed' 
+    // Ngăn chặn việc xử lý trùng lặp - kiểm tra xem ID giao dịch này đã được xử lý chưa
+    // Nếu chưa xử lý, thì paymentTransactionId sẽ khác với id từ webhook
+    // Nếu đã xử lý rồi, thì paymentTransactionId sẽ bằng với id từ webhook
+    if (
+      order.paymentTransactionId &&
+      order.paymentTransactionId === id.toString()
+    ) {
+      console.log('Đã nhận được webhook trùng lặp với ID giao dịch:', id);
+
+      return res.status(200).json({
+        received: true,
+        message: 'Webhook đã được xử lý rồi',
       });
     }
 
-    // Update the order status to paid and processing if not already processed
+    // Cập nhật trạng thái đơn hàng thành đã thanh toán và đang xử lý nếu chưa được xử lý
     if (order.paymentStatus === 'pending' || order.paymentStatus === 'unpaid') {
       const updateResult = await Order.update(
         {
-          status: 'processing',        // Update order status to processing
-          paymentStatus: 'paid',       // Update payment status to paid
-          paymentTransactionId: id.toString(), // Store SePay transaction ID
-          paymentProvider: 'sepay',    // Mark the payment provider
-          // Note: The Order model doesn't have a paymentDate field, so we'll just update the timestamp
+          status: 'processing', // Cập nhật trạng thái đơn hàng thành đang xử lý
+          paymentStatus: 'paid', // Cập nhật trạng thái thanh toán thành đã thanh toán
+          paymentTransactionId: id.toString(), // Lưu ID giao dịch SePay
+          paymentProvider: 'sepay', // Đánh dấu nhà cung cấp thanh toán
           updatedAt: new Date(),
         },
         {
           where: { id: order.id },
-        }
+        },
       );
 
-      // Now reduce inventory since payment is confirmed
-      // Get order items to reduce inventory
+      // Bây giờ giảm tồn kho vì thanh toán đã được xác nhận qua SePay
+
+      // Lấy các mục đơn hàng để giảm tồn kho
       const orderItems = await OrderItem.findAll({
-        where: { orderId: order.id }
+        where: { orderId: order.id },
       });
 
       for (const item of orderItems) {
+        // Có 2 case: sản phẩm có biến thể và không có biến thể
         if (item.variantId) {
-          // Reduce stock for product variant using decrement method
+          // Case sản phẩm có biến thể
+
+          // Giảm tồn kho cho biến thể sản phẩm bằng phương thức decrement
           await ProductVariant.decrement(
             { stockQuantity: item.quantity },
-            { where: { id: item.variantId } }
+            { where: { id: item.variantId } },
           );
         } else {
-          // Reduce stock for product using decrement method
+          // Case sản phẩm không có biến thể
+
+          // Giảm tồn kho cho sản phẩm bằng phương thức decrement
           await Product.decrement(
             { stockQuantity: item.quantity },
-            { where: { id: item.productId } }
+            { where: { id: item.productId } },
           );
         }
       }
 
-      console.log('Order updated successfully:', {
+      console.log('Đơn hàng đã được cập nhật thành công:', {
         orderId: order.id,
         orderNumber: order.number,
         paymentStatus: 'paid',
         status: 'processing',
         transactionId: id,
-        paymentDate: parsedTransactionDate
+        paymentDate: parsedTransactionDate,
       });
-
-      // Optionally, you might want to emit an event or send a notification here
-      // For example, send email notification to customer about successful payment
-      // await emailService.sendPaymentConfirmation(order.userId, order.id);
-      
     } else {
-      console.log('Order already processed:', {
+      console.log('Đơn hàng đã được xử lý:', {
         orderId: order.id,
         orderNumber: order.number,
         currentPaymentStatus: order.paymentStatus,
-        currentOrderStatus: order.status
+        currentOrderStatus: order.status,
       });
-      return res.status(200).json({ 
-        received: true, 
-        message: 'Order already processed, webhook acknowledged' 
+      return res.status(200).json({
+        received: true,
+        message: 'Đơn hàng đã được xử lý, webhook đã được xác nhận',
       });
     }
 
-    res.status(200).json({ 
-      received: true, 
-      message: 'SePay webhook processed successfully',
+    res.status(200).json({
+      received: true,
+      message: 'SePay webhook đã được xử lý thành công',
       orderId: order.id,
       orderNumber: order.number,
-      transactionId: id
+      transactionId: id,
     });
-
   } catch (error) {
-    console.error('Error processing SePay webhook:', error);
+    console.error('Lỗi khi xử lý SePay webhook:', error);
     next(error);
   }
 };

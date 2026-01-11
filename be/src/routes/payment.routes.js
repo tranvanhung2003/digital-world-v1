@@ -4,35 +4,56 @@ const paymentController = require('../controllers/payment.controller');
 const { authenticate } = require('../middlewares/authenticate');
 const { authorize } = require('../middlewares/authorize');
 
-// Webhook route (no authentication needed)
+// STRIPE WEBHOOK (KHÔNG CẦN XÁC THỰC)
+
 router.post(
-  '/webhook',
+  '/webhook', // POST /api/payment/webhook - Xử lý webhook Stripe
   express.raw({ type: 'application/json' }),
-  paymentController.handleWebhook
+  paymentController.handleWebhook,
 );
 
-// SePay webhook route (no authentication needed)
+// SEPAY WEBHOOK (KHÔNG CẦN XÁC THỰC)
+
 router.post(
-  '/sepay-webhook',
+  '/sepay-webhook', // POST /api/payment/sepay-webhook - Xử lý webhook SePay
   express.json(), // SePay sends JSON data
-  paymentController.handleSePayWebhook
+  paymentController.handleSePayWebhook,
 );
 
-// Authenticated routes
+// AUTHENTICATED ROUTES
 router.use(authenticate);
 
-// Create payment intent
-router.post('/create-payment-intent', paymentController.createPaymentIntent);
+router.post(
+  '/create-payment-intent', // POST /api/payment/create-payment-intent - Tạo payment intent Stripe
+  paymentController.createPaymentIntent,
+);
 
-// Confirm payment
-router.post('/confirm-payment', paymentController.confirmPayment);
+router.post(
+  '/confirm-payment', // POST /api/payment/confirm-payment - Xác nhận thanh toán Stripe
+  paymentController.confirmPayment,
+);
 
-// Customer management
-router.post('/create-customer', paymentController.createCustomer);
-router.get('/payment-methods', paymentController.getPaymentMethods);
-router.post('/create-setup-intent', paymentController.createSetupIntent);
+// CUSTOMER ROUTES
 
-// Admin routes
-router.post('/refund', authorize('admin'), paymentController.createRefund);
+router.post(
+  '/create-customer', // POST /api/payment/create-customer - Tạo khách hàng Stripe
+  paymentController.createCustomer,
+);
+router.get(
+  '/payment-methods', // GET /api/payment/payment-methods - Lấy phương thức thanh toán Stripe
+  paymentController.getPaymentMethods,
+);
+router.post(
+  '/create-setup-intent', // POST /api/payment/create-setup-intent - Tạo setup intent để lưu phương thức thanh toán Stripe
+  paymentController.createSetupIntent,
+);
+
+// ADMIN ROUTES
+
+router.post(
+  '/refund', // POST /api/payment/refund - Tạo hoàn tiền Stripe (Admin)
+  authorize('admin'),
+  paymentController.createRefund,
+);
 
 module.exports = router;
