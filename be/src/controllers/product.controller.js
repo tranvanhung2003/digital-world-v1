@@ -10,7 +10,9 @@ const {
 const { AppError } = require('../middlewares/errorHandler');
 const { Op } = require('sequelize');
 
-// Get all products with pagination
+/**
+ * Lấy tất cả sản phẩm
+ */
 const getAllProducts = async (req, res, next) => {
   try {
     const {
@@ -79,7 +81,7 @@ const getAllProducts = async (req, res, next) => {
       // Kiểm tra xem category có phải là UUID hợp lệ không
       const isValidUUID =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          category
+          category,
         );
 
       if (isValidUUID) {
@@ -145,10 +147,10 @@ const getAllProducts = async (req, res, next) => {
       if (productJson.reviews && productJson.reviews.length > 0) {
         const totalRating = productJson.reviews.reduce(
           (sum, review) => sum + review.rating,
-          0
+          0,
         );
         ratings.average = parseFloat(
-          (totalRating / productJson.reviews.length).toFixed(1)
+          (totalRating / productJson.reviews.length).toFixed(1),
         );
         ratings.count = productJson.reviews.length;
       }
@@ -160,7 +162,7 @@ const getAllProducts = async (req, res, next) => {
       if (productJson.variants && productJson.variants.length > 0) {
         // Sort variants by price (ascending) to get the lowest price first
         const sortedVariants = productJson.variants.sort(
-          (a, b) => parseFloat(a.price) - parseFloat(b.price)
+          (a, b) => parseFloat(a.price) - parseFloat(b.price),
         );
         displayPrice = parseFloat(sortedVariants[0].price) || displayPrice;
       }
@@ -190,7 +192,9 @@ const getAllProducts = async (req, res, next) => {
   }
 };
 
-// Get product by ID
+/**
+ * Lấy sản phẩm theo ID
+ */
 const getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -247,10 +251,10 @@ const getProductById = async (req, res, next) => {
     if (productJson.reviews && productJson.reviews.length > 0) {
       const totalRating = productJson.reviews.reduce(
         (sum, review) => sum + review.rating,
-        0
+        0,
       );
       ratings.average = parseFloat(
-        (totalRating / productJson.reviews.length).toFixed(1)
+        (totalRating / productJson.reviews.length).toFixed(1),
       );
       ratings.count = productJson.reviews.length;
     }
@@ -270,7 +274,9 @@ const getProductById = async (req, res, next) => {
   }
 };
 
-// Get product by slug
+/**
+ * Lấy sản phẩm theo slug
+ */
 const getProductBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
@@ -328,10 +334,10 @@ const getProductBySlug = async (req, res, next) => {
     if (productJson.reviews && productJson.reviews.length > 0) {
       const totalRating = productJson.reviews.reduce(
         (sum, review) => sum + review.rating,
-        0
+        0,
       );
       ratings.average = parseFloat(
-        (totalRating / productJson.reviews.length).toFixed(1)
+        (totalRating / productJson.reviews.length).toFixed(1),
       );
       ratings.count = productJson.reviews.length;
     }
@@ -420,7 +426,9 @@ const getProductBySlug = async (req, res, next) => {
   }
 };
 
-// Create product
+/**
+ * Tạo sản phẩm mới (Admin)
+ */
 const createProduct = async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
@@ -473,7 +481,7 @@ const createProduct = async (req, res, next) => {
         isVariantProduct,
         specifications: specifications || {},
       },
-      { transaction }
+      { transaction },
     );
 
     // Add categories
@@ -608,7 +616,9 @@ const createProduct = async (req, res, next) => {
   }
 };
 
-// Update product
+/**
+ * Cập nhật sản phẩm (Admin)
+ */
 const updateProduct = async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
@@ -742,13 +752,13 @@ const updateProduct = async (req, res, next) => {
 
         console.log(
           '✅ Found warranties:',
-          warranties.map((w) => ({ id: w.id, name: w.name }))
+          warranties.map((w) => ({ id: w.id, name: w.name })),
         );
         console.log(
           '📊 Expected:',
           warrantyPackageIds.length,
           'Found:',
-          warranties.length
+          warranties.length,
         );
 
         if (warranties.length !== warrantyPackageIds.length) {
@@ -765,7 +775,7 @@ const updateProduct = async (req, res, next) => {
       }
     } else {
       console.log(
-        '⏭️ No warrantyPackageIds in request, skipping warranty update'
+        '⏭️ No warrantyPackageIds in request, skipping warranty update',
       );
     }
 
@@ -806,7 +816,9 @@ const updateProduct = async (req, res, next) => {
   }
 };
 
-// Delete product
+/**
+ * Xóa sản phẩm (Admin)
+ */
 const deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -829,7 +841,9 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-// Get featured products
+/**
+ * Lấy sản phẩm nổi bật
+ */
 const getFeaturedProducts = async (req, res, next) => {
   try {
     const { limit = 8 } = req.query;
@@ -867,10 +881,10 @@ const getFeaturedProducts = async (req, res, next) => {
       if (productJson.reviews && productJson.reviews.length > 0) {
         const totalRating = productJson.reviews.reduce(
           (sum, review) => sum + review.rating,
-          0
+          0,
         );
         ratings.average = parseFloat(
-          (totalRating / productJson.reviews.length).toFixed(1)
+          (totalRating / productJson.reviews.length).toFixed(1),
         );
         ratings.count = productJson.reviews.length;
       }
@@ -882,7 +896,7 @@ const getFeaturedProducts = async (req, res, next) => {
       if (productJson.variants && productJson.variants.length > 0) {
         // Sort variants by price (ascending) to get the lowest price first
         const sortedVariants = productJson.variants.sort(
-          (a, b) => parseFloat(a.price) - parseFloat(b.price)
+          (a, b) => parseFloat(a.price) - parseFloat(b.price),
         );
         displayPrice = parseFloat(sortedVariants[0].price) || displayPrice;
       }
@@ -907,7 +921,9 @@ const getFeaturedProducts = async (req, res, next) => {
   }
 };
 
-// Get related products
+/**
+ * Lấy sản phẩm liên quan
+ */
 const getRelatedProducts = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -958,7 +974,7 @@ const getRelatedProducts = async (req, res, next) => {
     // Trả về các sản phẩm mới nhất hoặc sản phẩm nổi bật
     if (relatedProductsRaw.length === 0) {
       console.log(
-        `No related products found for product ${id}. Returning recent products instead.`
+        `No related products found for product ${id}. Returning recent products instead.`,
       );
 
       relatedProductsRaw = await Product.findAll({
@@ -993,10 +1009,10 @@ const getRelatedProducts = async (req, res, next) => {
       if (productJson.reviews && productJson.reviews.length > 0) {
         const totalRating = productJson.reviews.reduce(
           (sum, review) => sum + review.rating,
-          0
+          0,
         );
         ratings.average = parseFloat(
-          (totalRating / productJson.reviews.length).toFixed(1)
+          (totalRating / productJson.reviews.length).toFixed(1),
         );
         ratings.count = productJson.reviews.length;
       }
@@ -1019,7 +1035,9 @@ const getRelatedProducts = async (req, res, next) => {
   }
 };
 
-// Search products
+/**
+ * Tìm kiếm sản phẩm
+ */
 const searchProducts = async (req, res, next) => {
   try {
     const { q, page = 1, limit = 10 } = req.query;
@@ -1063,7 +1081,9 @@ const searchProducts = async (req, res, next) => {
   }
 };
 
-// Get new arrivals
+/**
+ * Lấy sản phẩm mới về
+ */
 const getNewArrivals = async (req, res, next) => {
   try {
     const { limit = 8 } = req.query;
@@ -1096,10 +1116,10 @@ const getNewArrivals = async (req, res, next) => {
       if (productJson.reviews && productJson.reviews.length > 0) {
         const totalRating = productJson.reviews.reduce(
           (sum, review) => sum + review.rating,
-          0
+          0,
         );
         ratings.average = parseFloat(
-          (totalRating / productJson.reviews.length).toFixed(1)
+          (totalRating / productJson.reviews.length).toFixed(1),
         );
         ratings.count = productJson.reviews.length;
       }
@@ -1122,7 +1142,9 @@ const getNewArrivals = async (req, res, next) => {
   }
 };
 
-// Get best sellers
+/**
+ * Lấy sản phẩm bán chạy nhất
+ */
 const getBestSellers = async (req, res, next) => {
   try {
     const { limit = 10, period = 'month' } = req.query;
@@ -1172,7 +1194,7 @@ const getBestSellers = async (req, res, next) => {
       {
         replacements: { startDate, limit: parseInt(limit) },
         type: sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     // If no best sellers found, return newest products
@@ -1197,7 +1219,7 @@ const getBestSellers = async (req, res, next) => {
           sequelize.literal(
             `CASE ${productIds
               .map((id, index) => `WHEN id = ${id} THEN ${index}`)
-              .join(' ')} END`
+              .join(' ')} END`,
           ),
         ],
       ],
@@ -1212,7 +1234,9 @@ const getBestSellers = async (req, res, next) => {
   }
 };
 
-// Get deals (products with discounts)
+/**
+ * Lấy sản phẩm khuyến mãi
+ */
 const getDeals = async (req, res, next) => {
   try {
     const { minDiscount = 5, limit = 12, sort = 'discount_desc' } = req.query;
@@ -1251,10 +1275,10 @@ const getDeals = async (req, res, next) => {
         if (product.reviews && product.reviews.length > 0) {
           const totalRating = product.reviews.reduce(
             (sum, review) => sum + review.rating,
-            0
+            0,
           );
           ratings.average = parseFloat(
-            (totalRating / product.reviews.length).toFixed(1)
+            (totalRating / product.reviews.length).toFixed(1),
           );
           ratings.count = product.reviews.length;
         }
@@ -1266,7 +1290,7 @@ const getDeals = async (req, res, next) => {
         };
       })
       .filter(
-        (product) => product.discountPercentage >= parseFloat(minDiscount)
+        (product) => product.discountPercentage >= parseFloat(minDiscount),
       );
 
     // Sort products
@@ -1281,7 +1305,7 @@ const getDeals = async (req, res, next) => {
       case 'discount_desc':
       default:
         sortedProducts = discountedProducts.sort(
-          (a, b) => b.discountPercentage - a.discountPercentage
+          (a, b) => b.discountPercentage - a.discountPercentage,
         );
     }
 
@@ -1297,7 +1321,9 @@ const getDeals = async (req, res, next) => {
   }
 };
 
-// Get product variants
+/**
+ * Lấy các biến thể của sản phẩm
+ */
 const getProductVariants = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -1324,7 +1350,9 @@ const getProductVariants = async (req, res, next) => {
   }
 };
 
-// Get product reviews summary
+/**
+ * Lấy tóm tắt đánh giá sản phẩm
+ */
 const getProductReviewsSummary = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -1374,7 +1402,9 @@ const getProductReviewsSummary = async (req, res, next) => {
   }
 };
 
-// Get product filters
+/**
+ * Lấy bộ lọc sản phẩm
+ */
 const getProductFilters = async (req, res, next) => {
   try {
     const { categoryId } = req.query;
@@ -1389,7 +1419,7 @@ const getProductFilters = async (req, res, next) => {
       // Kiểm tra xem categoryId có phải là UUID hợp lệ không
       const isValidUUID =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          categoryId
+          categoryId,
         );
 
       if (isValidUUID) {
@@ -1431,7 +1461,7 @@ const getProductFilters = async (req, res, next) => {
     if (categoryId) {
       const isValidUUID =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          categoryId
+          categoryId,
         );
       if (isValidUUID) {
         actualCategoryId = categoryId;
@@ -1451,7 +1481,7 @@ const getProductFilters = async (req, res, next) => {
       productFilter = {
         productId: {
           [Op.in]: sequelize.literal(
-            `(SELECT product_id FROM product_categories WHERE category_id = '${actualCategoryId}')`
+            `(SELECT product_id FROM product_categories WHERE category_id = '${actualCategoryId}')`,
           ),
         },
       };

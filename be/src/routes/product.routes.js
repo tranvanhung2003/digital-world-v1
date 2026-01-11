@@ -161,7 +161,10 @@ const { authorize } = require('../middlewares/authorize');
  *                       items:
  *                         $ref: '#/components/schemas/Product'
  */
-router.get('/', productController.getAllProducts);
+router.get(
+  '/', // GET /api/products - Lấy tất cả sản phẩm
+  productController.getAllProducts,
+);
 
 /**
  * @swagger
@@ -180,7 +183,10 @@ router.get('/', productController.getAllProducts);
  *       200:
  *         description: List of featured products
  */
-router.get('/featured', productController.getFeaturedProducts);
+router.get(
+  '/featured', // GET /api/products/featured - Lấy sản phẩm nổi bật
+  productController.getFeaturedProducts,
+);
 
 /**
  * @swagger
@@ -199,7 +205,10 @@ router.get('/featured', productController.getFeaturedProducts);
  *       200:
  *         description: List of new arrival products
  */
-router.get('/new-arrivals', productController.getNewArrivals);
+router.get(
+  '/new-arrivals', // GET /api/products/new-arrivals - Lấy sản phẩm mới về
+  productController.getNewArrivals,
+);
 
 /**
  * @swagger
@@ -225,7 +234,10 @@ router.get('/new-arrivals', productController.getNewArrivals);
  *       200:
  *         description: List of best selling products
  */
-router.get('/best-sellers', productController.getBestSellers);
+router.get(
+  '/best-sellers', // GET /api/products/best-sellers - Lấy sản phẩm bán chạy nhất
+  productController.getBestSellers,
+);
 
 /**
  * @swagger
@@ -257,7 +269,10 @@ router.get('/best-sellers', productController.getBestSellers);
  *       200:
  *         description: List of discounted products
  */
-router.get('/deals', productController.getDeals);
+router.get(
+  '/deals', // GET /api/products/deals - Lấy sản phẩm khuyến mãi
+  productController.getDeals,
+);
 
 /**
  * @swagger
@@ -275,7 +290,10 @@ router.get('/deals', productController.getDeals);
  *       200:
  *         description: Available filters for products
  */
-router.get('/filters', productController.getProductFilters);
+router.get(
+  '/filters', // GET /api/products/filters - Lấy bộ lọc sản phẩm
+  productController.getProductFilters,
+);
 
 /**
  * @swagger
@@ -308,7 +326,10 @@ router.get('/filters', productController.getProductFilters);
  *       400:
  *         description: Missing search query
  */
-router.get('/search', productController.searchProducts);
+router.get(
+  '/search', // GET /api/products/search - Tìm kiếm sản phẩm
+  productController.searchProducts,
+);
 
 /**
  * @swagger
@@ -329,7 +350,10 @@ router.get('/search', productController.searchProducts);
  *       404:
  *         description: Product not found
  */
-router.get('/slug/:slug', productController.getProductBySlug);
+router.get(
+  '/slug/:slug', // GET /api/products/slug/:slug - Lấy sản phẩm theo slug
+  productController.getProductBySlug,
+);
 
 /**
  * @swagger
@@ -356,7 +380,10 @@ router.get('/slug/:slug', productController.getProductBySlug);
  *       404:
  *         description: Product not found
  */
-router.get('/:id/related', productController.getRelatedProducts);
+router.get(
+  '/:id/related', // GET /api/products/:id/related - Lấy sản phẩm liên quan
+  productController.getRelatedProducts,
+);
 
 /**
  * @swagger
@@ -377,7 +404,10 @@ router.get('/:id/related', productController.getRelatedProducts);
  *       404:
  *         description: Product not found
  */
-router.get('/:id/variants', productController.getProductVariants);
+router.get(
+  '/:id/variants', // GET /api/products/:id/variants - Lấy các biến thể của sản phẩm
+  productController.getProductVariants,
+);
 
 /**
  * @swagger
@@ -398,7 +428,10 @@ router.get('/:id/variants', productController.getProductVariants);
  *       404:
  *         description: Product not found
  */
-router.get('/:id/reviews-summary', productController.getProductReviewsSummary);
+router.get(
+  '/:id/reviews-summary', // GET /api/products/:id/reviews-summary - Lấy tóm tắt đánh giá sản phẩm
+  productController.getProductReviewsSummary,
+);
 
 /**
  * @swagger
@@ -419,7 +452,10 @@ router.get('/:id/reviews-summary', productController.getProductReviewsSummary);
  *       404:
  *         description: Product not found
  */
-router.get('/:id', productController.getProductById);
+router.get(
+  '/:id', // GET /api/products/:id - Lấy sản phẩm theo ID
+  productController.getProductById,
+);
 
 /**
  * @swagger
@@ -479,11 +515,11 @@ router.get('/:id', productController.getProductById);
  *         description: Not authorized
  */
 router.post(
-  '/',
+  '/', // POST /api/products - Tạo sản phẩm mới (Admin)
   authenticate,
   authorize('admin'),
   validateRequest(productSchema),
-  productController.createProduct
+  productController.createProduct,
 );
 
 /**
@@ -547,11 +583,11 @@ router.post(
  *         description: Product not found
  */
 router.put(
-  '/:id',
+  '/:id', // PUT /api/products/:id - Cập nhật sản phẩm (Admin)
   authenticate,
   authorize('admin'),
   validateRequest(productSchema),
-  productController.updateProduct
+  productController.updateProduct,
 );
 
 /**
@@ -580,10 +616,10 @@ router.put(
  *         description: Product not found
  */
 router.delete(
-  '/:id',
+  '/:id', // DELETE /api/products/:id - Xóa sản phẩm (Admin)
   authenticate,
   authorize('admin'),
-  productController.deleteProduct
+  productController.deleteProduct,
 );
 
 module.exports = router;

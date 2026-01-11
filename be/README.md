@@ -125,10 +125,16 @@ npm start
 
 - `GET /api/products` - Lấy tất cả sản phẩm
 - `GET /api/products/featured` - Lấy sản phẩm nổi bật
+- `GET /api/products/new-arrivals` - Lấy sản phẩm mới về
+- `GET /api/products/best-sellers` - Lấy sản phẩm bán chạy nhất
+- `GET /api/products/deals` - Lấy sản phẩm khuyến mãi
+- `GET /api/products/:id/reviews-summary` - Lấy tóm tắt đánh giá sản phẩm
 - `GET /api/products/search` - Tìm kiếm sản phẩm
 - `GET /api/products/:id` - Lấy sản phẩm theo ID
 - `GET /api/products/slug/:slug` - Lấy sản phẩm theo slug
 - `GET /api/products/:id/related` - Lấy sản phẩm liên quan
+- `GET /api/products/:id/variants` - Lấy các biến thể của sản phẩm
+- `GET /api/products/filters` - Lấy bộ lọc sản phẩm
 - `POST /api/products` - Tạo sản phẩm mới (Admin)
 - `PUT /api/products/:id` - Cập nhật sản phẩm (Admin)
 - `DELETE /api/products/:id` - Xóa sản phẩm (Admin)
