@@ -1,55 +1,55 @@
-Table Address {
+Table dia_chi {
   id uuid [pk]
-  userId uuid [not null, ref: > User.id]
-  name string
-  firstName string [not null]
-  lastName string [not null]
-  company string
-  address1 string [not null]
-  address2 string
-  city string [not null]
-  state string [not null]
-  zip string [not null]
-  country string [not null]
-  phone string
-  isDefault boolean [not null, default: false]
+  nguoi_dung_id uuid [not null, ref: > nguoi_dung.id]
+  ten_nguoi_nhan string
+  ten string [not null]
+  ho string [not null]
+  cong_ty string
+  dia_chi_1 string [not null]
+  dia_chi_2 string
+  quan_huyen string [not null]
+  tinh_thanh string [not null]
+  ma_buu_dien string [not null]
+  quoc_gia string [not null]
+  so_dien_thoai string
+  mac_dinh boolean [not null, default: false]
 }
 
-Table AttributeGroup {
+Table nhom_thuoc_tinh {
   id uuid [pk]
-  name string [not null]
-  description string
-  type enum [not null, default: 'custom', note: '''
+  ten_nhom_thuoc_tinh string [not null]
+  mo_ta string
+  loai_thuoc_tinh enum [not null, default: 'custom', note: '''
     color
     config
     storage
     size
     custom
   ''']
-  isRequired boolean [not null, default: false]
-  sortOrder int [not null, default: 0]
-  isActive boolean [not null, default: true]
+  bat_buoc boolean [not null, default: false]
+  thu_tu_hien_thi int [not null, default: 0]
+  dang_hoat_dong boolean [not null, default: true]
 }
 
-Table AttributeValue {
+Table gia_tri_thuoc_tinh {
   id uuid [pk]
-  attributeGroupId uuid [not null, ref: > AttributeGroup.id]
-  name string [not null]
-  value string [not null]
-  colorCode string
-  imageUrl string
-  priceAdjustment decimal(12,2)
-  sortOrder int
-  isActive boolean
-  affectsName boolean
-  nameTemplate string
+  nhom_thuoc_tinh_id uuid [not null, ref: > nhom_thuoc_tinh.id]
+  ten_gia_tri_thuoc_tinh string [not null]
+  gia_tri_thuoc_tinh string [not null]
+  ma_mau string
+  url_hinh_anh string
+  chinh_sua_gia decimal(12,2)
+  thu_tu_hien_thi int
+  dang_hoat_dong boolean
+  anh_huong_ten_san_pham boolean
+  mau_ten_san_pham string
 }
 
-Table Cart {
+Table gio_hang {
   id uuid [pk]
-  userId uuid [ref: > User.id]
-  sessionId string
-  status enum [not null, default: 'active', note: '''
+  nguoi_dung_id uuid [ref: > nguoi_dung.id]
+  session_id string
+  trang_thai enum [not null, default: 'active', note: '''
     active
     merged
     converted
@@ -57,319 +57,322 @@ Table Cart {
   ''']
 }
 
-Table CartItem {
+Table chi_tiet_gio_hang {
   id uuid [pk]
-  cartId uuid [not null, ref: > Cart.id]
-  productId uuid [not null, ref: > Product.id]
-  variantId uuid [ref: > ProductVariant.id]
-  quantity int [not null, default: 1]
-  price decimal(19,2) [not null]
-  warrantyPackageIds array(uuid) [not null, default: `[]`]
+  gio_hang_id uuid [not null, ref: > gio_hang.id]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  bien_the_id uuid [ref: > bien_the.id]
+  so_luong int [not null, default: 1]
+  gia decimal(19,2) [not null]
+  goi_bao_hanh_ids array(uuid) [not null, default: `[]`]
 }
 
-Table Category {
+Table danh_muc {
   id uuid [pk]
-  name string [not null]
+  ten_danh_muc string [not null]
   slug string [not null, unique]
-  description string
-  image string
-  parentId uuid [ref: > Category.id]
-  level int [not null, default: 1]
-  isActive boolean [not null, default: true]
-  sortOrder int [not null, default: 0]
+  mo_ta string
+  hinh_anh string
+  danh_muc_cha_id uuid [ref: > danh_muc.id]
+  cap_do int [not null, default: 1]
+  dang_hoat_dong boolean [not null, default: true]
+  thu_tu_hien_thi int [not null, default: 0]
 }
 
-Table Feedback {
+Table phan_hoi {
   id uuid [pk]
-  name string [not null]
-  email string [not null]
-  phone string
-  subject string [not null]
-  content string [not null]
-  status enum [not null, default: 'pending', note: '''
+  ten_nguoi_gui string [not null]
+  email_nguoi_gui string [not null]
+  so_dien_thoai string
+  tieu_de string [not null]
+  noi_dung string [not null]
+  trang_thai enum [not null, default: 'pending', note: '''
     pending
     reviewed
     resolved
   ''']
 }
 
-Table Image {
+Table hinh_anh {
   id uuid [pk]
-  originalName string [not null]
-  fileName string [not null, unique]
-  filePath string [not null]
-  fileSize int [not null]
-  mimeType string [not null]
-  width int
-  height int
-  category enum [not null, default: 'product', note: '''
+  ten_goc string [not null]
+  ten_file string [not null, unique]
+  duong_dan_file string [not null]
+  kich_thuoc_file int [not null]
+  loai_mime string [not null]
+  chieu_rong int
+  chieu_cao int
+  danh_muc enum [not null, default: 'product', note: '''
     product
     thumbnail
     user
     review
   ''']
-  productId uuid [ref: > Product.id]
-  userId uuid [ref: > User.id]
-  isActive boolean [not null, default: true]
+  san_pham_id uuid [ref: > san_pham.id]
+  nguoi_dung_id uuid [ref: > nguoi_dung.id]
+  dang_hoat_dong boolean [not null, default: true]
 
   indexes {
-    (productId, userId, category, isActive) [unique]
+    san_pham_id
+    nguoi_dung_id
+    danh_muc
+    dang_hoat_dong
   }
 }
 
-Table News {
+Table tin_tuc {
   id uuid [pk]
-  title string [not null]
+  tieu_de string [not null]
   slug string [not null, unique]
-  content string [not null]
+  noi_dung string [not null]
   thumbnail string
-  description string
-  category string [not null, default: 'Tin tức']
-  viewCount int [not null, default: 0]
-  tags string
-  isPublished boolean [not null, default: true]
-  userId uuid [ref: > User.id]
+  mo_ta string
+  danh_muc string [not null, default: 'Tin tức']
+  luot_xem int [not null, default: 0]
+  tu_khoa string
+  da_xuat_ban boolean [not null, default: true]
+  nguoi_dung_id uuid [ref: > nguoi_dung.id]
 }
 
-Table NewsletterSubscriber {
+Table nguoi_dang_ky_ban_tin {
   id uuid [pk]
   email string [not null, unique]
-  status enum [not null, default: 'active', note: '''
+  trang_thai enum [not null, default: 'active', note: '''
     active
     unsubscribed
   ''']
 }
 
-Table Order {
+Table don_hang {
   id uuid [pk]
-  number string [not null, unique]
-  userId uuid [not null, ref: > User.id]
-  status enum [not null, default: 'pending', note:'''
+  ma_don_hang string [not null, unique]
+  nguoi_dung_id uuid [not null, ref: > nguoi_dung.id]
+  trang_thai enum [not null, default: 'pending', note:'''
     pending
     processing
     shipped
     delivered
     cancelled
   ''']
-  shippingFirstName string [not null]
-  shippingLastName string [not null]
-  shippingCompany string
-  shippingAddress1 string [not null]
-  shippingAddress2 string
-  shippingCity string [not null]
-  shippingState string [not null]
-  shippingZip string [not null]
-  shippingCountry string [not null]
-  shippingPhone string
-  billingFirstName string [not null]
-  billingLastName string [not null]
-  billingCompany string
-  billingAddress1 string [not null]
-  billingAddress2 string
-  billingCity string [not null]
-  billingState string [not null]
-  billingZip string [not null]
-  billingCountry string [not null]
-  billingPhone string
-  paymentMethod string [not null]
-  paymentStatus enum [not null, default: 'pending', note: '''
+  ten_nguoi_nhan string [not null]
+  ho_nguoi_nhan string [not null]
+  cong_ty_nguoi_nhan string
+  dia_chi_nguoi_nhan_1 string [not null]
+  dia_chi_nguoi_nhan_2 string
+  quan_huyen_nguoi_nhan string [not null]
+  tinh_thanh_nguoi_nhan string [not null]
+  ma_buu_dien_nguoi_nhan string [not null]
+  quoc_gia_nguoi_nhan string [not null]
+  so_dien_thoai_nguoi_nhan string
+  ten_nguoi_thanh_toan string [not null]
+  ho_nguoi_thanh_toan string [not null]
+  cong_ty_nguoi_thanh_toan string
+  dia_chi_nguoi_thanh_toan_1 string [not null]
+  dia_chi_nguoi_thanh_toan_2 string
+  quan_huyen_nguoi_thanh_toan string [not null]
+  tinh_thanh_nguoi_thanh_toan string [not null]
+  ma_buu_dien_nguoi_thanh_toan string [not null]
+  quoc_gia_nguoi_thanh_toan string [not null]
+  so_dien_thoai_nguoi_thanh_toan string
+  phuong_thuc_thanh_toan string [not null]
+  trang_thai_thanh_toan enum [not null, default: 'pending', note: '''
     pending
     paid
     failed
     refunded
   ''']
-  paymentTransactionId string
-  paymentProvider string
-  subtotal decimal(19,2) [not null]
-  tax decimal(19,2) [not null]
-  shippingCost decimal(19,2) [not null]
-  discount decimal(19,2) [not null, default: 0]
-  total decimal(19,2) [not null]
-  notes string
-  trackingNumber string
-  shippingProvider string
-  estimatedDelivery timestamp 
+  ma_giao_dich_thanh_toan string
+  nha_cung_cap_thanh_toan string
+  tong_phu decimal(19,2) [not null]
+  thue decimal(19,2) [not null]
+  phi_van_chuyen decimal(19,2) [not null]
+  giam_gia decimal(19,2) [not null, default: 0]
+  tong_tien decimal(19,2) [not null]
+  ghi_chu string
+  ma_theo_doi string
+  nha_cung_cap_van_chuyen string
+  ngay_giao_du_kien timestamp 
 }
 
-Table OrderItem {
+Table chi_tiet_don_hang {
   id uuid [pk]
-  orderId uuid [not null, ref: > Order.id]
-  productId uuid [not null, ref: > Product.id]
-  variantId uuid [ref: > ProductVariant.id]
-  name string [not null]
-  sku string
-  price decimal(19,2) [not null]
-  quantity int [not null]
-  subtotal decimal(19,2) [not null]
-  image string
-  attributes jsonb [not null, default: `{}`]
+  don_hang_id uuid [not null, ref: > don_hang.id]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  bien_the_id uuid [ref: > bien_the.id]
+  ten_san_pham string [not null]
+  ma_sku string
+  gia decimal(19,2) [not null]
+  so_luong int [not null]
+  tong_phu decimal(19,2) [not null]
+  hinh_anh string
+  thuoc_tinh jsonb [not null, default: `{}`]
 }
 
-Table Product {
+Table san_pham {
   id uuid [pk]
-  name string [not null]
+  ten_san_pham string [not null]
   slug string [not null, unique]
-  description string [not null]
-  shortDescription string [not null]
-  price decimal(12,2) [not null]
-  compareAtPrice decimal(12,2)
-  images string [not null, default: '[]']
+  mo_ta string [not null]
+  mo_ta_ngan string [not null]
+  gia decimal(12,2) [not null]
+  gia_goc decimal(12,2)
+  anh_san_pham string [not null, default: '[]']
   thumbnail string
-  inStock boolean [not null, default: true]
-  stockQuantity int [not null, default: 0]
-  sku string [unique]
-  status enum [not null, default: 'active', note: '''
+  con_hang boolean [not null, default: true]
+  so_luong_ton_kho int [not null, default: 0]
+  ma_sku string [unique]
+  trang_thai enum [not null, default: 'active', note: '''
     active
     inactive
     draft
   ''']
-  featured boolean [not null, default: false]
-  searchKeywords string [not null, default: '[]']
-  seoTitle string
-  seoDescription string
-  seoKeywords string [not null, default: '[]']
-  specifications string [not null, default: '[]']
-  condition enum [not null, default: 'new', note: '''
+  noi_bat boolean [not null, default: false]
+  tu_khoa_tim_kiem string [not null, default: '[]']
+  tieu_de_seo string
+  mo_ta_seo string
+  tu_khoa_seo string [not null, default: '[]']
+  thong_so_ky_thuat string [not null, default: '[]']
+  tinh_trang enum [not null, default: 'new', note: '''
     new
     like-new
     used
     refurbished
   ''']
-  baseName string
-  isVariantProduct boolean [not null, default: false]
-  faqs string [not null, default: '[]']
+  ten_co_so string
+  la_san_pham_co_bien_the boolean [not null, default: false]
+  cau_hoi_thuong_gap string [not null, default: '[]']
 }
 
-Table ProductAttribute {
+Table thuoc_tinh {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  name string [not null]
-  type enum [not null, default: 'custom', note: '''
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  ten_thuoc_tinh string [not null]
+  loai_thuoc_tinh enum [not null, default: 'custom', note: '''
     color
     size
     material
     custom
   ''']
-  values jsonb [not null, default: `[]`]
-  required boolean [not null, default: false]
-  sortOrder int [not null, default: 0]
+  gia_tri_thuoc_tinh jsonb [not null, default: `[]`]
+  bat_buoc boolean [not null, default: false]
+  thu_tu_hien_thi int [not null, default: 0]
 }
 
-Table ProductAttributeGroup {
+Table san_pham_nhom_thuoc_tinh {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  attributeGroupId uuid [not null, ref: > AttributeGroup.id]
-  isRequired boolean [not null, default: false]
-  sortOrder int [not null, default: 0]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  nhom_thuoc_tinh_id uuid [not null, ref: > nhom_thuoc_tinh.id]
+  bat_buoc boolean [not null, default: false]
+  thu_tu_hien_thi int [not null, default: 0]
 }
 
-Table ProductCategory {
+Table san_pham_danh_muc {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  categoryId uuid [not null, ref: > Category.id]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  danh_muc_id uuid [not null, ref: > danh_muc.id]
 
   indexes {
-    (productId, categoryId) [unique]
+    (san_pham_id, danh_muc_id) [unique]
   }
 }
 
-Table ProductSpecification {
+Table san_pham_thong_so_ky_thuat {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  name string [not null]
-  value string [not null]
-  category string [not null, default: 'General']
-  sortOrder int [not null, default: 0]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  ten_thong_so_ky_thuat string [not null]
+  gia_tri_thong_so_ky_thuat string [not null]
+  danh_muc string [not null, default: 'General']
+  thu_tu_hien_thi int [not null, default: 0]
 }
 
-Table ProductVariant {
+Table bien_the {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  name string [not null]
-  sku string
-  attributes jsonb [not null, default: `{}`]
-  attributeValues jsonb [not null, default: `{}`]
-  price decimal(12,2) [not null]
-  stockQuantity int [not null, default: 0]
-  images array(string) [not null, default: `[]`]
-  displayName string
-  sortOrder int [not null, default: 0]
-  isDefault boolean [not null, default: false]
-  isAvailable boolean [not null, default: true]
-  compareAtPrice decimal(12,2)
-  specifications jsonb [not null, default: `{}`]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  ten_bien_the string [not null]
+  ma_sku string
+  thuoc_tinh jsonb [not null, default: `{}`]
+  thuoc_tinh_phan_cap jsonb [not null, default: `{}`]
+  gia decimal(12,2) [not null]
+  so_luong_ton_kho int [not null, default: 0]
+  hinh_anh array(string) [not null, default: `[]`]
+  ten_hien_thi string
+  thu_tu_hien_thi int [not null, default: 0]
+  mac_dinh boolean [not null, default: false]
+  kha_dung boolean [not null, default: true]
+  gia_so_sanh decimal(12,2)
+  thong_so_ky_thuat jsonb [not null, default: `{}`]
 }
 
-Table ProductWarranty {
+Table san_pham_goi_bao_hanh {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  warrantyPackageId uuid [not null, ref: > WarrantyPackage.id]
-  isDefault boolean [not null, default: false]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  goi_bao_hanh_id uuid [not null, ref: > goi_bao_hanh.id]
+  mac_dinh boolean [not null, default: false]
 }
 
-Table Review {
+Table danh_gia {
   id uuid [pk]
-  productId uuid [not null, ref: > Product.id]
-  userId uuid [not null, ref: > User.id]
-  rating int [not null]
-  title string
-  content string [not null]
-  isVerified boolean [not null, default: false]
-  likes int [not null, default: 0]
-  dislikes int [not null, default: 0]
-  images array(string) [not null, default: `[]`]
+  san_pham_id uuid [not null, ref: > san_pham.id]
+  nguoi_dung_id uuid [not null, ref: > nguoi_dung.id]
+  muc_danh_gia int [not null]
+  tieu_de string
+  noi_dung string [not null]
+  da_xac_minh boolean [not null, default: false]
+  luot_thich int [not null, default: 0]
+  luot_khong_thich int [not null, default: 0]
+  hinh_anh array(string) [not null, default: `[]`]
 }
 
-Table ReviewFeedback {
+Table danh_gia_phan_hoi {
   id uuid [pk]
-  reviewId uuid [not null, ref: > Review.id]
-  userId uuid [not null, ref: > User.id]
-  isHelpful boolean [not null]
+  danh_gia_id uuid [not null, ref: > danh_gia.id]
+  nguoi_dung_id uuid [not null, ref: > nguoi_dung.id]
+  co_huu_ich boolean [not null]
 
   indexes {
-    (reviewId, userId) [unique]
+    (danh_gia_id, nguoi_dung_id) [unique]
   }
 }
 
-Table User {
+Table nguoi_dung {
   id uuid [pk]
   email string [not null, unique]
-  password string [not null]
-  firstName string [not null]
-  lastName string [not null]
-  phone string
-  avatar string
-  role enum [not null, default: 'customer', note: '''
+  mat_khau string [not null]
+  ten_nguoi_dung string [not null]
+  ho_nguoi_dung string [not null]
+  so_dien_thoai string
+  anh_dai_dien string
+  vai_tro enum [not null, default: 'customer', note: '''
     customer
     admin
     manager
   ''']
-  isEmailVerified boolean [not null, default: false]
-  isActive boolean [not null, default: true]
-  verificationToken string
-  resetPasswordToken string
-  resetPasswordExpires datetime
-  stripeCustomerId string
+  da_xac_minh_email boolean [not null, default: false]
+  dang_hoat_dong boolean [not null, default: true]
+  ma_xac_minh_email string
+  ma_dat_lai_mat_khau string
+  het_han_dat_lai_mat_khau datetime
+  khach_hang_stripe_id string
 }
 
-Table WarrantyPackage {
+Table goi_bao_hanh {
   id uuid [pk]
-  name string [not null]
-  description string
-  durationMonths int [not null]
-  price decimal(12,2) [not null, default: 0]
-  terms jsonb [not null, default: `{}`]
-  coverage array(string) [not null, default: `[]`]
-  isActive boolean [not null, default: true]
-  sortOrder int [not null, default: 0]
+  ten_goi_bao_hanh string [not null]
+  mo_ta string
+  so_thang_bao_hanh int [not null]
+  gia decimal(12,2) [not null, default: 0]
+  dieu_khoan jsonb [not null, default: `{}`]
+  pham_vi_bao_hanh array(string) [not null, default: `[]`]
+  dang_hoat_dong boolean [not null, default: true]
+  thu_tu_hien_thi int [not null, default: 0]
 }
 
-Table Wishlist {
+Table san_pham_yeu_thich {
   id uuid [pk]
-  userId uuid [not null, ref: > User.id]
-  productId uuid [not null, ref: > Product.id]
+  nguoi_dung_id uuid [not null, ref: > nguoi_dung.id]
+  san_pham_id uuid [not null, ref: > san_pham.id]
 
   indexes {
-    (userId, productId) [unique]
+    (nguoi_dung_id, san_pham_id) [unique]
   }
 }

@@ -17,14 +17,17 @@ const AttributeGroup = sequelize.define(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_nhom_thuoc_tinh',
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'mo_ta',
     },
     type: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'loai_thuoc_tinh',
       defaultValue: 'custom',
       validate: {
         isIn: [['color', 'config', 'storage', 'size', 'custom']],
@@ -32,22 +35,22 @@ const AttributeGroup = sequelize.define(
     },
     isRequired: {
       type: DataTypes.BOOLEAN,
+      field: 'bat_buoc',
       defaultValue: false,
-      field: 'is_required',
     },
     sortOrder: {
       type: DataTypes.INTEGER,
+      field: 'thu_tu_hien_thi',
       defaultValue: 0,
-      field: 'sort_order',
     },
     isActive: {
       type: DataTypes.BOOLEAN,
+      field: 'dang_hoat_dong',
       defaultValue: true,
-      field: 'is_active',
     },
   },
   {
-    tableName: 'attribute_groups',
+    tableName: 'nhom_thuoc_tinh',
     timestamps: true,
   },
 );

@@ -15,19 +15,21 @@ const Wishlist = sequelize.define(
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'nguoi_dung_id',
     },
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'san_pham_id',
     },
   },
   {
-    tableName: 'wishlists',
+    tableName: 'san_pham_yeu_thich',
     timestamps: true,
     indexes: [
       {
         unique: true,
-        fields: ['user_id', 'product_id'],
+        fields: ['nguoi_dung_id', 'san_pham_id'],
       },
     ],
   },

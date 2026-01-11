@@ -17,18 +17,22 @@ const CartItem = sequelize.define(
     cartId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'gio_hang_id',
     },
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'san_pham_id',
     },
     variantId: {
       type: DataTypes.UUID,
       allowNull: true,
+      field: 'bien_the_id',
     },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'so_luong',
       defaultValue: 1,
       validate: {
         min: 1,
@@ -37,6 +41,7 @@ const CartItem = sequelize.define(
     price: {
       type: DataTypes.DECIMAL(19, 2),
       allowNull: false,
+      field: 'gia',
       validate: {
         min: 0,
       },
@@ -44,12 +49,12 @@ const CartItem = sequelize.define(
     warrantyPackageIds: {
       type: DataTypes.ARRAY(DataTypes.UUID),
       allowNull: true,
+      field: 'goi_bao_hanh_ids',
       defaultValue: [],
-      field: 'warranty_package_ids',
     },
   },
   {
-    tableName: 'cart_items',
+    tableName: 'chi_tiet_gio_hang',
     timestamps: true,
   },
 );

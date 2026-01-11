@@ -32,18 +32,22 @@ const ProductVariant = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'san_pham_id',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_bien_the',
     },
     sku: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'ma_sku',
     },
     attributes: {
       type: DataTypes.JSONB,
       allowNull: false,
+      field: 'thuoc_tinh',
       defaultValue: {},
     },
     // Trường mới cho các thuộc tính phân cấp
@@ -51,11 +55,12 @@ const ProductVariant = sequelize.define(
       type: DataTypes.JSONB,
       allowNull: false,
       defaultValue: {},
-      field: 'attribute_values',
+      field: 'thuoc_tinh_phan_cap',
     },
     price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
+      field: 'gia',
       validate: {
         min: 0,
       },
@@ -63,11 +68,13 @@ const ProductVariant = sequelize.define(
     stockQuantity: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      field: 'so_luong_ton_kho',
     },
     // Thuộc tính "images" sử dụng ARRAY để lưu trữ nhiều URL hình ảnh cho biến thể sản phẩm
     images: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: [],
+      field: 'hinh_anh',
       // Khi get sẽ trả về bộ sưu tập hình ảnh công khai
       get() {
         return buildPublicImageCollection(this.getDataValue('images'));
@@ -84,36 +91,41 @@ const ProductVariant = sequelize.define(
     displayName: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'ten_hien_thi',
     },
     // Thứ tự sắp xếp cho các biến thể
     sortOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      field: 'thu_tu_hien_thi',
     },
     // Xác định xem đây có phải là biến thể mặc định không
     isDefault: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'mac_dinh',
     },
     // Trạng thái khả dụng
     isAvailable: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      field: 'kha_dung',
     },
     // Giá so sánh cho biến thể
     compareAtPrice: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true,
-      field: 'compare_at_price',
+      field: 'gia_so_sanh',
     },
     // Thông số kỹ thuật của biến thể (sẽ ghi đè thông số kỹ thuật của sản phẩm cha nếu có)
     specifications: {
       type: DataTypes.JSONB,
       defaultValue: {},
+      field: 'thong_so_ky_thuat',
     },
   },
   {
-    tableName: 'product_variants',
+    tableName: 'bien_the',
     timestamps: true,
     hooks: {
       // Sử dụng hook beforeCreate để tự động tạo tên hiển thị dựa trên các thuộc tính

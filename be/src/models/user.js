@@ -22,6 +22,7 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'email',
       unique: true,
       validate: {
         isEmail: true,
@@ -30,6 +31,7 @@ const User = sequelize.define(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'mat_khau',
       validate: {
         len: [6, 100],
       },
@@ -37,52 +39,61 @@ const User = sequelize.define(
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_nguoi_dung',
     },
     lastName: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ho_nguoi_dung',
     },
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'so_dien_thoai',
     },
     avatar: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'anh_dai_dien',
     },
     role: {
       type: DataTypes.ENUM('customer', 'admin', 'manager'),
       defaultValue: 'customer',
+      field: 'vai_tro',
     },
     isEmailVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'da_xac_minh_email',
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      field: 'isActive', // Sử dụng camelCase trong cơ sở dữ liệu
+      field: 'dang_hoat_dong',
     },
     verificationToken: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'ma_xac_minh_email',
     },
     resetPasswordToken: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'ma_dat_lai_mat_khau',
     },
     resetPasswordExpires: {
       type: DataTypes.DATE,
       allowNull: true,
+      field: 'het_han_dat_lai_mat_khau',
     },
     stripeCustomerId: {
       type: DataTypes.STRING,
       allowNull: true,
-      field: 'stripe_customer_id',
+      field: 'khach_hang_stripe_id',
     },
   },
   {
-    tableName: 'users',
+    tableName: 'nguoi_dung',
     timestamps: true,
     hooks: {
       // Sử dụng hook beforeCreate và beforeUpdate để băm mật khẩu trước khi lưu vào cơ sở dữ liệu

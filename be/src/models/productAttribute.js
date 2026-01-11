@@ -21,34 +21,38 @@ const ProductAttribute = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'product_id',
+      field: 'san_pham_id',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_thuoc_tinh',
     },
     type: {
       type: DataTypes.ENUM('color', 'size', 'material', 'custom'),
       allowNull: false,
+      field: 'loai_thuoc_tinh',
       defaultValue: 'custom',
     },
     values: {
       type: DataTypes.JSONB,
       allowNull: false,
+      field: 'gia_tri_thuoc_tinh',
       defaultValue: [],
     },
     required: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'bat_buoc',
     },
     sortOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-      field: 'sort_order',
+      field: 'thu_tu_hien_thi',
     },
   },
   {
-    tableName: 'product_attributes',
+    tableName: 'thuoc_tinh',
     timestamps: true,
   },
 );

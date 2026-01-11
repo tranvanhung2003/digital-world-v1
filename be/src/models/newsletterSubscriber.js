@@ -18,6 +18,7 @@ const NewsletterSubscriber = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'email',
       unique: true,
       validate: {
         isEmail: true,
@@ -26,10 +27,11 @@ const NewsletterSubscriber = sequelize.define(
     status: {
       type: DataTypes.ENUM('active', 'unsubscribed'),
       defaultValue: 'active',
+      field: 'trang_thai',
     },
   },
   {
-    tableName: 'newsletter_subscribers',
+    tableName: 'nguoi_dang_ky_ban_tin',
     timestamps: true,
   },
 );

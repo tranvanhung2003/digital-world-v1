@@ -18,18 +18,21 @@ const Cart = sequelize.define(
     userId: {
       type: DataTypes.UUID,
       allowNull: true,
+      field: 'nguoi_dung_id',
     },
     sessionId: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'session_id',
     },
     status: {
       type: DataTypes.ENUM('active', 'merged', 'converted', 'abandoned'),
       defaultValue: 'active',
+      field: 'trang_thai',
     },
   },
   {
-    tableName: 'carts',
+    tableName: 'gio_hang',
     timestamps: true,
   },
 );

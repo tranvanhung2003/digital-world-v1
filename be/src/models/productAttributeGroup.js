@@ -15,26 +15,26 @@ const ProductAttributeGroup = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'product_id',
+      field: 'san_pham_id',
     },
     attributeGroupId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'attribute_group_id',
+      field: 'nhom_thuoc_tinh_id',
     },
     isRequired: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      field: 'is_required',
+      field: 'bat_buoc',
     },
     sortOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-      field: 'sort_order',
+      field: 'thu_tu_hien_thi',
     },
   },
   {
-    tableName: 'product_attribute_groups',
+    tableName: 'san_pham_nhom_thuoc_tinh',
     timestamps: true,
   },
 );

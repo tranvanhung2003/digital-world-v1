@@ -18,83 +18,76 @@ const Image = sequelize.define(
     originalName: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      field: 'original_name',
+      field: 'ten_goc',
     },
     fileName: {
       type: DataTypes.STRING(255),
       allowNull: false,
       unique: true,
-      field: 'file_name',
+      field: 'ten_file',
     },
     filePath: {
       type: DataTypes.STRING(500),
       allowNull: false,
-      field: 'file_path',
+      field: 'duong_dan_file',
     },
     fileSize: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'file_size',
+      field: 'kich_thuoc_file',
     },
     mimeType: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      field: 'mime_type',
+      field: 'loai_mime',
     },
     width: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'chieu_rong',
     },
     height: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'chieu_cao',
     },
     category: {
       type: DataTypes.ENUM('product', 'thumbnail', 'user', 'review'),
       allowNull: false,
+      field: 'danh_muc',
       defaultValue: 'product',
     },
     productId: {
       type: DataTypes.UUID,
       allowNull: true,
-      field: 'product_id',
+      field: 'san_pham_id',
     },
     userId: {
       type: DataTypes.UUID,
       allowNull: true,
-      field: 'user_id',
+      field: 'nguoi_dung_id',
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      field: 'is_active',
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: 'created_at',
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: 'updated_at',
+      field: 'dang_hoat_dong',
     },
   },
   {
-    tableName: 'images',
+    tableName: 'hinh_anh',
     timestamps: true,
     indexes: [
       {
-        fields: ['product_id'],
+        fields: ['san_pham_id'],
       },
       {
-        fields: ['user_id'],
+        fields: ['nguoi_dung_id'],
       },
       {
-        fields: ['category'],
+        fields: ['danh_muc'],
       },
       {
-        fields: ['is_active'],
+        fields: ['dang_hoat_dong'],
       },
     ],
   },

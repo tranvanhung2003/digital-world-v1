@@ -15,19 +15,21 @@ const ProductCategory = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'san_pham_id',
     },
     categoryId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'danh_muc_id',
     },
   },
   {
-    tableName: 'product_categories',
+    tableName: 'san_pham_danh_muc',
     timestamps: true,
     indexes: [
       {
         unique: true,
-        fields: ['product_id', 'category_id'],
+        fields: ['san_pham_id', 'danh_muc_id'],
       },
     ],
   },

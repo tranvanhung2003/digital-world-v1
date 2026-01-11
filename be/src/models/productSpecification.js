@@ -15,29 +15,32 @@ const ProductSpecification = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'product_id',
+      field: 'san_pham_id',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_thong_so_ky_thuat',
     },
     value: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'gia_tri_thong_so_ky_thuat',
     },
     category: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'danh_muc',
       defaultValue: 'General',
     },
     sortOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-      field: 'sort_order',
+      field: 'thu_tu_hien_thi',
     },
   },
   {
-    tableName: 'product_specifications',
+    tableName: 'san_pham_thong_so_ky_thuat',
     timestamps: true,
   },
 );

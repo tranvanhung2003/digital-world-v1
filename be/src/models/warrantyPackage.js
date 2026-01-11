@@ -21,19 +21,22 @@ const WarrantyPackage = sequelize.define(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_goi_bao_hanh',
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'mo_ta',
     },
     durationMonths: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'duration_months',
+      field: 'so_thang_bao_hanh',
     },
     price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
+      field: 'gia',
       defaultValue: 0,
       validate: {
         min: 0,
@@ -42,24 +45,26 @@ const WarrantyPackage = sequelize.define(
     terms: {
       type: DataTypes.JSONB,
       defaultValue: {},
+      field: 'dieu_khoan',
     },
     coverage: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: [],
+      field: 'pham_vi_bao_hanh',
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-      field: 'is_active',
+      field: 'dang_hoat_dong',
     },
     sortOrder: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-      field: 'sort_order',
+      field: 'thu_tu_hien_thi',
     },
   },
   {
-    tableName: 'warranty_packages',
+    tableName: 'goi_bao_hanh',
     timestamps: true,
   },
 );

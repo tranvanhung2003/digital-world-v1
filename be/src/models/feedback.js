@@ -18,10 +18,12 @@ const Feedback = sequelize.define(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ten_nguoi_gui',
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'email_nguoi_gui',
       validate: {
         isEmail: true,
       },
@@ -29,22 +31,26 @@ const Feedback = sequelize.define(
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
+      field: 'so_dien_thoai',
     },
     subject: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'tieu_de',
     },
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'noi_dung',
     },
     status: {
       type: DataTypes.ENUM('pending', 'reviewed', 'resolved'),
       defaultValue: 'pending',
+      field: 'trang_thai',
     },
   },
   {
-    tableName: 'feedbacks',
+    tableName: 'phan_hoi',
     timestamps: true,
   },
 );

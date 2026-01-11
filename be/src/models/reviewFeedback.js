@@ -15,23 +15,26 @@ const ReviewFeedback = sequelize.define(
     reviewId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'danh_gia_id',
     },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'nguoi_dung_id',
     },
     isHelpful: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      field: 'co_huu_ich',
     },
   },
   {
-    tableName: 'review_feedbacks',
+    tableName: 'danh_gia_phan_hoi',
     timestamps: true,
     indexes: [
       {
         unique: true,
-        fields: ['review_id', 'user_id'],
+        fields: ['danh_gia_id', 'nguoi_dung_id'],
       },
     ],
   },

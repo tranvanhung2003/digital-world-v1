@@ -15,21 +15,21 @@ const ProductWarranty = sequelize.define(
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'product_id',
+      field: 'san_pham_id',
     },
     warrantyPackageId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: 'warranty_package_id',
+      field: 'goi_bao_hanh_id',
     },
     isDefault: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      field: 'is_default',
+      field: 'mac_dinh',
     },
   },
   {
-    tableName: 'product_warranties',
+    tableName: 'san_pham_goi_bao_hanh',
     timestamps: true,
   },
 );

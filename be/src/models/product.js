@@ -59,23 +59,28 @@ const Product = sequelize.define(
     name: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'ten_san_pham',
     },
     slug: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'slug',
       unique: true,
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'mo_ta',
     },
     shortDescription: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'mo_ta_ngan',
     },
     price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
+      field: 'gia',
       validate: {
         min: 0,
       },
@@ -83,6 +88,7 @@ const Product = sequelize.define(
     compareAtPrice: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true,
+      field: 'gia_goc',
       validate: {
         min: 0,
       },
@@ -91,6 +97,7 @@ const Product = sequelize.define(
     images: {
       type: DataTypes.TEXT,
       defaultValue: '[]',
+      field: 'anh_san_pham',
       // Khi get sẽ chuyển đổi chuỗi JSON thành mảng và xây dựng URL công khai cho từng ảnh
       get() {
         return buildPublicImageCollection(this.getDataValue('images'));
@@ -105,6 +112,7 @@ const Product = sequelize.define(
     thumbnail: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'thumbnail',
       // Khi get sẽ xây dựng URL công khai cho thumbnail
       get() {
         return buildPublicImageUrl(this.getDataValue('thumbnail'));
@@ -121,29 +129,34 @@ const Product = sequelize.define(
     inStock: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      field: 'con_hang',
     },
     stockQuantity: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      field: 'so_luong_ton_kho',
     },
     sku: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'ma_sku',
       unique: true,
     },
     status: {
       type: DataTypes.ENUM('active', 'inactive', 'draft'),
       defaultValue: 'active',
+      field: 'trang_thai',
     },
     featured: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'noi_bat',
     },
     // Thuộc tính "searchKeywords" là kiểu TEXT, lưu trữ mảng các từ khóa tìm kiếm dưới dạng chuỗi JSON
     searchKeywords: {
       type: DataTypes.TEXT,
       defaultValue: '[]',
-      field: 'search_keywords',
+      field: 'tu_khoa_tim_kiem',
       // Khi get sẽ chuyển đổi chuỗi JSON thành mảng
       get() {
         const value = this.getDataValue('searchKeywords');
@@ -169,18 +182,18 @@ const Product = sequelize.define(
     seoTitle: {
       type: DataTypes.TEXT,
       allowNull: true,
-      field: 'seo_title',
+      field: 'tieu_de_seo',
     },
     seoDescription: {
       type: DataTypes.TEXT,
       allowNull: true,
-      field: 'seo_description',
+      field: 'mo_ta_seo',
     },
     // Thuộc tính "seoKeywords" là kiểu TEXT, lưu trữ mảng các từ khóa SEO dưới dạng chuỗi JSON
     seoKeywords: {
       type: DataTypes.TEXT,
       defaultValue: '[]',
-      field: 'seo_keywords',
+      field: 'tu_khoa_seo',
       // Khi get sẽ chuyển đổi chuỗi JSON thành mảng
       get() {
         const value = this.getDataValue('seoKeywords');
@@ -208,7 +221,7 @@ const Product = sequelize.define(
     specifications: {
       type: DataTypes.TEXT,
       defaultValue: '[]',
-      field: 'specifications',
+      field: 'thong_so_ky_thuat',
       // Khi get sẽ chuyển đổi chuỗi JSON thành mảng
       get() {
         const value = this.getDataValue('specifications');
@@ -235,25 +248,26 @@ const Product = sequelize.define(
     condition: {
       type: DataTypes.ENUM('new', 'like-new', 'used', 'refurbished'),
       defaultValue: 'new',
+      field: 'tinh_trang',
     },
     // Tên cơ sở cho các sản phẩm có biến thể
     baseName: {
       type: DataTypes.TEXT,
       allowNull: true,
-      field: 'base_name',
+      field: 'ten_co_so',
     },
     // Sản phẩm này có sử dụng biến thể không
     isVariantProduct: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      field: 'is_variant_product',
+      field: 'la_san_pham_co_bien_the',
     },
     // Các câu hỏi thường gặp về sản phẩm
     // Thuộc tính "faqs" là kiểu TEXT, lưu trữ mảng các câu hỏi thường gặp dưới dạng chuỗi JSON
     faqs: {
       type: DataTypes.TEXT,
       defaultValue: '[]',
-      field: 'faqs',
+      field: 'cau_hoi_thuong_gap',
       // Khi get sẽ chuyển đổi chuỗi JSON thành mảng
       get() {
         const value = this.getDataValue('faqs');
@@ -278,7 +292,7 @@ const Product = sequelize.define(
     },
   },
   {
-    tableName: 'products',
+    tableName: 'san_pham',
     timestamps: true,
     hooks: {
       // Sử dụng hook beforeValidate để tự động tạo slug (thuộc tính "slug")
