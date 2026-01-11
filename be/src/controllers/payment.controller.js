@@ -150,6 +150,12 @@ const confirmPayment = async (req, res, next) => {
                 { stockQuantity: item.quantity },
                 { where: { id: item.variantId } },
               );
+
+              // Đồng thời giảm tồn kho cho sản phẩm cha
+              await Product.decrement(
+                { stockQuantity: item.quantity },
+                { where: { id: item.productId } },
+              );
             } else {
               // Case sản phẩm không có biến thể
 
@@ -393,6 +399,12 @@ const handlePaymentSucceeded = async (paymentIntent) => {
           await ProductVariant.decrement(
             { stockQuantity: item.quantity },
             { where: { id: item.variantId } },
+          );
+
+          // Đồng thời giảm tồn kho cho sản phẩm cha
+          await Product.decrement(
+            { stockQuantity: item.quantity },
+            { where: { id: item.productId } },
           );
         } else {
           // Case sản phẩm không có biến thể
@@ -914,6 +926,12 @@ const handleSePayWebhook = async (req, res, next) => {
           await ProductVariant.decrement(
             { stockQuantity: item.quantity },
             { where: { id: item.variantId } },
+          );
+
+          // Đồng thời giảm tồn kho cho sản phẩm cha
+          await Product.decrement(
+            { stockQuantity: item.quantity },
+            { where: { id: item.productId } },
           );
         } else {
           // Case sản phẩm không có biến thể
