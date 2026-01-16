@@ -15,7 +15,7 @@ export const getProductSuggestionPrompt = (query: string) => {
  */
 export const getGeneralHelpPrompt = (
   query: string,
-  type: 'general' | 'order' | 'return' = 'general'
+  type: 'general' | 'order' | 'return' = 'general',
 ) => {
   let basePrompt = `Bạn là trợ lý mua sắm hữu ích cho một cửa hàng thương mại điện tử.
   Người dùng đã hỏi: "${query}".`;

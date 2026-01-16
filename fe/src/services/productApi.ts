@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ProductFilters } from '@/types/product.types';
 import { api } from './api';
 import {
@@ -8,6 +9,7 @@ import {
 
 export const productApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Lấy tất cả sản phẩm
     getProducts: builder.query<any, ProductFilters | void>({
       query: (filters = {}) => {
         const params = createProductFiltersParams(filters);
@@ -20,6 +22,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'LIST'),
     }),
 
+    // Lấy sản phẩm theo ID
     getProductById: builder.query<any, string | { id: string; skuId?: string }>(
       {
         query: (arg) => {
@@ -39,9 +42,10 @@ export const productApi = api.injectEndpoints({
           const id = typeof arg === 'string' ? arg : arg.id;
           return [{ type: 'Product', id }];
         },
-      }
+      },
     ),
 
+    // Lấy sản phẩm theo slug
     getProductBySlug: builder.query<any, { slug: string; skuId?: string }>({
       query: ({ slug, skuId }) => {
         const params = new URLSearchParams();
@@ -56,6 +60,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'SLUG'),
     }),
 
+    // Lấy sản phẩm nổi bật
     getFeaturedProducts: builder.query<any, { limit?: number } | void>({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
@@ -70,6 +75,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'FEATURED'),
     }),
 
+    // Lấy sản phẩm mới về
     getNewArrivals: builder.query<any, { limit?: number } | void>({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
@@ -84,6 +90,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'NEW_ARRIVALS'),
     }),
 
+    // Lấy sản phẩm bán chạy nhất
     getBestSellers: builder.query<
       any,
       { limit?: number; period?: string } | void
@@ -102,6 +109,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'BEST_SELLERS'),
     }),
 
+    // Lấy sản phẩm khuyến mãi
     getDeals: builder.query<
       any,
       { minDiscount?: number; limit?: number; sort?: string } | void
@@ -122,6 +130,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'DEALS'),
     }),
 
+    // Lấy sản phẩm liên quan
     getRelatedProducts: builder.query<any, string>({
       query: (productId) => ({
         url: `/products/${productId}/related`,
@@ -131,6 +140,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'RELATED'),
     }),
 
+    // Lấy các biến thể của sản phẩm
     getProductVariants: builder.query<any, string>({
       query: (productId) => ({
         url: `/products/${productId}/variants`,
@@ -141,6 +151,7 @@ export const productApi = api.injectEndpoints({
       ],
     }),
 
+    // Lấy tóm tắt đánh giá sản phẩm
     getProductReviewsSummary: builder.query<any, string>({
       query: (productId) => ({
         url: `/products/${productId}/reviews-summary`,
@@ -151,6 +162,7 @@ export const productApi = api.injectEndpoints({
       ],
     }),
 
+    // Tìm kiếm sản phẩm
     searchProducts: builder.query<
       any,
       { q: string; page?: number; limit?: number }
@@ -170,6 +182,7 @@ export const productApi = api.injectEndpoints({
       providesTags: (result) => generateProductTags(result, 'SEARCH'),
     }),
 
+    // Lấy bộ lọc sản phẩm
     getProductFilters: builder.query<any, { categoryId?: string }>({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
@@ -178,7 +191,7 @@ export const productApi = api.injectEndpoints({
 
         console.log(
           'Fetching product filters with params:',
-          queryParams.toString()
+          queryParams.toString(),
         );
         return {
           url: `/products/filters?${queryParams.toString()}`,

@@ -23,19 +23,19 @@ export const useAuth = () => {
    */
   const logout = async () => {
     try {
-      console.log('🔐 Logging out...');
+      console.log('Đang đăng xuất...');
 
-      // Gọi API logout (optional, có thể skip nếu server không cần)
+      // Gọi API logout
       await logoutMutation().unwrap();
 
-      // Clear Redux state
+      // Xóa state Redux
       dispatch(logoutAction());
 
-      console.log('✅ Logout successful');
+      console.log('Đăng xuất thành công');
     } catch (error) {
-      console.error('❌ Logout error:', error);
+      console.error('Lỗi khi đăng xuất:', error);
 
-      // Force logout ngay cả khi API call failed
+      // Force logout ngay cả khi call API thất bại
       dispatch(logoutAction());
     }
   };
@@ -52,6 +52,7 @@ export const useAuth = () => {
    */
   const isAdmin = (): boolean => {
     const result = hasRole('admin');
+
     return result;
   };
 
@@ -69,7 +70,8 @@ export const useAuth = () => {
     if (authState.user?.firstName && authState.user?.lastName) {
       return `${authState.user.firstName} ${authState.user.lastName}`;
     }
-    return authState.user?.name || authState.user?.email || 'User';
+
+    return authState.user?.name || authState.user?.email || 'Người dùng';
   };
 
   return {
@@ -83,7 +85,7 @@ export const useAuth = () => {
     isManager,
     getUserFullName,
 
-    // Computed values
+    // Các giá trị được tính toán dựa trên auth state
     isLoggedIn: authState.isAuthenticated && !!authState.user,
     hasToken: !!authState.token,
     needsUserInfo: authState.isAuthenticated && !authState.user,

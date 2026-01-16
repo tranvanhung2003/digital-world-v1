@@ -5,8 +5,8 @@ import { RootState } from '@/store';
 type ToastType = 'success' | 'error' | 'info' | 'warning' | 'loading';
 
 interface ToastOptions {
-  duration?: number;
-  key?: string;
+  duration?: number; // Thời gian hiển thị tính bằng giây
+  key?: string; // Khóa để quản lý toast
 }
 
 export const useAntdToast = () => {
@@ -27,8 +27,9 @@ export const useAntdToast = () => {
   const showToast = (
     type: ToastType,
     content: string,
-    options?: ToastOptions
+    options?: ToastOptions,
   ) => {
+    // Gộp tùy chọn mặc định và tùy chọn truyền vào
     const mergedOptions = { ...defaultOptions, ...options };
 
     switch (type) {
@@ -39,6 +40,7 @@ export const useAntdToast = () => {
           key: mergedOptions.key,
           className: theme === 'dark' ? 'ant-message-dark' : '',
         });
+
       case 'error':
         return messageApi.error({
           content,
@@ -46,6 +48,7 @@ export const useAntdToast = () => {
           key: mergedOptions.key,
           className: theme === 'dark' ? 'ant-message-dark' : '',
         });
+
       case 'info':
         return messageApi.info({
           content,
@@ -53,6 +56,7 @@ export const useAntdToast = () => {
           key: mergedOptions.key,
           className: theme === 'dark' ? 'ant-message-dark' : '',
         });
+
       case 'warning':
         return messageApi.warning({
           content,
@@ -60,6 +64,7 @@ export const useAntdToast = () => {
           key: mergedOptions.key,
           className: theme === 'dark' ? 'ant-message-dark' : '',
         });
+
       case 'loading':
         return messageApi.loading({
           content,
@@ -67,6 +72,7 @@ export const useAntdToast = () => {
           key: mergedOptions.key,
           className: theme === 'dark' ? 'ant-message-dark' : '',
         });
+
       default:
         return messageApi.info({
           content,
@@ -77,7 +83,7 @@ export const useAntdToast = () => {
     }
   };
 
-  // Các hàm tiện ích
+  // Các hàm tiện ích để hiển thị từng loại toast
   const success = (content: string, options?: ToastOptions) =>
     showToast('success', content, options);
 
@@ -93,7 +99,7 @@ export const useAntdToast = () => {
   const loading = (content: string, options?: ToastOptions) =>
     showToast('loading', content, options);
 
-  // Hàm để đóng toast theo key
+  // Hàm để đóng toast dựa trên key, hoặc đóng tất cả nếu không có key
   const close = (key?: string) => {
     if (key) {
       messageApi.destroy(key);

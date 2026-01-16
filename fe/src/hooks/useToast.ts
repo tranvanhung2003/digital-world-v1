@@ -46,7 +46,7 @@ export const useToast = () => {
         container = document.createElement('div');
         container.id = 'toast-container';
         container.className = getContainerClasses(
-          options?.position || 'top-right'
+          options?.position || 'top-right',
         );
         document.body.appendChild(container);
       }
@@ -54,7 +54,7 @@ export const useToast = () => {
       // Thêm toast vào container
       container.appendChild(toast);
 
-      // Animation vào
+      // Thêm animation hiển thị
       setTimeout(() => {
         toast.classList.add('translate-x-0', 'opacity-100');
         toast.classList.remove('translate-x-full', 'opacity-0');
@@ -72,7 +72,7 @@ export const useToast = () => {
         }, 300);
       }, duration);
     },
-    []
+    [],
   );
 
   return { showToast };

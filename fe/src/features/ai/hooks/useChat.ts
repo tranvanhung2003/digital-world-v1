@@ -65,7 +65,7 @@ export const useChat = () => {
         return false;
       }
     },
-    [sendMessageMutation]
+    [sendMessageMutation],
   );
 
   // Clear chat history

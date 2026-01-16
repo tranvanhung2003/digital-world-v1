@@ -9,7 +9,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
 }) => {
   const dispatch = useDispatch();
 
-  // Auto-dismiss notification after duration
+  // Tự động ẩn thông báo sau khoảng thời gian định sẵn
   useEffect(() => {
     const timer = setTimeout(() => {
       dispatch(removeNotification(notification.id));
@@ -18,7 +18,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
     return () => clearTimeout(timer);
   }, [notification, dispatch]);
 
-  // Get icon based on notification type
+  // Lấy icon dựa trên loại thông báo
   const getIcon = () => {
     switch (notification.type) {
       case 'success':
@@ -38,6 +38,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
             />
           </svg>
         );
+
       case 'error':
         return (
           <svg
@@ -55,6 +56,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
             />
           </svg>
         );
+
       case 'warning':
         return (
           <svg
@@ -72,6 +74,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
             />
           </svg>
         );
+
       case 'info':
       default:
         return (
@@ -93,15 +96,18 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
     }
   };
 
-  // Get background color based on notification type
+  // Lấy màu nền dựa trên loại thông báo
   const getBackgroundColor = () => {
     switch (notification.type) {
       case 'success':
         return 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800';
+
       case 'error':
         return 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+
       case 'warning':
         return 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800';
+
       case 'info':
       default:
         return 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800';
@@ -120,7 +126,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
       <button
         type="button"
         className="ml-4 text-neutral-400 hover:text-neutral-500 dark:text-neutral-500 dark:hover:text-neutral-400"
-        onClick={() => dispatch(removeNotification(notification.id))}
+        onClick={() => dispatch(removeNotification(notification.id))} // Xử lý đóng thông báo khi nhấn nút
         aria-label="Close"
       >
         <svg
@@ -145,6 +151,7 @@ const Notification: React.FC<{ notification: NotificationType }> = ({
 const Notifications: React.FC = () => {
   const { notifications } = useSelector((state: RootState) => state.ui);
 
+  // Nếu không có thông báo nào, không hiển thị gì
   if (notifications.length === 0) return null;
 
   return (

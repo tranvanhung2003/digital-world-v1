@@ -49,7 +49,7 @@ export const attributeApi = createApi({
   }),
   tagTypes: ['AttributeGroup', 'AttributeValue'],
   endpoints: (builder) => ({
-    // Get all attribute groups
+    // Lấy tất cả các nhóm thuộc tính cùng với các giá trị của chúng
     getAttributeGroups: builder.query<
       {
         success: boolean;
@@ -61,7 +61,7 @@ export const attributeApi = createApi({
       providesTags: ['AttributeGroup'],
     }),
 
-    // Get attribute groups for a specific product
+    // Lấy các nhóm thuộc tính của một sản phẩm cụ thể
     getProductAttributeGroups: builder.query<
       {
         success: boolean;
@@ -73,7 +73,7 @@ export const attributeApi = createApi({
       providesTags: ['AttributeGroup'],
     }),
 
-    // Create attribute group
+    // Tạo nhóm thuộc tính mới
     createAttributeGroup: builder.mutation<
       {
         success: boolean;
@@ -89,7 +89,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup'],
     }),
 
-    // Update attribute group
+    // Cập nhật nhóm thuộc tính
     updateAttributeGroup: builder.mutation<
       {
         success: boolean;
@@ -105,7 +105,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup'],
     }),
 
-    // Delete attribute group
+    // Xóa nhóm thuộc tính (chuyển trạng thái isActive thành false)
     deleteAttributeGroup: builder.mutation<
       {
         success: boolean;
@@ -119,7 +119,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup'],
     }),
 
-    // Add attribute value
+    // Thêm giá trị thuộc tính vào nhóm thuộc tính
     addAttributeValue: builder.mutation<
       {
         success: boolean;
@@ -135,7 +135,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup', 'AttributeValue'],
     }),
 
-    // Update attribute value
+    // Cập nhật giá trị thuộc tính
     updateAttributeValue: builder.mutation<
       {
         success: boolean;
@@ -151,7 +151,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup', 'AttributeValue'],
     }),
 
-    // Delete attribute value
+    // Xóa giá trị thuộc tính (chuyển trạng thái isActive thành false)
     deleteAttributeValue: builder.mutation<
       {
         success: boolean;
@@ -165,7 +165,7 @@ export const attributeApi = createApi({
       invalidatesTags: ['AttributeGroup', 'AttributeValue'],
     }),
 
-    // Assign attribute group to product
+    // Gán nhóm thuộc tính cho sản phẩm
     assignAttributeGroupToProduct: builder.mutation<
       {
         success: boolean;

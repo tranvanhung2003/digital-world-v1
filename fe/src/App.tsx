@@ -12,25 +12,25 @@ import AuthProvider from '@/components/auth/AuthProvider';
 import StripeProvider from '@/contexts/StripeContext';
 import { useAntdToast } from '@/hooks/useAntdToast';
 import { setNavigateFunction } from '@/utils/authUtils';
-// Import i18n configuration
+// Import cấu hình i18n
 import '@/config/i18n';
 import '@/styles/index.scss';
 
-// Inner component that has access to useNavigate
+// Component bên trong có quyền truy cập useNavigate
 const AppContent: React.FC = () => {
   const theme = useSelector((state: RootState) => state.ui.theme);
   const { contextHolder } = useAntdToast();
   const navigate = useNavigate();
 
-  // Initialize token refresh logic
+  // Khởi tạo logic làm mới token
   useTokenRefresh();
 
-  // Setup navigation function for auth utils
+  // Thiết lập hàm navigate để sử dụng trong các tiện ích xác thực
   useEffect(() => {
     setNavigateFunction(() => navigate('/login'));
   }, [navigate]);
 
-  // Apply theme class to document
+  // Áp dụng class theme cho document
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');

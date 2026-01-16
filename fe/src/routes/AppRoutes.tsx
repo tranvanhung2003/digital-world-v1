@@ -20,7 +20,7 @@ const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
-// Wishlist feature removed
+
 const CategoriesPage = lazy(() => import('@/pages/CategoriesPage'));
 const CategoryPage = lazy(() => import('@/pages/CategoryPage'));
 const DealsPage = lazy(() => import('@/pages/DealsPage'));
@@ -43,18 +43,16 @@ const AdminOrdersPage = lazy(() => import('@/pages/admin/OrdersPage'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/UsersPage'));
 const AdminCategoriesPage = lazy(() => import('@/pages/admin/CategoriesPage'));
 const AdminWarrantyPackagesPage = lazy(
-  () => import('@/pages/admin/WarrantyPackagesPage')
+  () => import('@/pages/admin/WarrantyPackagesPage'),
 );
 const AdminNewsPage = lazy(() => import('@/pages/admin/NewsPage'));
 const CreateNewsPage = lazy(() => import('@/pages/admin/CreateNewsPage'));
 
 const SimpleNamingTestPage = lazy(
-  () => import('@/pages/admin/SimpleNamingTestPage')
+  () => import('@/pages/admin/SimpleNamingTestPage'),
 );
 
 // Test components
-const TestComponents = lazy(() => import('@/test-components'));
-const TestBasicForm = lazy(() => import('@/test-basic-form'));
 const PaymentQRPage = lazy(() => import('@/pages/PaymentQRPage'));
 
 // Error pages
@@ -172,7 +170,6 @@ const AppRoutes: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          {/* Wishlist route removed */}
 
           {/* Error pages */}
           <Route path="unauthorized" element={<UnauthorizedPage />} />

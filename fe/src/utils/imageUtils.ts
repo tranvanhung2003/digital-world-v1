@@ -1,10 +1,9 @@
 /**
- * Image utility functions
- * Centralized image handling and optimization
+ * Các hàm tiện ích xử lý và tối ưu hình ảnh
  */
 
 /**
- * Configuration for image utilities
+ * Cấu hình cho các tiện ích hình ảnh
  */
 const IMAGE_CONFIG = {
   FALLBACK_CATEGORY_IMAGE: 'https://placehold.co/800x600/e2e8f0/1e293b',
@@ -21,26 +20,29 @@ const IMAGE_CONFIG = {
 } as const;
 
 /**
- * Generate a hash from text for consistent image seeds
+ * Tạo một hàm băm từ văn bản để tạo seed hình ảnh nhất quán
  */
 const generateSeed = (text: string): number => {
   let hash = 0;
+
   for (let i = 0; i < text.length; i++) {
     hash = (hash << 5) - hash + text.charCodeAt(i);
-    hash = hash & hash; // Convert to 32bit integer
+
+    hash = hash & hash; // Chuyển đổi sang số nguyên 32bit
   }
-  return Math.abs(hash) % 1000; // Limit to 0-999
+  return Math.abs(hash) % 1000; // Giới hạn seed trong phạm vi 0-999
 };
 
 /**
- * Get appropriate image for category based on name and slug
+ * Lấy hình ảnh phù hợp cho danh mục dựa trên tên và slug
  */
 export const getCategoryImage = (name: string, slug: string): string => {
   const seed = generateSeed(name);
+
   const baseName = name.toLowerCase();
   const baseSlug = slug.toLowerCase();
 
-  // Match category type based on keywords
+  // Phân loại loại danh mục dựa trên từ khóa
   if (baseSlug.includes('book') || baseSlug.includes('sach')) {
     return `${IMAGE_CONFIG.PICSUM_BASE_URL}/${IMAGE_CONFIG.SEEDS.BOOKS}-${seed}/800/600`;
   }
@@ -69,37 +71,37 @@ export const getCategoryImage = (name: string, slug: string): string => {
     return `${IMAGE_CONFIG.PICSUM_BASE_URL}/${IMAGE_CONFIG.SEEDS.SPORTS}-${seed}/800/600`;
   }
 
-  // Default fallback with unique seed
+  // Nếu không khớp với loại nào, sử dụng tên danh mục làm seed
   return `${IMAGE_CONFIG.PICSUM_BASE_URL}/${encodeURIComponent(baseName)}-${seed}/800/600`;
 };
 
 /**
- * Get fallback image for categories
+ * Lấy hình ảnh dự phòng cho danh mục
  */
 export const getCategoryFallbackImage = (categoryName: string): string => {
   return `${IMAGE_CONFIG.FALLBACK_CATEGORY_IMAGE}?text=${encodeURIComponent(categoryName)}`;
 };
 
 /**
- * Get fallback image for products
+ * Lấy hình ảnh dự phòng cho sản phẩm
  */
 export const getProductFallbackImage = (productName: string): string => {
   return `${IMAGE_CONFIG.FALLBACK_PRODUCT_IMAGE}?text=${encodeURIComponent(productName)}`;
 };
 
 /**
- * Handle image error with fallback
+ * Xử lý lỗi hình ảnh với hình ảnh dự phòng
  */
 export const handleImageError = (
   event: React.SyntheticEvent<HTMLImageElement>,
-  fallbackSrc: string
+  fallbackSrc: string,
 ): void => {
   const target = event.target as HTMLImageElement;
   target.src = fallbackSrc;
 };
 
 /**
- * Create image error handler for categories
+ * Tạo trình xử lý lỗi hình ảnh cho danh mục
  */
 export const createCategoryImageErrorHandler = (categoryName: string) => {
   return (event: React.SyntheticEvent<HTMLImageElement>) => {
@@ -108,7 +110,7 @@ export const createCategoryImageErrorHandler = (categoryName: string) => {
 };
 
 /**
- * Create image error handler for products
+ * Tạo trình xử lý lỗi hình ảnh cho sản phẩm
  */
 export const createProductImageErrorHandler = (productName: string) => {
   return (event: React.SyntheticEvent<HTMLImageElement>) => {
@@ -117,7 +119,7 @@ export const createProductImageErrorHandler = (productName: string) => {
 };
 
 /**
- * Optimize image URL for different sizes
+ * Tối ưu URL hình ảnh cho các kích thước khác nhau
  */
 export const optimizeImageUrl = (
   url: string,
@@ -126,28 +128,32 @@ export const optimizeImageUrl = (
     height?: number;
     quality?: number;
     format?: 'webp' | 'jpg' | 'png';
-  } = {}
+  } = {},
 ): string => {
+  // Nếu không có URL, trả về chuỗi rỗng
   if (!url) return '';
 
-  // If it's a Picsum URL, we can add parameters
+  // Nếu là URL của Picsum, thêm tham số
   if (url.includes('picsum.photos')) {
     const { width = 800, height = 600, quality = 80 } = options;
+
     return `${url}?w=${width}&h=${height}&q=${quality}`;
   }
 
-  // If it's a placeholder URL, we can modify dimensions
+  // Nếu là URL của Placehold.co, có thể thay đổi kích thước
   if (url.includes('placehold.co')) {
     const { width = 400, height = 400 } = options;
+
     return url.replace(/\d+x\d+/, `${width}x${height}`);
   }
 
-  // Return original URL if no optimization possible
+  // Trả về URL gốc nếu không thể tối ưu hóa
   return url;
 };
 
 /**
- * Preload images for better performance
+ * Preload hình ảnh để có hiệu suất tốt hơn
+ *
  */
 export const preloadImages = (urls: string[]): Promise<void[]> => {
   return Promise.all(
@@ -158,19 +164,24 @@ export const preloadImages = (urls: string[]): Promise<void[]> => {
         img.onerror = reject;
         img.src = url;
       });
-    })
+    }),
   );
 };
 
 /**
- * Check if image URL is valid
+ * Kiểm tra xem URL hình ảnh có hợp lệ không
  */
 export const isValidImageUrl = (url: string): boolean => {
   if (!url) return false;
 
+  // Liệt kê các phần mở rộng hình ảnh phổ biến
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+
+  // Chuyển URL về chữ thường để so sánh
   const urlLower = url.toLowerCase();
 
+  // Kiểm tra xem URL có chứa phần mở rộng hình ảnh hợp lệ không
+  // hoặc có phải URL của picsum.photos hoặc placehold.co không
   return (
     imageExtensions.some((ext) => urlLower.includes(ext)) ||
     urlLower.includes('picsum.photos') ||
@@ -179,11 +190,11 @@ export const isValidImageUrl = (url: string): boolean => {
 };
 
 /**
- * Generate responsive image srcSet
+ * Tạo srcSet cho hình ảnh responsive
  */
 export const generateResponsiveImageSrcSet = (
   baseUrl: string,
-  sizes: number[] = [400, 800, 1200]
+  sizes: number[] = [400, 800, 1200],
 ): string => {
   if (!baseUrl) return '';
 

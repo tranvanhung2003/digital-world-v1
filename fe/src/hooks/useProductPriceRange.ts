@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import { calculatePriceRange } from '@/utils/priceUtils';
 
+/**
+ * Custom hook để tính toán khoảng giá của sản phẩm dựa trên giá cơ bản và các biến thể
+ * Nếu sản phẩm có biến thể, hook sẽ trả về khoảng giá dựa trên các biến thể đó
+ * Nếu không có biến thể, hook sẽ trả về giá cơ bản của sản phẩm
+ */
 export const useProductPriceRange = (basePrice: number, variants?: any[]) => {
   const priceInfo = useMemo(() => {
     if (variants && variants.length > 0) {
@@ -13,7 +18,7 @@ export const useProductPriceRange = (basePrice: number, variants?: any[]) => {
       }));
 
       return {
-        ...calculatePriceRange(basePrice, processedVariants),
+        ...calculatePriceRange(basePrice, processedVariants as any),
         hasVariants: true,
       };
     }

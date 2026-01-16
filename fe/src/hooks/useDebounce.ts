@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
 
 /**
- * A hook that delays updating a value until a specified delay has passed
- * Useful for search inputs to prevent too many API calls while typing
- *
- * @param value The value to debounce
- * @param delay The delay in milliseconds
- * @returns The debounced value
+ * Hook này trì hoãn việc cập nhật một giá trị cho đến khi hết thời gian chờ được chỉ định
+ * Hữu ích cho các ô nhập liệu tìm kiếm để ngăn chặn quá nhiều cuộc gọi API trong khi gõ
  */
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
-    // Set a timeout to update the debounced value after the specified delay
+    // Thiết lập một bộ hẹn giờ để cập nhật giá trị đã trì hoãn sau khoảng thời gian chờ được chỉ định
     const timer = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    // Clear the timeout if the value changes before the delay expires
+    // Xóa bộ hẹn giờ nếu giá trị thay đổi trước khi thời gian chờ kết thúc
     return () => {
       clearTimeout(timer);
     };

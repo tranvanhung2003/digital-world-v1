@@ -21,12 +21,13 @@ interface AuthProviderProps {
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
   const { token, isAuthenticated, user } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.auth,
   );
 
-  // Chỉ gọi API khi có token nhưng chưa có user info
+  // Chỉ gọi API khi có token nhưng chưa có thông tin user
   const shouldFetchUser = token && !user && isAuthenticated;
 
+  // Gọi API lấy thông tin user hiện tại
   const {
     data: currentUser,
     error,
@@ -36,41 +37,45 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   } = useGetCurrentUserQuery(undefined, {
     // Chỉ gọi API khi cần thiết
     skip: !shouldFetchUser,
-    // Refetch khi component mount lại
+    // Refetch khi component mount hoặc arg thay đổi
     refetchOnMountOrArgChange: true,
   });
 
   useEffect(() => {
-    // Nếu API trả về user successfully, cập nhật Redux state
+    // Nếu API trả về user thành công, cập nhật Redux state
     if (isSuccess && currentUser && token) {
-      console.log('✅ User info fetched successfully:', currentUser);
-      console.log('👤 User role:', currentUser.role);
-      console.log('🔐 Token:', token);
+      console.log(
+        'Thông tin người dùng đã được fetch thành công:',
+        currentUser,
+      );
+      console.log('Vai trò người dùng:', currentUser.role);
+      console.log('Token:', token);
 
+      // Dispatch loginSuccess để cập nhật trạng thái xác thực
       dispatch(
         loginSuccess({
           user: currentUser,
           token: token,
           refreshToken: localStorage.getItem('refreshToken') || '',
-        })
+        }),
       );
 
-      console.log('📦 Dispatched loginSuccess with user data');
+      console.log('Đã dispatch loginSuccess với thông tin người dùng.');
     }
   }, [isSuccess, currentUser, token, dispatch]);
 
   useEffect(() => {
     // Nếu API trả về lỗi (token không hợp lệ), logout user
     if (isError && error) {
-      console.log('❌ Failed to fetch user info:', error);
-      console.log('🔐 Logging out due to invalid token...');
+      console.log('Fetch thông tin người dùng thất bại:', error);
+      console.log('Đang đăng xuất do token không hợp lệ...');
 
-      // Clear authentication state
+      // Dispatch logout để clear trạng thái xác thực
       dispatch(logout());
     }
   }, [isError, error, dispatch]);
 
-  // Hiển thị loading khi đang fetch user info
+  // Hiển thị loading khi đang fetch thông tin user
   if (shouldFetchUser && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">

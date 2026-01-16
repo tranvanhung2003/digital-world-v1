@@ -16,9 +16,9 @@ export interface ChangePasswordRequest {
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Cập nhật thông tin cá nhân
     updateProfile: builder.mutation<User, UpdateProfileRequest>({
       query: (userData) => {
-        console.log('Making API request to update profile:', userData);
         return {
           url: '/users/profile',
           method: 'PUT',
@@ -26,19 +26,18 @@ export const userApi = api.injectEndpoints({
         };
       },
       transformResponse: (response: any) => {
-        console.log('Raw API response from update profile:', response);
         if (response?.status === 'success') {
           return response.data;
         }
         return response;
       },
       transformErrorResponse: (response: any) => {
-        console.error('Error updating profile:', response);
-        return response.data || 'Failed to update profile';
+        return response.data || 'Cập nhật thông tin thất bại';
       },
       invalidatesTags: ['CurrentUser'],
     }),
 
+    // Đổi mật khẩu
     changePassword: builder.mutation<
       { message: string },
       ChangePasswordRequest
@@ -56,6 +55,7 @@ export const userApi = api.injectEndpoints({
       },
     }),
 
+    // Lấy danh sách địa chỉ
     getAddresses: builder.query<Address[], void>({
       query: () => ({
         url: '/users/addresses',
@@ -70,6 +70,7 @@ export const userApi = api.injectEndpoints({
       providesTags: ['Addresses'],
     }),
 
+    // Thêm địa chỉ mới
     addAddress: builder.mutation<Address, Omit<Address, 'id'>>({
       query: (addressData) => ({
         url: '/users/addresses',
@@ -85,6 +86,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ['Addresses'],
     }),
 
+    // Cập nhật địa chỉ
     updateAddress: builder.mutation<Address, Partial<Address> & { id: string }>(
       {
         query: ({ id, ...addressData }) => ({
@@ -99,9 +101,10 @@ export const userApi = api.injectEndpoints({
           return response;
         },
         invalidatesTags: ['Addresses'],
-      }
+      },
     ),
 
+    // Xóa địa chỉ
     deleteAddress: builder.mutation<{ message: string }, string>({
       query: (id) => ({
         url: `/users/addresses/${id}`,
@@ -116,6 +119,7 @@ export const userApi = api.injectEndpoints({
       invalidatesTags: ['Addresses'],
     }),
 
+    // Đặt địa chỉ mặc định
     setDefaultAddress: builder.mutation<Address, string>({
       query: (id) => ({
         url: `/users/addresses/${id}/default`,

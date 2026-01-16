@@ -12,45 +12,47 @@ import { RootState } from '@/store';
 
 export const useCartMerge = (
   isAuthenticated: boolean,
-  justLoggedIn: boolean
+  justLoggedIn: boolean,
 ) => {
   const dispatch = useDispatch();
+
   const [mergeCart] = useMergeCartMutation();
   const [addToCart] = useAddToCartMutation();
 
-  // Get cart items from Redux store
+  // Lấy cart items từ Redux store
   const { items } = useSelector((state: RootState) => state.cart);
 
-  // Get current server cart - don't skip when authenticated and just logged in
+  // Lấy giỏ hàng hiện tại từ server - không bỏ qua khi đã xác thực và vừa đăng nhập
   const { data: serverCart, refetch } = useGetCartQuery(undefined, {
-    skip: !isAuthenticated,
+    skip: !isAuthenticated, // bỏ qua nếu chưa xác thực (khách vãng lai)
     refetchOnMountOrArgChange: true,
   });
 
   useEffect(() => {
     const performCartMerge = async () => {
+      // Chỉ thực hiện gộp khi người dùng vừa đăng nhập
       if (isAuthenticated && justLoggedIn) {
         try {
-          console.log('🔄 Checking for local cart items to merge...');
+          console.log('Đang kiểm tra các mục giỏ hàng local trước khi gộp...');
 
-          // Check if there are items in localStorage
+          // Kiểm tra xem các mục giỏ hàng có trong localStorage không
           const localItems = JSON.parse(
-            localStorage.getItem('cartItems') || '[]'
+            localStorage.getItem('cartItems') || '[]',
           );
 
           if (localItems.length > 0) {
-            console.log('🛒 Found local cart items:', localItems);
+            console.log('Đã tìm thấy các mục giỏ hàng local:', localItems);
 
-            // First, get the current server cart
+            // Lấy giỏ hàng hiện tại từ server
             await refetch();
 
-            // Add each local item to the server cart one by one
-            console.log('🔄 Adding local items to server cart...');
+            // Thêm từng mục local vào giỏ hàng server
+            console.log('Đang thêm các mục local vào giỏ hàng server...');
 
-            // Keep track of added items for notification
+            // Đặt biến đếm theo dõi số item đã thêm để thông báo
             let addedItemsCount = 0;
 
-            // Add items one by one to preserve existing cart items
+            // Thêm từng mục một để giữ nguyên các mục giỏ hàng hiện có
             for (const item of localItems) {
               try {
                 await addToCart({
@@ -60,90 +62,95 @@ export const useCartMerge = (
                 }).unwrap();
 
                 addedItemsCount += item.quantity;
-                console.log(`✅ Added item ${item.name} to cart`);
+                console.log(`Đã thêm mục ${item.name} vào giỏ hàng`);
               } catch (itemError) {
                 console.error(
-                  `❌ Failed to add item ${item.name} to cart:`,
-                  itemError
+                  `Không thể thêm mục ${item.name} vào giỏ hàng:`,
+                  itemError,
                 );
               }
             }
 
-            // Get the final updated cart
+            // Lấy lại giỏ hàng sau khi thêm tất cả các mục
             try {
               const result = await refetch();
+
               if (result && result.data) {
-                // Update Redux store with the final cart
+                // Cập nhật Redux store với giỏ hàng cuối cùng
                 dispatch(setServerCart(result.data));
-                console.log('✅ Cart merge successful:', result.data);
+
+                console.log('Gộp giỏ hàng thành công:', result.data);
               } else if (serverCart) {
-                // Fallback to current serverCart if refetch doesn't return new data
+                // Dự phòng sử dụng serverCart hiện tại nếu refetch không trả về dữ liệu mới
                 dispatch(setServerCart(serverCart));
+
                 console.log(
-                  '✅ Cart merge successful (using current data):',
-                  serverCart
+                  'Gộp giỏ hàng thành công (sử dụng dữ liệu hiện tại):',
+                  serverCart,
                 );
               }
             } catch (refetchError) {
-              console.error('❌ Failed to refetch cart:', refetchError);
-              // Still try to use the current serverCart if available
+              console.error('Không thể lấy lại giỏ hàng:', refetchError);
+
+              // Vẫn cố gắng sử dụng serverCart hiện tại nếu có
               if (serverCart) {
                 dispatch(setServerCart(serverCart));
               }
             }
 
-            // Show notification about merged items
+            // Hiện thông báo về các mục giỏ hàng đã gộp
             if (addedItemsCount > 0) {
               dispatch(
                 addNotification({
                   message: `Đã thêm ${addedItemsCount} sản phẩm vào giỏ hàng của bạn`,
                   type: 'success',
                   duration: 3000,
-                })
+                }),
               );
             }
           } else {
-            // If no local items, just merge any session cart on the server
+            // Nếu không có mục giỏ hàng local, chỉ cần gộp giỏ hàng session trên server
             console.log(
-              '🔄 No local items, checking for session cart on server...'
+              'Không có các mục giỏ hàng local, đang kiểm tra giỏ hàng session trên server...',
             );
+
             const mergedCart = await mergeCart().unwrap();
 
-            // Update Redux store with merged cart
+            // Cập nhật Redux store với giỏ hàng đã gộp
             dispatch(setServerCart(mergedCart));
 
-            console.log('✅ Server cart merge successful:', mergedCart);
+            console.log('Gộp giỏ hàng server thành công:', mergedCart);
 
-            // Show notification if items were merged
+            // Hiện thông báo nếu có mục đã được gộp
             if (mergedCart.totalItems > 0) {
               dispatch(
                 addNotification({
                   message: `Đã gộp ${mergedCart.totalItems} sản phẩm vào giỏ hàng của bạn`,
                   type: 'success',
                   duration: 3000,
-                })
+                }),
               );
             }
           }
 
-          // Clear localStorage to prevent duplicate items
+          // Xóa giỏ hàng ở localStorage để tránh trùng lặp mục
           localStorage.removeItem('cartItems');
 
-          // Reset justLoggedIn flag to prevent re-merging on reload
+          // Đặt lại flag justLoggedIn để tránh việc gộp giỏ hàng lại khi reload trang
           dispatch(clearJustLoggedIn());
         } catch (error: any) {
-          console.error('❌ Cart merge failed:', error);
+          console.error('Gộp giỏ hàng thất bại:', error);
 
-          // Reset justLoggedIn even if merge fails to prevent retry loops
+          // Đặt lại flag justLoggedIn ngay cả khi gặp lỗi để tránh lặp lại quá trình gộp
           dispatch(clearJustLoggedIn());
 
-          // Show error to user
+          // Hiện thông báo lỗi cho người dùng
           dispatch(
             addNotification({
               message: 'Không thể gộp giỏ hàng. Vui lòng thử lại sau.',
               type: 'error',
               duration: 3000,
-            })
+            }),
           );
         }
       }

@@ -69,7 +69,7 @@ export interface CreateSetupIntentResponse {
 
 export const stripeApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Create payment intent
+    // Tạo payment intent Stripe
     createPaymentIntent: builder.mutation<
       CreatePaymentIntentResponse,
       CreatePaymentIntentRequest
@@ -81,7 +81,7 @@ export const stripeApi = api.injectEndpoints({
       }),
     }),
 
-    // Confirm payment
+    // Xác nhận thanh toán Stripe
     confirmPayment: builder.mutation<
       ConfirmPaymentResponse,
       ConfirmPaymentRequest
@@ -94,7 +94,7 @@ export const stripeApi = api.injectEndpoints({
       invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
 
-    // Create customer
+    // Tạo khách hàng Stripe
     createCustomer: builder.mutation<CreateCustomerResponse, void>({
       query: () => ({
         url: '/payment/create-customer',
@@ -102,7 +102,7 @@ export const stripeApi = api.injectEndpoints({
       }),
     }),
 
-    // Get payment methods
+    // Lấy phương thức thanh toán Stripe
     getPaymentMethods: builder.query<GetPaymentMethodsResponse, void>({
       query: () => ({
         url: '/payment/payment-methods',
@@ -111,7 +111,7 @@ export const stripeApi = api.injectEndpoints({
       providesTags: [{ type: 'PaymentMethod', id: 'LIST' }],
     }),
 
-    // Create setup intent for saving payment methods
+    // Tạo setup intent để lưu phương thức thanh toán Stripe
     createSetupIntent: builder.mutation<CreateSetupIntentResponse, void>({
       query: () => ({
         url: '/payment/create-setup-intent',

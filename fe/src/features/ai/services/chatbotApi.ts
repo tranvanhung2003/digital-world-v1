@@ -71,10 +71,9 @@ export interface AddToCartRequest {
   sessionId?: string;
 }
 
-// Enhanced chatbot API with full backend integration
 export const chatbotApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Send message to AI chatbot
+    // Gửi tin nhắn đến chatbot
     sendChatbotMessage: builder.mutation<ChatbotApiResponse, ChatbotMessage>({
       query: (message) => ({
         url: '/chatbot/message',
@@ -83,7 +82,7 @@ export const chatbotApi = api.injectEndpoints({
       }),
     }),
 
-    // AI-powered product search
+    // Tìm kiếm sản phẩm qua AI
     searchProductsWithAI: builder.mutation<
       { query: string; results: ProductRecommendation[]; total: number },
       ProductSearchRequest
@@ -95,7 +94,7 @@ export const chatbotApi = api.injectEndpoints({
       }),
     }),
 
-    // Get personalized recommendations
+    // Lấy đề xuất sản phẩm từ chatbot
     getChatbotRecommendations: builder.query<
       { recommendations: ProductRecommendation[]; type: string },
       RecommendationRequest
@@ -106,7 +105,7 @@ export const chatbotApi = api.injectEndpoints({
       }),
     }),
 
-    // Track analytics
+    // Ghi lại sự kiện phân tích từ chatbot
     trackChatbotAnalytics: builder.mutation<
       { message: string },
       AnalyticsEvent
@@ -118,7 +117,7 @@ export const chatbotApi = api.injectEndpoints({
       }),
     }),
 
-    // Add to cart via chatbot
+    // Thêm sản phẩm vào giỏ hàng qua chatbot
     addToCartViaChatbot: builder.mutation<
       { message: string; cartItem: any },
       AddToCartRequest

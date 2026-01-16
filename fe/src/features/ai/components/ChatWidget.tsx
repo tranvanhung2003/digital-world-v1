@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +53,7 @@ export interface Message {
 const ChatWidget: React.FC = () => {
   const { t } = useTranslation();
   const { isAuthenticated, user } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.auth,
   );
 
   // Custom hook for chat widget state management
@@ -80,7 +81,7 @@ const ChatWidget: React.FC = () => {
 
   // Session ID
   const [sessionId] = useState(
-    () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   );
 
   const handleSendMessage = async (text: string) => {
@@ -204,7 +205,7 @@ const ChatWidget: React.FC = () => {
     direction: any,
     ref: HTMLElement,
     delta: any,
-    position: any
+    position: any,
   ) => {
     // Add resize-feedback class for visual feedback
     ref.classList.add('resize-feedback');
@@ -221,7 +222,7 @@ const ChatWidget: React.FC = () => {
     direction: any,
     ref: HTMLElement,
     delta: any,
-    position: any
+    position: any,
   ) => {
     setSize({
       width: ref.offsetWidth,

@@ -1,6 +1,6 @@
 /**
- * Custom hook for handling API state
- * Provides consistent loading, error, and success states
+ * Custom hook để xử lý trạng thái API
+ * Cung cấp trạng thái loading, error và success một cách nhất quán
  */
 
 import { useCallback, useMemo, useState } from 'react';
@@ -26,7 +26,7 @@ interface UseApiStateParams<T> {
 }
 
 /**
- * Custom hook for handling API state
+ * Custom hook để xử lý trạng thái API
  */
 export const useApiState = <T = any>({
   data,
@@ -38,6 +38,7 @@ export const useApiState = <T = any>({
   const isError = !!error;
   const isSuccess = !isLoading && !isError && data !== undefined;
 
+  // Kiểm tra xem dữ liệu có rỗng không
   const isEmpty = useMemo(() => {
     if (isLoading || isError) return false;
     if (data === undefined || data === null) return true;
@@ -53,11 +54,15 @@ export const useApiState = <T = any>({
     return false;
   }, [data, isLoading, isError, isArray]);
 
+  // Xác định xem lỗi có thể retry không
   const canRetry = useMemo(() => {
+    // Nếu không có lỗi hoặc không có hàm refetch thì không thể retry
     if (!isError || !refetch) return false;
+
     return isRetryableError(error);
   }, [isError, error, refetch]);
 
+  // Hàm retry để gọi lại API nếu có thể
   const retry = useCallback(() => {
     if (refetch && canRetry) {
       refetch();
@@ -77,7 +82,7 @@ export const useApiState = <T = any>({
 };
 
 /**
- * Hook for handling paginated data
+ * Hook để xử lý dữ liệu phân trang từ API
  */
 export const usePaginatedApiState = <T = any>({
   data,
@@ -93,18 +98,23 @@ export const usePaginatedApiState = <T = any>({
     isArray: false,
   });
 
+  // Trích xuất danh sách sản phẩm
   const items = useMemo(() => {
     if (!data || typeof data !== 'object') return [];
 
-    // Handle different paginated response structures
+    // Xử lý các cấu trúc response phân trang khác nhau
+
+    // Case 1: { data: { products: [...] } }
     if ('data' in data && 'products' in (data as any).data) {
       return (data as any).data.products;
     }
 
+    // Case 2: { data: [...] }
     if ('data' in data && Array.isArray((data as any).data)) {
       return (data as any).data;
     }
 
+    // Case 3: Dữ liệu là mảng trực tiếp
     if (Array.isArray(data)) {
       return data;
     }
@@ -112,6 +122,7 @@ export const usePaginatedApiState = <T = any>({
     return [];
   }, [data]);
 
+  // Trích xuất thông tin phân trang
   const pagination = useMemo(() => {
     if (!data || typeof data !== 'object') return null;
 
@@ -137,7 +148,7 @@ export const usePaginatedApiState = <T = any>({
 };
 
 /**
- * Hook for handling form submission state
+ * Hook để xử lý trạng thái gửi biểu mẫu
  */
 export const useSubmissionState = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,7 +162,7 @@ export const useSubmissionState = () => {
         onSuccess?: (data: any) => void;
         onError?: (error: any) => void;
         resetAfter?: number;
-      }
+      },
     ) => {
       setIsSubmitting(true);
       setSubmitError(null);
@@ -165,7 +176,6 @@ export const useSubmissionState = () => {
           options.onSuccess(result);
         }
 
-        // Reset success state after specified time
         if (options?.resetAfter) {
           setTimeout(() => {
             setSubmitSuccess(false);
@@ -186,7 +196,7 @@ export const useSubmissionState = () => {
         setIsSubmitting(false);
       }
     },
-    []
+    [],
   );
 
   const reset = useCallback(() => {

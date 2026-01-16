@@ -35,14 +35,14 @@ const chatSlice = createSlice({
     closeChat: (state) => {
       state.isOpen = false;
     },
-    // Save chat history for a user
+    // Lưu lịch sử trò chuyện cho người dùng
     saveChatHistory: (state, action: PayloadAction<{ userId: string }>) => {
       const { userId } = action.payload;
       if (userId && state.messages.length > 0) {
         state.chatHistory[userId] = [...state.messages];
       }
     },
-    // Load chat history for a user
+    // Load lịch sử trò chuyện cho người dùng
     loadChatHistory: (state, action: PayloadAction<{ userId: string }>) => {
       const { userId } = action.payload;
       if (userId && state.chatHistory[userId]) {

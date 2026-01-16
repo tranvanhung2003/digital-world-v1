@@ -13,18 +13,15 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
-  // Handle thumbnail click
   const handleThumbnailClick = (index: number) => {
     setActiveImage(index);
     setIsZoomed(false);
   };
 
-  // Handle zoom toggle
   const handleZoomToggle = () => {
     setIsZoomed(!isZoomed);
   };
 
-  // Handle mouse move for zoom effect
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
 
@@ -36,14 +33,12 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
     setZoomPosition({ x, y });
   };
 
-  // Handle mouse leave
   const handleMouseLeave = () => {
     if (isZoomed) {
       setIsZoomed(false);
     }
   };
 
-  // If no images provided, show placeholder
   if (!images || images.length === 0) {
     return (
       <div className="aspect-square bg-neutral-100 dark:bg-neutral-800 rounded-lg flex items-center justify-center">

@@ -1,10 +1,10 @@
 /**
- * Error handling utilities
- * Centralized error handling and user feedback
+ * Các tiện ích xử lý lỗi
+ * Các trình xử lý lỗi tập trung và phản hồi người dùng
  */
 
 /**
- * Common error types in the application
+ * Các loại lỗi phổ biến trong ứng dụng
  */
 export enum ErrorType {
   NETWORK_ERROR = 'NETWORK_ERROR',
@@ -61,14 +61,16 @@ const ERROR_MESSAGES = {
 } as const;
 
 /**
- * Parse error from various sources
+ * Phân tích lỗi từ các nguồn khác nhau
  */
 export const parseError = (error: any): AppError => {
-  // RTK Query error
+  // Lỗi Redux Toolkit Query
   if (error?.status) {
     const status = error.status;
     const message =
-      error.data?.message || error.data?.error?.message || 'Unknown error';
+      error.data?.message ||
+      error.data?.error?.message ||
+      'Đã xảy ra lỗi không xác định.';
 
     if (status === 400) {
       return {
@@ -125,7 +127,7 @@ export const parseError = (error: any): AppError => {
     }
   }
 
-  // JavaScript Error
+  // Lỗi JavaScript thông thường
   if (error instanceof Error) {
     return {
       type: ErrorType.UNKNOWN_ERROR,
@@ -134,7 +136,7 @@ export const parseError = (error: any): AppError => {
     };
   }
 
-  // String error
+  // Lỗi dạng chuỗi
   if (typeof error === 'string') {
     return {
       type: ErrorType.UNKNOWN_ERROR,
@@ -142,46 +144,53 @@ export const parseError = (error: any): AppError => {
     };
   }
 
-  // Default unknown error
+  // Lỗi không xác định mặc định
   return {
     type: ErrorType.UNKNOWN_ERROR,
-    message: 'An unknown error occurred',
+    message: 'Đã xảy ra lỗi không xác định.',
     details: error,
   };
 };
 
 /**
- * Get user-friendly error message
+ * Lấy thông điệp lỗi thân thiện với người dùng
  */
 export const getErrorMessage = (
   error: any,
-  language: 'vi' | 'en' = 'vi'
+  language: 'vi' | 'en' = 'vi',
 ): string => {
   const parsedError = parseError(error);
 
-  // Use provided message if available and not generic
-  if (parsedError.message && !parsedError.message.includes('Unknown error')) {
+  // Nếu có thông điệp cụ thể từ lỗi, sử dụng nó
+  if (
+    parsedError.message &&
+    !parsedError.message.includes('Đã xảy ra lỗi không xác định.')
+  ) {
     return parsedError.message;
   }
 
-  // Fall back to predefined messages
+  // Nếu không có, sử dụng thông điệp mặc định theo loại lỗi
   return ERROR_MESSAGES[parsedError.type][language];
 };
 
 /**
- * Create error handler for components
+ * Tạo một trình xử lý lỗi để sử dụng trong components
  */
 export const createErrorHandler = (onError?: (error: AppError) => void) => {
   return (error: any) => {
     const parsedError = parseError(error);
 
+    // Chỉ log lỗi trong môi trường phát triển
     if (import.meta.env.DEV) {
-      console.group('🚨 Error Handler');
-      console.log('Original error:', error);
-      console.log('Parsed error:', parsedError);
+      console.group('Trình xử lý lỗi');
+
+      console.log('Lỗi gốc:', error);
+      console.log('Lỗi đã phân tích:', parsedError);
+
       console.groupEnd();
     }
 
+    // Gọi callback nếu được cung cấp
     if (onError) {
       onError(parsedError);
     }
@@ -191,12 +200,12 @@ export const createErrorHandler = (onError?: (error: AppError) => void) => {
 };
 
 /**
- * Retry function with exponential backoff
+ * Hàm này sẽ thử lại một hàm bất đồng bộ nhiều lần với độ trễ tăng dần nếu nó thất bại
  */
 export const retryWithBackoff = async <T>(
   fn: () => Promise<T>,
   maxRetries: number = 3,
-  baseDelay: number = 1000
+  baseDelay: number = 1000,
 ): Promise<T> => {
   let lastError: any;
 
@@ -211,6 +220,7 @@ export const retryWithBackoff = async <T>(
       }
 
       const delay = baseDelay * Math.pow(2, i);
+
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -219,18 +229,18 @@ export const retryWithBackoff = async <T>(
 };
 
 /**
- * Check if error is retryable
+ * Kiểm tra xem lỗi có thể thử lại hay không (thường là lỗi mạng hoặc lỗi server)
  */
 export const isRetryableError = (error: any): boolean => {
   const parsedError = parseError(error);
 
   return [ErrorType.NETWORK_ERROR, ErrorType.SERVER_ERROR].includes(
-    parsedError.type
+    parsedError.type,
   );
 };
 
 /**
- * Format error for logging
+ * Format lỗi để ghi log
  */
 export const formatErrorForLogging = (error: any): string => {
   const parsedError = parseError(error);
@@ -245,6 +255,6 @@ export const formatErrorForLogging = (error: any): string => {
       userAgent: navigator.userAgent,
     },
     null,
-    2
+    2,
   );
 };

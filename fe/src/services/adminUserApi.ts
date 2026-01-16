@@ -49,6 +49,7 @@ export interface UserFilters {
 
 export const adminUserApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Lấy danh sách user
     getAllUsers: builder.query<UserResponse, UserFilters>({
       query: (params = {}) => {
         const queryParams = new URLSearchParams();
@@ -64,6 +65,7 @@ export const adminUserApi = api.injectEndpoints({
       providesTags: ['User'],
     }),
 
+    // Cập nhật thông tin user
     updateUser: builder.mutation<
       { status: string; data: { user: User } },
       UpdateUserRequest
@@ -76,6 +78,7 @@ export const adminUserApi = api.injectEndpoints({
       invalidatesTags: ['User'],
     }),
 
+    // Xóa user
     deleteUser: builder.mutation<{ status: string; message: string }, string>({
       query: (id) => ({
         url: `/admin/users/${id}`,

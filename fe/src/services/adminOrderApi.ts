@@ -70,10 +70,9 @@ export interface UpdateOrderStatusRequest {
   note?: string;
 }
 
-// Sử dụng api.injectEndpoints để thêm các endpoints vào API service chính
 export const adminOrderApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Get all orders for admin
+    // Lấy danh sách đơn hàng
     getAdminOrders: builder.query<AdminOrdersResponse, AdminOrdersParams>({
       query: (params) => ({
         url: '/admin/orders',
@@ -82,7 +81,7 @@ export const adminOrderApi = api.injectEndpoints({
       providesTags: ['AdminOrder'],
     }),
 
-    // Update order status
+    // Cập nhật trạng thái đơn hàng
     updateOrderStatus: builder.mutation<
       { status: string; data: { order: AdminOrder } },
       { id: string; data: UpdateOrderStatusRequest }

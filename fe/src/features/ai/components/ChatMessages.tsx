@@ -48,8 +48,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 
               {/* Online indicator */}
               <div className="absolute bottom-0 right-1.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-neutral-800"></div>
-
-              {/* Online indicator - không hiển thị typing indicator ở đây nữa */}
             </div>
           )}
 

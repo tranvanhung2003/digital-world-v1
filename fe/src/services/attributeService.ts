@@ -63,28 +63,28 @@ export interface AttributeValue {
 }
 
 class AttributeService {
-  // Preview product name with selected attributes
+  // Xem trước tên sản phẩm với các thuộc tính đã chọn
   async previewProductName(
-    request: NamePreviewRequest
+    request: NamePreviewRequest,
   ): Promise<ApiResponse<NamePreviewResponse>> {
     const response = await apiClient.post('/attributes/preview-name', request);
     return response.data;
   }
 
-  // Generate name in real-time for dynamic forms
+  // Tạo tên sản phẩm theo thời gian thực dựa trên tên cơ bản và các thuộc tính đã chọn
   async generateNameRealTime(
-    request: NameGenerationRequest
+    request: NameGenerationRequest,
   ): Promise<ApiResponse<NamePreviewResponse>> {
     const response = await apiClient.post(
       '/attributes/generate-name-realtime',
-      request
+      request,
     );
     return response.data;
   }
 
-  // Get all attributes that can affect product names
+  // Lấy danh sách các thuộc tính có ảnh hưởng đến tên sản phẩm
   async getNameAffectingAttributes(
-    productId?: string
+    productId?: string,
   ): Promise<ApiResponse<AttributeValue[]>> {
     const params = productId ? { productId } : {};
     const response = await apiClient.get('/attributes/name-affecting', {
@@ -93,14 +93,14 @@ class AttributeService {
     return response.data;
   }
 
-  // Batch generate names for multiple products
+  // Tạo tên sản phẩm hàng loạt dựa trên các mục đã cung cấp
   async batchGenerateNames(
     items: Array<{
       id: string;
       baseName: string;
       selectedAttributes: string[];
     }>,
-    separator?: string
+    separator?: string,
   ): Promise<
     ApiResponse<
       Array<{
@@ -118,23 +118,23 @@ class AttributeService {
     return response.data;
   }
 
-  // Get all attribute groups with values
+  // Lấy tất cả các nhóm thuộc tính cùng với các giá trị của chúng
   async getAttributeGroups(): Promise<ApiResponse<any[]>> {
     const response = await apiClient.get('/attributes/groups');
     return response.data;
   }
 
-  // Get attribute groups for specific product
+  // Lấy các nhóm thuộc tính của một sản phẩm cụ thể
   async getProductAttributeGroups(
-    productId: string
+    productId: string,
   ): Promise<ApiResponse<any[]>> {
     const response = await apiClient.get(
-      `/attributes/products/${productId}/groups`
+      `/attributes/products/${productId}/groups`,
     );
     return response.data;
   }
 
-  // Create new attribute group
+  // Tạo nhóm thuộc tính mới
   async createAttributeGroup(data: {
     name: string;
     type: string;
@@ -146,7 +146,7 @@ class AttributeService {
     return response.data;
   }
 
-  // Add attribute value to group
+  // Thêm giá trị thuộc tính vào nhóm thuộc tính
   async addAttributeValue(
     attributeGroupId: string,
     data: {
@@ -158,16 +158,16 @@ class AttributeService {
       sortOrder?: number;
       affectsName?: boolean;
       nameTemplate?: string;
-    }
+    },
   ): Promise<ApiResponse<any>> {
     const response = await apiClient.post(
       `/attributes/groups/${attributeGroupId}/values`,
-      data
+      data,
     );
     return response.data;
   }
 
-  // Update attribute value
+  // Cập nhật giá trị thuộc tính
   async updateAttributeValue(
     id: string,
     data: {
@@ -180,13 +180,13 @@ class AttributeService {
       isActive?: boolean;
       affectsName?: boolean;
       nameTemplate?: string;
-    }
+    },
   ): Promise<ApiResponse<any>> {
     const response = await apiClient.put(`/attributes/values/${id}`, data);
     return response.data;
   }
 
-  // Update attribute group
+  // Cập nhật nhóm thuộc tính
   async updateAttributeGroup(
     id: string,
     data: {
@@ -196,36 +196,36 @@ class AttributeService {
       isRequired?: boolean;
       sortOrder?: number;
       isActive?: boolean;
-    }
+    },
   ): Promise<ApiResponse<any>> {
     const response = await apiClient.put(`/attributes/groups/${id}`, data);
     return response.data;
   }
 
-  // Delete attribute group
+  // Xóa nhóm thuộc tính (chuyển trạng thái isActive thành false)
   async deleteAttributeGroup(id: string): Promise<ApiResponse<any>> {
     const response = await apiClient.delete(`/attributes/groups/${id}`);
     return response.data;
   }
 
-  // Delete attribute value
+  // Xóa giá trị thuộc tính (chuyển trạng thái isActive thành false)
   async deleteAttributeValue(id: string): Promise<ApiResponse<any>> {
     const response = await apiClient.delete(`/attributes/values/${id}`);
     return response.data;
   }
 
-  // Assign attribute group to product
+  // Gán nhóm thuộc tính cho sản phẩm
   async assignAttributeGroupToProduct(
     productId: string,
     attributeGroupId: string,
     data: {
       isRequired?: boolean;
       sortOrder?: number;
-    }
+    },
   ): Promise<ApiResponse<any>> {
     const response = await apiClient.post(
       `/attributes/products/${productId}/groups/${attributeGroupId}`,
-      data
+      data,
     );
     return response.data;
   }

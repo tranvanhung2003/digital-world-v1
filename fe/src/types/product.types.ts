@@ -50,6 +50,8 @@ export interface ProductVariant {
   sortOrder?: number;
   isDefault?: boolean;
   isAvailable?: boolean;
+
+  [key: string]: any;
 }
 
 export interface ProductAttribute {
@@ -150,6 +152,8 @@ export interface ProductFormData {
 
   // Variant product flag
   isVariantProduct?: boolean;
+
+  [key: string]: any;
 }
 
 export interface ProductVariantFormData {

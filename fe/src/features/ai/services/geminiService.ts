@@ -4,7 +4,7 @@ import { mockCategories } from '@/data/mockCategories';
 
 // Gemini AI configuration
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'demo-key';
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI('demo-key');
 
 export interface GeminiChatResponse {
   text: string;

@@ -20,13 +20,19 @@ export interface ContactResponse {
 
 export const contactApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    subscribeNewsletter: builder.mutation<ContactResponse, NewsletterSubscriptionRequest>({
+    // Đăng ký nhận bản tin
+    subscribeNewsletter: builder.mutation<
+      ContactResponse,
+      NewsletterSubscriptionRequest
+    >({
       query: (body) => ({
         url: '/contact/newsletter',
         method: 'POST',
         body,
       }),
     }),
+
+    // Gửi phản hồi
     sendFeedback: builder.mutation<ContactResponse, FeedbackRequest>({
       query: (body) => ({
         url: '/contact/feedback',
@@ -37,7 +43,5 @@ export const contactApi = api.injectEndpoints({
   }),
 });
 
-export const {
-  useSubscribeNewsletterMutation,
-  useSendFeedbackMutation,
-} = contactApi;
+export const { useSubscribeNewsletterMutation, useSendFeedbackMutation } =
+  contactApi;

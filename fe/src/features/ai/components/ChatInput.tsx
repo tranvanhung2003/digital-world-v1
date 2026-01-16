@@ -52,7 +52,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       {isLoading && (
         <div className="flex items-center mb-2 text-xs text-neutral-500 dark:text-neutral-400 animate-pulse">
           <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-          <span>Nhân viên đang nhập...</span>
+          <span>Chatbot đang nhập...</span>
         </div>
       )}
 

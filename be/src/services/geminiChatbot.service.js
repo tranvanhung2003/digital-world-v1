@@ -248,7 +248,9 @@ Hãy trả lời theo format JSON sau (TUYỆT ĐỐI CHỈ TRẢ VỀ JSON, KH�
 LƯU Ý VỀ DỮ LIỆU JSON TRẢ VỀ:
 - Đảm bảo JSON hợp lệ, không có lỗi cú pháp
 - Các tên sản phẩm trong "matchedProducts" phải khớp chính xác với tên trong danh sách sản phẩm có sẵn
+- Chỉ khi "intent" là "product_search" thì mới thêm sản phẩm vào "matchedProducts", nếu không để mảng này rỗng
 - Tìm "intent" phù hợp nhất dựa trên tin nhắn người dùng, và phải là một trong các giá trị đã cho
+- Các gợi ý trong "suggestions" là những hành động tiếp theo người dùng có thể thực hiện
 
 LƯU Ý QUAN TRỌNG:
 - Luôn trả lời bằng tiếng Việt tự nhiên
@@ -299,11 +301,16 @@ LƯU Ý QUAN TRỌNG:
           });
         }
 
+        const response =
+          parsed.response || 'Tôi có thể giúp bạn tìm sản phẩm phù hợp!';
+
+        // Loại bỏ các cặp dấu ** bao quanh tên sản phẩm nếu có
+        const finalResponse = response.replace(/\*\*(.*?)\*\*/g, '$1');
+
         console.log('Đã phân tích phản hồi AI thành công');
 
         return {
-          response:
-            parsed.response || 'Tôi có thể giúp bạn tìm sản phẩm phù hợp!',
+          response: finalResponse,
           products: matchedProducts,
           suggestions: parsed.suggestions || [
             'Xem tất cả sản phẩm',

@@ -2,14 +2,14 @@ import { store } from '@/store';
 import { logout } from '@/features/auth/authSlice';
 import { toast } from '@/utils/toast';
 
-// Navigation function - will be set by App component
+// Hàm Navigation - sẽ được thiết lập bởi component App
 let navigateToLogin: (() => void) | null = null;
 
 export const setNavigateFunction = (navigate: () => void) => {
   navigateToLogin = navigate;
 };
 
-// Singleton to manage logout state
+// Singleton để quản lý trạng thái đăng xuất
 class LogoutManager {
   private static instance: LogoutManager;
   private _isLoggingOut = false;
@@ -18,6 +18,7 @@ class LogoutManager {
     if (!LogoutManager.instance) {
       LogoutManager.instance = new LogoutManager();
     }
+
     return LogoutManager.instance;
   }
 
@@ -33,72 +34,77 @@ class LogoutManager {
 const logoutManager = LogoutManager.getInstance();
 
 /**
- * Handle automatic logout when user account is deactivated or unauthorized
- * @param errorMessage - Custom error message to display
- * @param redirectDelay - Delay before redirecting to login page (in milliseconds)
+ * Xử lý đăng xuất tự động khi tài khoản người dùng bị vô hiệu hóa hoặc không được phép
+ * @param errorMessage - Thông báo lỗi tùy chỉnh để hiển thị
+ * @param redirectDelay - Thời gian chờ trước khi chuyển hướng đến trang đăng nhập (tính bằng milliseconds)
  */
 export const handleAutoLogout = (
   errorMessage: string = 'Phiên đăng nhập đã hết hạn',
-  redirectDelay: number = 1000
+  redirectDelay: number = 1000,
 ) => {
-  console.log('🚪 handleAutoLogout called with:', errorMessage);
+  console.log('Hàm handleAutoLogout được gọi với:', errorMessage);
 
-  // Prevent duplicate logout
+  // Ngăn chặn đăng xuất trùng lặp
   if (logoutManager.isLoggingOut) {
-    console.log('⏸️ Already logging out, skipping');
+    console.log('Đang đăng xuất, bỏ qua');
+
     return;
   }
 
-  console.log('🔄 Starting logout process');
+  console.log('Đang bắt đầu quá trình đăng xuất');
+
   logoutManager.setLoggingOut(true);
 
-  // Show notification to user
+  // Hiển thị thông báo cho người dùng
   toast.warning(errorMessage, 4);
 
-  // Dispatch logout action to clear auth state
+  // Dispatch logout để xóa trạng thái xác thực
   store.dispatch(logout());
 
-  // Clear data immediately
+  // Xóa dữ liệu ngay lập tức ở phía client
   localStorage.clear();
   sessionStorage.clear();
 
-  // Navigate after a short delay to ensure Redux state is updated
+  // Điều hướng sau một khoảng thời gian ngắn để đảm bảo trạng thái Redux được cập nhật
   setTimeout(() => {
-    // Reset flag
+    // Reset flag "đang đăng xuất" để cho phép các lần đăng xuất trong tương lai
     logoutManager.setLoggingOut(false);
 
-    // Force page reload to login to avoid React Router state issues
+    // Bắt buộc reload trang để đăng nhập lại nhằm tránh các vấn đề về trạng thái của React Router
     window.location.href = '/login';
-  }, 100); // Reduced delay to 100ms
+  }, 100); // Delay ngắn để đảm bảo trạng thái được cập nhật trước khi chuyển hướng
 };
 
-// Export logout manager for use in other modules
+// Export logoutManager để sử dụng trong các module khác
 export { logoutManager };
 
 /**
- * Check if error is 401 Unauthorized and handle auto logout
- * @param error - Error object from API response
- * @returns boolean - true if 401 error was handled
+ * Kiểm tra nếu lỗi là 401 Unauthorized thì xử lý đăng xuất tự động
+ * @param error - Error object từ API response
+ * @returns boolean - true nếu lỗi 401 đã được xử lý
  */
 export const handleUnauthorizedError = (error: any): boolean => {
-  console.log('🔍 handleUnauthorizedError called with:', error);
+  console.log('Hàm handleUnauthorizedError được gọi với:', error);
 
   if (error?.status === 401) {
-    console.log('✅ 401 confirmed, calling handleAutoLogout');
+    console.log('Xác nhận là lỗi 401, đang gọi handleAutoLogout');
+
     const errorMessage =
       error?.data?.message ||
       'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên';
 
     handleAutoLogout(errorMessage);
+
     return true;
   }
 
-  console.log('❌ Not 401, status:', error?.status);
+  console.log('Không phải lỗi 401, trạng thái:', error?.status);
+
   return false;
 };
 
 /**
- * Extract error message from various error formats
+ * Trích xuất thông báo lỗi từ các định dạng lỗi khác nhau
  * @param error - Error object
  * @returns string - Formatted error message
  */

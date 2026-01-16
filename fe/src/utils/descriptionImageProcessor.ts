@@ -23,15 +23,16 @@ export interface ProcessDescriptionResult {
 }
 
 /**
- * Process description content to convert base64 images to uploaded files
- * @param description - HTML content from rich text editor
- * @param options - Processing options
- * @returns Promise with processed description and upload results
+ * Xử lý nội dung description để convert ảnh base64 thành file đã upload
+ * @param description - Nội dung HTML từ trình soạn thảo
+ * @param options - Các tùy chọn xử lý
+ * @returns Promise với nội dung đã xử lý và kết quả upload
  */
 export const processDescriptionImages = async (
   description: string,
-  options: ProcessDescriptionOptions
+  options: ProcessDescriptionOptions,
 ): Promise<ProcessDescriptionResult> => {
+  // Nếu không có description, trả về dữ liệu gốc
   if (!description) {
     return {
       processedDescription: description,
@@ -40,10 +41,11 @@ export const processDescriptionImages = async (
     };
   }
 
-  // Find all base64 image data URLs in the description
+  // Tìm tất cả các URL ảnh base64 trong description
   const base64ImageRegex = /data:image\/[a-zA-Z]*;base64,[A-Za-z0-9+/=]+/g;
   const base64Images = description.match(base64ImageRegex) || [];
 
+  // Nếu không có ảnh base64, trả về dữ liệu gốc
   if (base64Images.length === 0) {
     return {
       processedDescription: description,
@@ -52,13 +54,13 @@ export const processDescriptionImages = async (
     };
   }
 
-  console.log(`Found ${base64Images.length} base64 images to convert`);
+  console.log(`Đã tìm thấy ${base64Images.length} ảnh base64 để convert`);
 
   let processedDescription = description;
   const uploadedImages: ProcessDescriptionResult['uploadedImages'] = [];
   let hasErrors = false;
 
-  // Show loading message
+  // Hiển thị thông báo đang xử lý
   const loadingKey = 'converting-images';
   message.loading({
     content: `Đang convert ${base64Images.length} ảnh base64 thành file...`,
@@ -67,21 +69,21 @@ export const processDescriptionImages = async (
   });
 
   try {
-    // Process each base64 image
+    // Xử lý từng ảnh base64
     for (let i = 0; i < base64Images.length; i++) {
       const base64Data = base64Images[i];
 
       try {
-        console.log(`Converting image ${i + 1}/${base64Images.length}`);
+        console.log(`Đang convert ảnh ${i + 1}/${base64Images.length}`);
 
-        // Update loading message
+        // Cập nhật thông báo đang xử lý
         message.loading({
           content: `Đang convert ảnh ${i + 1}/${base64Images.length}...`,
           key: loadingKey,
           duration: 0,
         });
 
-        // Call API to convert base64 to uploaded file
+        // Gọi API để convert base64 thành file đã upload
         const result = await options.uploadImageFn({
           base64Data,
           options: {
@@ -90,13 +92,14 @@ export const processDescriptionImages = async (
           },
         });
 
+        // Nếu upload thành công, thay thế URL trong description
         if (result?.data) {
           const uploadedUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8888'}${result.data.url}`;
 
-          // Replace base64 with uploaded URL in description
+          // Thay thế base64 bằng URL đã upload trong description
           processedDescription = processedDescription.replace(
             base64Data,
-            uploadedUrl
+            uploadedUrl,
           );
 
           uploadedImages.push({
@@ -106,40 +109,45 @@ export const processDescriptionImages = async (
           });
 
           console.log(
-            `Successfully converted image ${i + 1}: ${result.data.fileName}`
+            `Đã convert thành công ảnh ${i + 1}: ${result.data.fileName}`,
           );
         } else {
           console.error(
-            `Failed to convert image ${i + 1}: No data in response`
+            `Không thể convert ảnh ${i + 1}: Không có dữ liệu trong phản hồi`,
           );
+
           hasErrors = true;
         }
       } catch (error: any) {
-        console.error(`Error converting image ${i + 1}:`, error);
+        console.error(`Lỗi khi convert ảnh ${i + 1}:`, error);
+
         hasErrors = true;
 
-        // Continue with other images even if one fails
+        // Tiếp tục với các ảnh khác ngay cả khi một ảnh bị lỗi
         const errorMessage =
-          error?.data?.message || error?.message || 'Unknown error';
-        console.error(`Failed to convert image ${i + 1}: ${errorMessage}`);
+          error?.data?.message || error?.message || 'Lỗi không xác định';
+        console.error(`Không thể convert ảnh ${i + 1}: ${errorMessage}`);
       }
     }
 
-    // Hide loading message
+    // Ẩn thông báo đang xử lý
     message.destroy(loadingKey);
 
-    // Show result message
+    // Hiển thị thông báo kết quả
     if (uploadedImages.length > 0) {
       if (hasErrors) {
+        // Case có một số ảnh không thể convert
         message.warning(
-          `Đã convert ${uploadedImages.length}/${base64Images.length} ảnh thành công. Một số ảnh không thể convert.`
+          `Đã convert ${uploadedImages.length}/${base64Images.length} ảnh thành công. Một số ảnh không thể convert.`,
         );
       } else {
+        // Case tất cả ảnh đều convert thành công
         message.success(
-          `Đã convert thành công ${uploadedImages.length} ảnh base64 thành file!`
+          `Đã convert thành công ${uploadedImages.length} ảnh base64 thành file!`,
         );
       }
     } else if (hasErrors) {
+      // Case không ảnh nào có thể convert
       message.error('Không thể convert ảnh base64 nào. Vui lòng thử lại.');
     }
 
@@ -149,12 +157,14 @@ export const processDescriptionImages = async (
       hasChanges: uploadedImages.length > 0,
     };
   } catch (error) {
+    // Ẩn thông báo đang xử lý
     message.destroy(loadingKey);
-    console.error('Error processing description images:', error);
+
+    console.error('Lỗi khi xử lý ảnh trong description:', error);
     message.error('Có lỗi xảy ra khi convert ảnh base64');
 
     return {
-      processedDescription: description, // Return original if error
+      processedDescription: description, // Trả về description gốc nếu có lỗi
       uploadedImages: [],
       hasChanges: false,
     };
@@ -162,24 +172,29 @@ export const processDescriptionImages = async (
 };
 
 /**
- * Check if description contains base64 images
- * @param description - HTML content to check
- * @returns boolean indicating if base64 images are found
+ * Kiểm tả xem description có chứa ảnh base64 không
+ * @param description - Nội dung HTML để kiểm tra
+ * @returns true nếu có ảnh base64, ngược lại false
  */
 export const hasBase64Images = (description: string): boolean => {
   if (!description) return false;
+
   const base64ImageRegex = /data:image\/[a-zA-Z]*;base64,[A-Za-z0-9+/=]+/g;
+
   return base64ImageRegex.test(description);
 };
 
 /**
- * Count base64 images in description
- * @param description - HTML content to check
- * @returns number of base64 images found
+ * Đếm số lượng ảnh base64 trong description
+ * @param description - Nội dung HTML để kiểm tra
+ * @returns số lượng ảnh base64 tìm thấy
  */
 export const countBase64Images = (description: string): number => {
   if (!description) return 0;
+
   const base64ImageRegex = /data:image\/[a-zA-Z]*;base64,[A-Za-z0-9+/=]+/g;
+
   const matches = description.match(base64ImageRegex);
+
   return matches ? matches.length : 0;
 };

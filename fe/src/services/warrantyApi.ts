@@ -32,8 +32,7 @@ export interface CreateWarrantyPackageRequest {
   sortOrder?: number;
 }
 
-export interface UpdateWarrantyPackageRequest
-  extends CreateWarrantyPackageRequest {
+export interface UpdateWarrantyPackageRequest extends CreateWarrantyPackageRequest {
   id: string;
 }
 
@@ -43,10 +42,9 @@ export interface WarrantyPackageFilters {
   isActive?: boolean;
 }
 
-// API endpoints
 export const warrantyApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Get all warranty packages
+    // Lấy tất cả gói bảo hành
     getWarrantyPackages: builder.query<
       WarrantyPackagesResponse,
       WarrantyPackageFilters | void
@@ -58,13 +56,13 @@ export const warrantyApi = api.injectEndpoints({
       providesTags: ['WarrantyPackages'],
     }),
 
-    // Get warranty package by ID
+    // Lấy gói bảo hành theo ID
     getWarrantyPackageById: builder.query<WarrantyPackageResponse, string>({
       query: (id) => `/warranty-packages/${id}`,
       providesTags: (result, error, id) => [{ type: 'WarrantyPackages', id }],
     }),
 
-    // Create warranty package
+    // Tạo gói bảo hành mới
     createWarrantyPackage: builder.mutation<
       WarrantyPackageResponse,
       CreateWarrantyPackageRequest
@@ -77,7 +75,7 @@ export const warrantyApi = api.injectEndpoints({
       invalidatesTags: ['WarrantyPackages'],
     }),
 
-    // Update warranty package
+    // Cập nhật gói bảo hành
     updateWarrantyPackage: builder.mutation<
       WarrantyPackageResponse,
       UpdateWarrantyPackageRequest
@@ -93,7 +91,7 @@ export const warrantyApi = api.injectEndpoints({
       ],
     }),
 
-    // Delete warranty package
+    // Xóa gói bảo hành
     deleteWarrantyPackage: builder.mutation<
       { status: string; message: string },
       string
@@ -110,7 +108,6 @@ export const warrantyApi = api.injectEndpoints({
   }),
 });
 
-// Export hooks
 export const {
   useGetWarrantyPackagesQuery,
   useGetWarrantyPackageByIdQuery,

@@ -18,7 +18,7 @@ const initialState: ProductsState = {
   recentlyViewed: [],
   compareList: [],
   filters: {
-    priceRange: [0, 10000000], // Default price range in VND
+    priceRange: [0, 10000000], // Mặc định từ 0 đến 10 triệu
     categories: [],
     attributes: {},
     sortBy: 'newest',
@@ -30,26 +30,25 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
     addToRecentlyViewed: (state, action: PayloadAction<Product>) => {
-      // Remove if already exists
+      // Xóa nếu đã tồn tại trong danh sách
       state.recentlyViewed = state.recentlyViewed.filter(
-        (product) => product.id !== action.payload.id
+        (product) => product.id !== action.payload.id,
       );
 
-      // Add to the beginning
+      // Thêm vào đầu danh sách
       state.recentlyViewed.unshift(action.payload);
 
-      // Limit to MAX_RECENTLY_VIEWED items
       if (state.recentlyViewed.length > MAX_RECENTLY_VIEWED) {
         state.recentlyViewed = state.recentlyViewed.slice(
           0,
-          MAX_RECENTLY_VIEWED
+          MAX_RECENTLY_VIEWED,
         );
       }
 
-      // Save to localStorage
+      // Lưu vào localStorage
       localStorage.setItem(
         'recentlyViewed',
-        JSON.stringify(state.recentlyViewed)
+        JSON.stringify(state.recentlyViewed),
       );
     },
 
@@ -59,11 +58,10 @@ const productsSlice = createSlice({
     },
 
     addToCompareList: (state, action: PayloadAction<Product>) => {
-      // Check if already in compare list
       if (
         !state.compareList.some((product) => product.id === action.payload.id)
       ) {
-        // Limit to 4 products for comparison
+        // Giới hạn so sánh tối đa 4 sản phẩm
         if (state.compareList.length < 4) {
           state.compareList.push(action.payload);
         }
@@ -72,7 +70,7 @@ const productsSlice = createSlice({
 
     removeFromCompareList: (state, action: PayloadAction<string>) => {
       state.compareList = state.compareList.filter(
-        (product) => product.id !== action.payload
+        (product) => product.id !== action.payload,
       );
     },
 
@@ -100,14 +98,12 @@ const productsSlice = createSlice({
       state.filters = initialState.filters;
     },
 
-    // Load recently viewed from localStorage on app init
     loadRecentlyViewed: (state) => {
       const saved = localStorage.getItem('recentlyViewed');
       if (saved) {
         try {
           state.recentlyViewed = JSON.parse(saved);
         } catch (e) {
-          console.error('Failed to parse recently viewed products', e);
           state.recentlyViewed = [];
         }
       }

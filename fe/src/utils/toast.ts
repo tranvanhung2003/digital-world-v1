@@ -1,33 +1,6 @@
 import { message } from 'antd';
 import { store } from '@/store';
 
-/**
- * Toast utility for the entire application
- *
- * This is the recommended way to show toast notifications in the application.
- * It handles dark/light mode automatically and provides a consistent interface.
- *
- * Usage:
- * import { toast } from '@/utils/toast';
- *
- * toast.success('Operation successful');
- * toast.error('Something went wrong');
- * toast.info('Information message');
- * toast.warning('Warning message');
- * toast.loading('Loading...');
- *
- * // With custom duration (in seconds)
- * toast.success('Saved successfully', 5);
- *
- * // With a key for updating or closing
- * const key = 'updating';
- * toast.loading('Updating...', 0, key); // Duration 0 means it won't auto-close
- * // Later:
- * toast.success('Updated successfully', 2, key); // This will replace the loading toast
- * // Or to close manually:
- * toast.close(key);
- */
-
 // Cấu hình mặc định cho toast
 message.config({
   top: 70,
@@ -35,7 +8,7 @@ message.config({
   maxCount: 5,
 });
 
-// Hàm helper để lấy theme hiện tại từ Redux store
+// Helper function để lấy theme hiện tại từ Redux store
 const isDarkMode = () => {
   try {
     // Lấy theme từ Redux store
@@ -53,7 +26,11 @@ const isDarkMode = () => {
   }
 };
 
-// Tạo class name dựa trên theme
+/**
+ * Lấy className dựa trên theme hiện tại
+ * Nếu là dark mode, trả về 'ant-message-dark' để áp dụng style tối
+ * Ngược lại, trả về chuỗi rỗng để sử dụng style mặc định
+ */
 const getClassName = () => {
   return isDarkMode() ? 'ant-message-dark' : '';
 };
@@ -105,7 +82,7 @@ export const toast = {
     });
   },
 
-  // Đóng toast theo key hoặc tất cả
+  // Đóng toast dựa trên key (nếu có) hoặc đóng tất cả toast nếu không có key
   close: (key?: string) => {
     if (key) {
       message.destroy(key);

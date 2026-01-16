@@ -11,16 +11,16 @@ interface AdminRouteProps {
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { isAuthenticated, user, token } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.auth,
   );
   const location = useLocation();
 
-  // If no token, redirect to login
+  // Nếu không có token, chuyển hướng đến trang đăng nhập
   if (!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If we have token but no user info, fetch user info
+  // Nếu có token nhưng không có thông tin người dùng, lấy thông tin người dùng
   const shouldFetchUser = token && !user;
   const {
     data: currentUser,
@@ -30,7 +30,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     skip: !shouldFetchUser,
   });
 
-  // Show loading if we're fetching user info
+  // Hiện loading nếu đang lấy thông tin người dùng
   if (shouldFetchUser && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
@@ -44,19 +44,19 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     );
   }
 
-  // If fetch failed, redirect to login
+  // Nếu lấy thông tin người dùng thất bại, chuyển hướng đến trang đăng nhập
   if (error) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Use currentUser from API if available, otherwise use user from state
+  // Sử dụng currentUser từ API nếu có, nếu không thì sử dụng user từ state
   const userToCheck = currentUser || user;
 
   if (!isAuthenticated && !currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check if user is an admin or manager
+  // Kiểm tra xem người dùng có vai trò admin không
   if (userToCheck?.role !== 'admin' && userToCheck?.role !== 'manager') {
     return <Navigate to="/unauthorized" replace />;
   }

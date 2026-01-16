@@ -117,7 +117,7 @@ export interface ApiResponse<T> {
 
 export const adminProductApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Get admin products with filters
+    // Lấy danh sách sản phẩm với filter admin
     getAdminProducts: builder.query<
       AdminProductsResponse,
       AdminProductsFilter | void
@@ -138,7 +138,7 @@ export const adminProductApi = api.injectEndpoints({
           : [{ type: 'Product', id: 'ADMIN_LIST' }],
     }),
 
-    // Create new product
+    // Tạo sản phẩm mới
     createProduct: builder.mutation<
       ApiResponse<AdminProduct>,
       CreateProductRequest
@@ -151,7 +151,7 @@ export const adminProductApi = api.injectEndpoints({
       invalidatesTags: [{ type: 'Product', id: 'ADMIN_LIST' }],
     }),
 
-    // Update product
+    // Cập nhật sản phẩm
     updateProduct: builder.mutation<
       ApiResponse<AdminProduct>,
       UpdateProductRequest
@@ -167,7 +167,7 @@ export const adminProductApi = api.injectEndpoints({
       ],
     }),
 
-    // Delete product
+    // Xóa sản phẩm
     deleteProduct: builder.mutation<ApiResponse<void>, string>({
       query: (id) => ({
         url: `/admin/products/${id}`,
@@ -179,13 +179,13 @@ export const adminProductApi = api.injectEndpoints({
       ],
     }),
 
-    // Get single product for admin
+    // Lấy chi tiết sản phẩm
     getAdminProductById: builder.query<ApiResponse<AdminProduct>, string>({
       query: (id) => `/admin/products/${id}`,
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
-    // Clone product
+    // Clone sản phẩm
     cloneProduct: builder.mutation<ApiResponse<AdminProduct>, string>({
       query: (id) => ({
         url: `/admin/products/${id}/clone`,
@@ -194,8 +194,11 @@ export const adminProductApi = api.injectEndpoints({
       invalidatesTags: [{ type: 'Product', id: 'ADMIN_LIST' }],
     }),
 
-    // Update product status
-    updateProductStatus: builder.mutation<ApiResponse<AdminProduct>, { id: string; status?: string }>({
+    // Cập nhật trạng thái sản phẩm nhanh
+    updateProductStatus: builder.mutation<
+      ApiResponse<AdminProduct>,
+      { id: string; status?: string }
+    >({
       query: ({ id, status }) => ({
         url: `/admin/products/${id}/status`,
         method: 'PATCH',
@@ -223,6 +226,7 @@ export const {
 class AdminProductService {
   async createProduct(productData: CreateProductRequest) {
     const response = await apiClient.post('/admin/products', productData);
+
     return response.data;
   }
 }

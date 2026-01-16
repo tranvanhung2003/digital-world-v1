@@ -20,43 +20,42 @@ const API_CONFIG = {
 } as const;
 
 /**
- * Get the base API URL
+ * Lấy URL cơ sở của API
  */
 const getBaseUrl = (): string => {
   const apiBaseUrl = import.meta.env.VITE_API_URL || API_CONFIG.DEFAULT_URL;
+
   return apiBaseUrl.endsWith('/api') ? apiBaseUrl : `${apiBaseUrl}/api`;
 };
 
-/**
- * Log API configuration in development
- */
+// Log cấu hình API trong môi trường development
 const logApiConfig = (): void => {
   if (import.meta.env.DEV) {
   }
 };
-
-// Initialize API configuration
+// Khởi tọa cấu hình API
 logApiConfig();
 
 /**
- * Prepare headers for API requests
+ * Chuẩn bị headers cho API requests
  */
 const prepareHeaders = async (headers: Headers): Promise<Headers> => {
-  // Get valid token (auto-refresh if needed)
+  // Lấy token hợp lệ
   const token = await getValidToken();
 
-  // Add authorization header if token exists
+  // Thêm authorization header nếu token tồn tại
   if (token) {
     headers.set('authorization', `Bearer ${token}`);
   } else {
-    // Fallback to localStorage token
+    // Nếu không có token hợp lệ, kiểm tra localStorage
     const localToken = localStorage.getItem('token');
+
     if (localToken) {
       headers.set('authorization', `Bearer ${localToken}`);
     }
   }
 
-  // Add standard headers
+  // Thêm headers chuẩn
   headers.set('Accept', API_CONFIG.HEADERS.ACCEPT);
   headers.set('Content-Type', API_CONFIG.HEADERS.CONTENT_TYPE);
 
@@ -64,7 +63,7 @@ const prepareHeaders = async (headers: Headers): Promise<Headers> => {
 };
 
 /**
- * Base query for API requests
+ * Base query cho API requests
  */
 const baseQuery = fetchBaseQuery({
   baseUrl: getBaseUrl(),
@@ -73,18 +72,18 @@ const baseQuery = fetchBaseQuery({
 });
 
 /**
- * Check if error is 401 Unauthorized
+ * Kiểm tra nếu lỗi là 401 Unauthorized
  */
 const isUnauthorizedError = (error: any): boolean => {
   return error?.status === 401 || error?.data?.error?.statusCode === 401;
 };
 
 /**
- * Log API errors in development
+ * Log lỗi API trong môi trường development
  */
 const logApiError = (args: string | FetchArgs, error: any): void => {
   if (import.meta.env.DEV) {
-    console.group('🚨 API Error');
+    console.group('API Error');
     console.log('Endpoint:', typeof args === 'string' ? args : args.url);
     console.log('Status:', error.status);
     console.log('Data:', error.data);
@@ -93,7 +92,8 @@ const logApiError = (args: string | FetchArgs, error: any): void => {
 };
 
 /**
- * Enhanced base query with automatic logout on 401
+ * Base query nâng cao với tự động đăng xuất khi gặp lỗi 401
+ *
  */
 const baseQueryWithAutoLogout: BaseQueryFn<
   string | FetchArgs,
@@ -106,19 +106,20 @@ const baseQueryWithAutoLogout: BaseQueryFn<
     if (result.error) {
       logApiError(args, result.error);
 
-      // Handle 401 errors
+      // Xử lý lỗi 401 Unauthorized
       if (isUnauthorizedError(result.error)) {
         const normalizedError = {
           status: 401,
           data: result.error?.data || result.error,
         };
+
         handleUnauthorizedError(normalizedError);
       }
     }
 
     return result;
   } catch (error) {
-    console.error('💥 Unexpected API error:', error);
+    console.error('Lỗi API không mong đợi:', error);
     return {
       error: {
         status: 'FETCH_ERROR',
@@ -128,7 +129,7 @@ const baseQueryWithAutoLogout: BaseQueryFn<
   }
 };
 
-// Create the API service
+// Tạo API service
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithAutoLogout,
@@ -158,7 +159,7 @@ export const api = createApi({
 
 // Factory function để tạo baseQuery với prefix URL tùy chỉnh
 export const createPrefixedBaseQuery = (
-  prefix: string = ''
+  prefix: string = '',
 ): BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> => {
   return async (args, api, extraOptions) => {
     // Thêm prefix vào URL
@@ -172,10 +173,9 @@ export const createPrefixedBaseQuery = (
   };
 };
 
-// Export the baseQueryWithAutoLogout for reuse in other API services
+// Export hàm baseQueryWithAutoLogout để tái sử dụng trong các API service khác
 export { baseQueryWithAutoLogout, baseQuery };
 
-// Export hooks for usage in components
 export const {
-  // No endpoints defined yet
+  // Các endpoints sẽ được thêm vào ở các file khác
 } = api;

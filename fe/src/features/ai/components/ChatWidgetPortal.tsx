@@ -14,10 +14,6 @@ import ChatIcon from './icons/ChatIcon';
 import CloseIcon from './icons/CloseIcon';
 import './ChatWidget.css';
 
-/**
- * Component ChatWidget không sử dụng Portal để tránh các vấn đề về vị trí
- * Thiết kế theo tiêu chuẩn senior developer với clean code
- */
 const ChatWidgetPortal: React.FC = () => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -28,10 +24,10 @@ const ChatWidgetPortal: React.FC = () => {
     (state: RootState) => state.auth,
   );
 
-  // API mutation hook
+  // Sử dụng hook mutation để gửi tin nhắn đến chatbot
   const [sendChatbotMessage, { isLoading }] = useSendChatbotMessageMutation();
 
-  // Tạo session ID cho chat
+  // Tạo session ID duy nhất cho mỗi phiên trò chuyện
   const [sessionId] = useState<string>(
     () => `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
   );
@@ -41,10 +37,12 @@ const ChatWidgetPortal: React.FC = () => {
     if (isOpen && messages.length === 0) {
       const greetingText =
         isAuthenticated && user
-          ? t('chat.greetingWithName', { name: user.name }) ||
-            `Chào ${user.name}! Tôi là trợ lý AI của DigitalWorld! 😊 Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?`
+          ? t('chat.greetingWithName', {
+              name: `${user.firstName} ${user.lastName}`,
+            }) ||
+            `Chào ${user.firstName} ${user.lastName}! Tôi là trợ lý AI của DigitalWorld! Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?`
           : t('chat.greeting') ||
-            'Chào bạn! Tôi là trợ lý AI của DigitalWorld! 😊 Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?';
+            'Chào bạn! Tôi là trợ lý AI của DigitalWorld! Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?';
 
       const greeting = {
         id: Date.now().toString(),
@@ -83,6 +81,7 @@ const ChatWidgetPortal: React.FC = () => {
 
   // Xử lý gửi tin nhắn
   const handleSendMessage = async (text: string) => {
+    // Nếu tin nhắn rỗng thì không gửi
     if (!text.trim()) return;
 
     // Thêm tin nhắn của người dùng
@@ -107,16 +106,17 @@ const ChatWidgetPortal: React.FC = () => {
     ]);
 
     try {
-      console.log('Sending message to AI:', text);
+      console.log('Đang gửi tin nhắn cho AI:', text);
 
       // Thêm timeout để tránh treo UI nếu API quá chậm
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), 10000);
       });
 
-      // Call API với timeout và xử lý lỗi
-      let response;
+      // Gọi API với timeout và xử lý lỗi
+      let response: any;
       try {
+        // Dùng Promise.race để nếu quá thời gian mà chưa có phản hồi thì ném lỗi timeout
         response = await Promise.race([
           sendChatbotMessage({
             message: text,
@@ -128,20 +128,23 @@ const ChatWidgetPortal: React.FC = () => {
               userAgent: navigator.userAgent,
               timestamp: new Date().toISOString(),
             },
-          }).unwrap(),
+          }).unwrap(), // Unwrap để lấy dữ liệu thực, ném lỗi khi có lỗi
           timeoutPromise,
         ]);
       } catch (innerError: any) {
-        console.error('Inner error during API call:', innerError);
+        console.error('Lỗi bên trong khi gọi API:', innerError);
         throw innerError;
       }
 
-      console.log('Received AI response:', response);
+      console.log('Đã nhận phản hồi từ AI:', response);
 
       // Xóa tin nhắn "đang nhập" và thêm phản hồi từ API
       if (response.status === 'success' && response.data) {
         setMessages((prev) => {
+          // Lọc bỏ tin nhắn "đang nhập" của AI
           const filtered = prev.filter((msg) => msg.id !== loadingId);
+
+          // Thêm phản hồi mới từ AI vào danh sách tin nhắn
           return [
             ...filtered,
             {
@@ -159,10 +162,11 @@ const ChatWidgetPortal: React.FC = () => {
           ];
         });
       } else {
+        // Nếu API trả về lỗi, ném lỗi để xử lý bên ngoài
         throw new Error(response.message || 'Lỗi không xác định');
       }
     } catch (error: any) {
-      console.error('Error generating AI response:', error);
+      console.error('Lỗi khi tạo phản hồi AI:', error);
 
       // Xác định thông báo lỗi phù hợp
       let errorMessage =
@@ -189,6 +193,7 @@ const ChatWidgetPortal: React.FC = () => {
       // Xóa tin nhắn "đang nhập" và thêm thông báo lỗi
       setMessages((prev) => {
         const filtered = prev.filter((msg) => msg.id !== loadingId);
+
         return [
           ...filtered,
           {
@@ -223,13 +228,11 @@ const ChatWidgetPortal: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 select-none">
-      {/* Chat toggle button - Thiết kế hiện đại hơn */}
       <button
         onClick={toggleChat}
         className="group relative bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 text-white rounded-full p-4 shadow-[0_8px_25px_rgba(59,130,246,0.35)] hover:shadow-[0_12px_30px_rgba(59,130,246,0.45)] transform hover:scale-110 transition-all duration-300 flex items-center justify-center ring-4 ring-primary-500/20 hover:ring-primary-500/40"
         aria-label={isOpen ? t('chat.closeChat') : t('chat.openChat')}
       >
-        {/* Pulse animation when closed - Hiệu ứng mượt mà hơn */}
         {!isOpen && (
           <>
             <div
@@ -243,7 +246,6 @@ const ChatWidgetPortal: React.FC = () => {
           </>
         )}
 
-        {/* AI Status indicator - Thiết kế đẹp hơn */}
         <div
           className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-white shadow-lg ${
             geminiService.isReady()
@@ -266,7 +268,6 @@ const ChatWidgetPortal: React.FC = () => {
         ) : (
           <div className="relative">
             <ChatIcon className="transform transition-transform duration-300 group-hover:scale-110" />
-            {/* Đã loại bỏ AI sparkle effect */}
           </div>
         )}
       </button>
@@ -274,18 +275,15 @@ const ChatWidgetPortal: React.FC = () => {
       {/* Chat widget */}
       {isOpen && (
         <>
-          {/* Overlay để ngăn chặn các sự kiện click bên ngoài */}
           <div
             className="fixed inset-0 bg-black/5 z-[9998]"
             onClick={(e) => {
-              // Chỉ đóng chat khi click trực tiếp vào overlay
               if (e.target === e.currentTarget) {
                 toggleChat();
               }
             }}
           />
 
-          {/* Container chatbot - Modern design với hiệu ứng glassmorphism */}
           <div
             ref={chatContainerRef}
             className="fixed inset-x-4 bottom-20 sm:absolute sm:bottom-20 sm:right-0 sm:inset-x-auto w-auto sm:w-96 md:max-w-md lg:max-w-lg xl:max-w-xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col border border-white/20 dark:border-neutral-700/30 transform animate-in slide-in-from-bottom-4 duration-500 max-h-[85vh] sm:max-h-[75vh] md:max-h-[70vh] chat-widget-active z-[9999] hover:shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-all"

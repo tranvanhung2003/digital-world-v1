@@ -11,7 +11,6 @@ export interface ChatResponse {
   suggestions?: string[];
 }
 
-// Simple intent detection
 function determineIntent(message: string): string {
   const lowerMessage = message.toLowerCase();
 

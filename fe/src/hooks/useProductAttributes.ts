@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { ProductAttribute } from '@/types/product';
 
+/**
+ * Custom hook để quản lý thuộc tính sản phẩm, bao gồm thêm, sửa, xóa và hiển thị modal.
+ */
 export const useProductAttributes = (
-  initialAttributes: ProductAttribute[] = []
+  initialAttributes: ProductAttribute[] = [],
 ) => {
   const [attributes, setAttributes] =
     useState<ProductAttribute[]>(initialAttributes);
@@ -10,30 +13,36 @@ export const useProductAttributes = (
   const [editingAttribute, setEditingAttribute] =
     useState<ProductAttribute | null>(null);
 
-  // Attribute handlers
   const handleAddAttribute = (attribute: ProductAttribute) => {
-    console.log('handleAddAttribute called with:', attribute);
+    console.log('handleAddAttribute được gọi với:', attribute);
 
     if (editingAttribute) {
       // Cập nhật thuộc tính đã tồn tại
       const updatedAttributes = attributes.map((attr) =>
         attr.id === editingAttribute.id
           ? { ...attribute, id: editingAttribute.id }
-          : attr
+          : attr,
       );
+
       console.log(
-        'Updating existing attribute. New attributes array:',
-        updatedAttributes
+        'Đang cập nhật thuộc tính đã tồn tại. Mảng thuộc tính mới:',
+        updatedAttributes,
       );
+
       setAttributes(updatedAttributes);
     } else {
       // Thêm thuộc tính mới
       const newId = `attr-${attributes.length}-${Math.random().toString(36).substring(2, 9)}`;
+
       const newAttributes = [
         ...attributes,
         { ...attribute, id: attribute.id || newId },
       ];
-      console.log('Adding new attribute. New attributes array:', newAttributes);
+      console.log(
+        'Đang thêm thuộc tính mới. Mảng thuộc tính mới:',
+        newAttributes,
+      );
+
       setAttributes(newAttributes);
     }
 

@@ -1,0 +1,31 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "fe/src/features/ai/services/chatApi.ts": true,
+    "fe/src/features/ai/services/promptTemplates.ts": true,
+    "fe/src/features/ai/hooks/useSpeechRecognition.ts": true,
+    "fe/src/features/ai/services/geminiService.ts": true,
+    "fe/src/features/ai/hooks/useChat.ts": true,
+    "fe/src/test-basic-form.tsx": true,
+    "fe/src/test-components.tsx": true,
+    "fe/src/features/ai/components/AIStatusIndicator.tsx": true,
+    "fe/src/features/ai/components/ChatActionButtons.tsx": true,
+    "fe/src/features/ai/hooks/useChatWidget.ts": true,
+    "fe/src/features/ai/hooks": true,
+    "fe/src/features/ai/components/ChatWidget.tsx": true,
+    "fe/src/features/ai/components/ChatEmptyState.tsx": true,
+    "fe/src/features/ai/components/ChatHeaderContent.tsx": true,
+    "fe/src/features/ai/components/ChatProductList.tsx": true,
+    "fe/src/features/ai/components/ChatProductCard.tsx": true,
+    "fe/src/features/ai/components/ChatQuickActions.tsx": true,
+    "fe/src/features/ai/components/ChatResizeIndicator.tsx": true,
+    "fe/src/features/ai/components/ChatSuggestions.tsx": true,
+    "fe/src/features/ai/components/ChatToggleButton.tsx": true,
+    "fe/src/features/ai/components/ChatWidgetSimple.tsx": true,
+    "fe/src/data": true
+  }
+}

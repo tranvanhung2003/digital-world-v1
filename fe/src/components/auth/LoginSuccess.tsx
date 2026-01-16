@@ -9,12 +9,14 @@ const LoginSuccess: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { user, isAuthenticated, justLoggedIn } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.auth,
   );
   const { showNotification } = useNotifications();
 
   useEffect(() => {
+    // Nếu người dùng vừa đăng nhập thành công, hiển thị thông báo chào mừng
     if (isAuthenticated && user && justLoggedIn) {
+      // Tạo tên người dùng để hiển thị trong thông báo
       const userName =
         user.firstName && user.lastName
           ? `${user.firstName} ${user.lastName}`
@@ -27,7 +29,7 @@ const LoginSuccess: React.FC = () => {
         duration: 5000,
       });
 
-      // Clear the justLoggedIn flag after showing notification
+      // Dispatch clearJustLoggedIn để tránh hiển thị lại thông báo
       dispatch(clearJustLoggedIn());
     }
   }, [isAuthenticated, user, justLoggedIn, showNotification, t, dispatch]);

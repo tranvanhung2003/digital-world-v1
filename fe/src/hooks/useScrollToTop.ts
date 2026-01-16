@@ -11,7 +11,7 @@ export const useScrollToTop = () => {
     // Scroll lên đầu trang mỗi khi pathname thay đổi
     window.scrollTo({
       top: 0,
-      behavior: 'smooth', // Thêm hiệu ứng smooth scroll
+      behavior: 'smooth', // Thêm hiệu ứng cuộn mượt
     });
   }, [pathname]);
 };

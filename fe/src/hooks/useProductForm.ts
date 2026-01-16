@@ -10,7 +10,7 @@ interface UseProductFormProps {
   onStepComplete?: (step: string, isComplete: boolean) => void;
   attributes?: any[];
   variants?: any[];
-  isEditMode?: boolean; // Thêm prop để phân biệt edit vs create
+  isEditMode?: boolean; // Prop để phân biệt giữa Create và Edit
 }
 
 export const useProductForm = ({
@@ -42,28 +42,35 @@ export const useProductForm = ({
             'shortDescription',
             'description',
           ];
+
           isStepValid = basicRequiredFields.every((field) => {
             const value = values[field];
+
             const isValid =
               value !== undefined &&
               value !== null &&
               value !== '' &&
               (typeof value === 'string' ? value.trim() !== '' : true);
+
             return isValid;
           });
           break;
+
         case 'specifications':
           // Specifications không bắt buộc, luôn valid
           isStepValid = true;
           break;
+
         case 'attributes':
           // Attributes không bắt buộc, luôn valid
           isStepValid = true;
           break;
+
         case 'variants':
           // Variants không bắt buộc, luôn valid
           isStepValid = true;
           break;
+
         case 'pricing':
           // Nếu có variants, stockQuantity có thể = 0 (vì variants sẽ có stock riêng)
           // Nếu không có variants, cần kiểm tra cả price và stockQuantity
@@ -72,6 +79,7 @@ export const useProductForm = ({
           if (hasVariants) {
             // Nếu có variants, chỉ cần stockQuantity được định nghĩa (có thể = 0)
             const stockValue = values['stockQuantity'];
+
             isStepValid =
               stockValue !== undefined &&
               stockValue !== null &&
@@ -97,25 +105,31 @@ export const useProductForm = ({
           }
 
           break;
+
         case 'category':
           const categoryValue = values['categoryIds'];
+
           isStepValid =
             categoryValue &&
             Array.isArray(categoryValue) &&
             categoryValue.length > 0;
           break;
+
         case 'images':
           // Images không bắt buộc
           isStepValid = true;
           break;
+
         case 'warranty':
           // Warranty không bắt buộc
           isStepValid = true;
           break;
+
         case 'faqs':
           // FAQs không bắt buộc
           isStepValid = true;
           break;
+
         case 'seo':
           // SEO không bắt buộc
           isStepValid = true;
@@ -149,7 +163,7 @@ export const useProductForm = ({
     // Validate step hiện tại
     const currentStepValid = validateStep(activeTab);
 
-    // Check if there are any validation errors
+    // Kiểm tra xem có lỗi validation nào không
     const hasErrors = errors.some(
       (error) => error.errors && error.errors.length > 0,
     );
@@ -158,6 +172,7 @@ export const useProductForm = ({
     const isValid = !hasErrors;
     setIsFormValid(isValid);
 
+    // Trả về trạng thái của step hiện tại
     return currentStepValid;
   };
 
@@ -174,7 +189,7 @@ export const useProductForm = ({
     }
   }, [initialValues, form]);
 
-  // Watch for form value changes to update validation
+  // Theo dõi toàn bộ giá trị form để cập nhật validation
   const watchFormValues = Form.useWatch([], form);
 
   // Sử dụng useRef để tránh vòng lặp vô hạn
@@ -182,24 +197,23 @@ export const useProductForm = ({
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Skip validation on first render to avoid unnecessary validation
+    // Bỏ qua bước xác thực khi render lần đầu để tránh xác thực không cần thiết
     if (isFirstRender.current) {
       isFirstRender.current = false;
+
       return;
     }
 
-    // Clear previous timeout to avoid multiple validations
+    // Xóa timeout trước đó để tránh nhiều lần validation liên tục
     if (validationTimeoutRef.current) {
       clearTimeout(validationTimeoutRef.current);
     }
 
-    // Use a local validation function instead of calling validateForm directly
-    // to avoid the dependency cycle
     const validateFormValues = () => {
       const values = form.getFieldsValue();
       const errors = form.getFieldsError();
 
-      // Check if all required fields are filled
+      // Kiểm tra các trường bắt buộc
       const requiredFields = [
         'name',
         'shortDescription',
@@ -207,30 +221,20 @@ export const useProductForm = ({
         'price',
         'stockQuantity',
         'categoryIds',
-        // Thêm thuộc tính và biến thể vào danh sách trường bắt buộc
-        // 'attributes',
-        // 'variants',
       ];
 
       const isFieldsFilled = requiredFields.every((field) => {
         const value = values[field];
+
         if (field === 'categoryIds') {
           return value && Array.isArray(value) && value.length > 0;
         }
+
         if (field === 'price' || field === 'stockQuantity') {
           return (
             value !== undefined && value !== null && value !== '' && value >= 0
           );
         }
-        // Kiểm tra thuộc tính và biến thể nếu cần
-        // if (field === 'attributes') {
-        //   // Kiểm tra xem có thuộc tính nào không
-        //   return value && Array.isArray(value) && value.length > 0;
-        // }
-        // if (field === 'variants') {
-        //   // Kiểm tra xem có biến thể nào không
-        //   return value && Array.isArray(value) && value.length > 0;
-        // }
         return (
           value !== undefined &&
           value !== null &&
@@ -239,11 +243,12 @@ export const useProductForm = ({
         );
       });
 
-      // Check if there are any validation errors
+      // Kiểm tra có lỗi validation nào không
       const hasErrors = errors.some(
         (error) => error.errors && error.errors.length > 0,
       );
 
+      // Set trạng thái form hợp lệ nếu các trường bắt buộc đã điền và không có lỗi
       const isValid = isFieldsFilled && !hasErrors;
       setIsFormValid(isValid);
     };
@@ -260,13 +265,14 @@ export const useProductForm = ({
     };
   }, [watchFormValues, form]);
 
-  // Validate form - this is now used for manual validation
-  // (e.g. when called from outside the hook)
+  /**
+   * Hàm xác thực form - có thể được sử dụng để xác thực thủ công
+   */
   const validateForm = () => {
     return performValidation();
   };
 
-  // Get missing required fields for display
+  // Lấy danh sách các trường bắt buộc mà người dùng chưa điền
   const getMissingFields = () => {
     const values = form.getFieldsValue();
 
@@ -281,8 +287,7 @@ export const useProductForm = ({
       variants: 'Biến thể sản phẩm',
     };
 
-    // Chỉ kiểm tra các trường form cơ bản, không kiểm tra attributes và variants
-    // vì chúng được quản lý trong state riêng biệt
+    // Kiểm tra các trường form cơ bản
     const requiredFields = [
       'name',
       'shortDescription',
@@ -297,49 +302,56 @@ export const useProductForm = ({
 
       if (field === 'categoryIds') {
         const isValid = value && Array.isArray(value) && value.length > 0;
+
         return !isValid;
       }
+
       if (field === 'price') {
         // Nếu có variants, price có thể = 0 hoặc undefined
         const hasVariants = variants.length > 0;
+
         if (hasVariants) {
-          return false; // Không yêu cầu price khi có variants
+          return false;
         }
+
         const isValid =
           value !== undefined &&
           value !== null &&
           value !== '' &&
           parseFloat(value.toString()) > 0;
+
         return !isValid;
       }
+
       if (field === 'stockQuantity') {
         const isValid =
           value !== undefined &&
           value !== null &&
           value !== '' &&
           parseInt(value.toString()) >= 0;
+
         return !isValid;
       }
+
+      // Các trường còn lại
       const isValid =
         value !== undefined &&
         value !== null &&
         value !== '' &&
         (typeof value === 'string' ? value.trim() !== '' : true);
+
       return !isValid;
     });
-
-    // Attributes và variants không bắt buộc nữa
-    // Bỏ qua kiểm tra attributes và variants
 
     return missingFields.map(
       (field) => fieldLabels[field as keyof typeof fieldLabels],
     );
   };
 
-  // Fill example data
+  // Điền dữ liệu mẫu
   const fillExampleData = () => {
     form.setFieldsValue({
-      name: 'iPhone 15 Pro Max 256GB',
+      name: 'iPhone 15 Pro Max',
       description:
         'iPhone 15 Pro Max với chip A17 Pro mạnh mẽ, camera 48MP và màn hình Super Retina XDR 6.7 inch sắc nét.',
       shortDescription: 'Flagship mới nhất từ Apple với hiệu năng vượt trội',
@@ -348,20 +360,20 @@ export const useProductForm = ({
       stockQuantity: 100,
       status: 'active',
       featured: true,
-      categoryIds: [], // Sẽ cần chọn category từ danh sách
+      categoryIds: [],
       seoTitle: 'iPhone 15 Pro Max 256GB - Chính hãng Apple',
       seoDescription:
-        'Mua iPhone 15 Pro Max 256GB chính hãng với giá tốt nhất. Bảo hành 12 tháng.',
+        'Mua iPhone 15 Pro Max chính hãng với giá tốt nhất. Bảo hành 12 tháng.',
       seoKeywords: 'iphone 15 pro max, apple, smartphone, điện thoại',
     });
 
-    // Trigger validation sau khi fill data
+    // Trigger validation sau khi điền dữ liệu mẫu
     setTimeout(() => {
       performValidation();
     }, 100);
   };
 
-  // Handle form submission
+  // Xử lý submit form
   const handleSubmit = async (values: ProductFormData) => {
     // Nếu đang ở chế độ chỉnh sửa (EditProductPage), cho phép submit mà không cần kiểm tra đầy đủ
     if (isEditMode) {
@@ -370,6 +382,7 @@ export const useProductForm = ({
       } catch (error: any) {
         message.error('Có lỗi xảy ra khi lưu sản phẩm. Vui lòng thử lại.');
       }
+
       return;
     }
 

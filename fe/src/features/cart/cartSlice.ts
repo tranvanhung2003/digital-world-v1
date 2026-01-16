@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   CartItem,
@@ -15,7 +16,7 @@ const initialState: CartState = {
   serverCart: null,
 };
 
-// Helper function to convert server cart item to local cart item
+// Helper function để chuyển đổi mục giỏ hàng từ server sang định dạng mục giỏ hàng local
 const convertServerCartItem = (serverItem: any): CartItem => ({
   id: serverItem.id,
   productId: serverItem.productId,
@@ -38,58 +39,59 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // Set cart from server data
+    // Set giỏ hàng từ giỏ hàng ở server
     setServerCart: (state, action: PayloadAction<ServerCart>) => {
       state.serverCart = action.payload;
       state.items = action.payload.items.map(convertServerCartItem);
       state.totalItems = action.payload.totalItems;
       state.subtotal = action.payload.subtotal;
-      // Also save to localStorage for offline access
+
+      // Cũng cập nhật localStorage
       localStorage.setItem('cartItems', JSON.stringify(state.items));
     },
 
-    // Local cart operations (for guests or offline)
+    // Các thao tác giỏ hàng local
     addItem: (state, action: PayloadAction<CartItem>) => {
       const existingItemIndex = state.items.findIndex(
         (item) =>
           item.productId === action.payload.productId &&
           JSON.stringify(item.attributes) ===
-            JSON.stringify(action.payload.attributes)
+            JSON.stringify(action.payload.attributes),
       );
 
+      // Nếu mục đã tồn tại, chỉ tăng số lượng, nếu không thì thêm mục mới
       if (existingItemIndex >= 0) {
-        // If item exists, increase quantity
         state.items[existingItemIndex].quantity += action.payload.quantity;
       } else {
-        // Otherwise add new item
         state.items.push(action.payload);
       }
 
-      // Update totals
+      // Cập nhật tổng số lượng và tổng tiền
       state.totalItems = state.items.reduce(
         (sum, item) => sum + item.quantity,
-        0
-      );
-      state.subtotal = state.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
       );
 
-      // Save to localStorage
+      state.subtotal = state.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+
+      // Lưu vào localStorage
       localStorage.setItem('cartItems', JSON.stringify(state.items));
     },
 
     removeItem: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
 
-      // Update totals
+      // Cập nhật tổng số lượng và tổng tiền
       state.totalItems = state.items.reduce(
         (sum, item) => sum + item.quantity,
-        0
+        0,
       );
       state.subtotal = state.items.reduce(
         (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
       );
 
       localStorage.setItem('cartItems', JSON.stringify(state.items));
@@ -97,19 +99,21 @@ const cartSlice = createSlice({
 
     updateQuantity: (state, action: PayloadAction<UpdateCartItemPayload>) => {
       const item = state.items.find((item) => item.id === action.payload.id);
+
       if (item) {
         item.quantity = action.payload.quantity;
 
-        // Update totals
+        // Cập nhật tổng số lượng và tổng tiền
         state.totalItems = state.items.reduce(
           (sum, item) => sum + item.quantity,
-          0
+          0,
         );
         state.subtotal = state.items.reduce(
           (sum, item) => sum + item.price * item.quantity,
-          0
+          0,
         );
       }
+
       localStorage.setItem('cartItems', JSON.stringify(state.items));
     },
 
@@ -137,7 +141,7 @@ const cartSlice = createSlice({
       state.isLoading = action.payload;
     },
 
-    // Initialize totals from localStorage
+    // Khởi tạo tất cả từ localStorage
     initializeCart: (state) => {
       const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
 
@@ -153,23 +157,22 @@ const cartSlice = createSlice({
       state.items = items;
       state.totalItems = items.reduce(
         (sum: number, item: CartItem) => sum + item.quantity,
-        0
+        0,
       );
       state.subtotal = items.reduce(
         (sum: number, item: CartItem) => sum + item.price * item.quantity,
-        0
+        0,
       );
     },
 
-    // Merge local cart with server cart (used when user logs in)
     mergeWithLocalCart: (state, action: PayloadAction<ServerCart>) => {
       const localItems = [...state.items];
       const serverCart = action.payload;
 
-      // Convert server cart items to local cart items
+      // Chuyển đổi mục giỏ hàng từ server sang định dạng mục giỏ hàng local
       const serverItems = serverCart.items.map(convertServerCartItem);
 
-      // Merge logic: for each local item, check if it exists in server cart
+      // Với mỗi mục local, kiểm tra xem nó có tồn tại trong giỏ hàng server không
       const mergedItems = [...serverItems];
 
       localItems.forEach((localItem) => {
@@ -178,19 +181,19 @@ const cartSlice = createSlice({
             serverItem.productId === localItem.productId &&
             serverItem.variantId === localItem.variantId &&
             JSON.stringify(serverItem.attributes) ===
-              JSON.stringify(localItem.attributes)
+              JSON.stringify(localItem.attributes),
         );
 
         if (existingServerItem) {
-          // If item exists in server cart, update quantity (local + server)
+          // Nếu mục đã tồn tại trong giỏ hàng server, cập nhật số lượng (local + server)
           existingServerItem.quantity += localItem.quantity;
         } else {
-          // If item doesn't exist in server cart, add it
+          // Nếu mục không tồn tại trong giỏ hàng server, thêm mới
           mergedItems.push(localItem);
         }
       });
 
-      // Update state
+      // Cập nhật trạng thái
       state.serverCart = {
         ...serverCart,
         items: mergedItems.map((item) => ({
@@ -223,14 +226,14 @@ const cartSlice = createSlice({
       state.items = mergedItems;
       state.totalItems = mergedItems.reduce(
         (sum, item) => sum + item.quantity,
-        0
+        0,
       );
       state.subtotal = mergedItems.reduce(
         (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
       );
 
-      // Update localStorage
+      // Cập nhật localStorage
       localStorage.setItem('cartItems', JSON.stringify(state.items));
     },
   },

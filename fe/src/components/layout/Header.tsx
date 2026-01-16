@@ -42,7 +42,7 @@ const Header: React.FC = () => {
 
   // Get UI state from Redux store
   const isMobileMenuOpen = useSelector(
-    (state: RootState) => state.ui.isMobileMenuOpen
+    (state: RootState) => state.ui.isMobileMenuOpen,
   );
   const isSearchOpen = useSelector((state: RootState) => state.ui.isSearchOpen);
 
@@ -55,7 +55,7 @@ const Header: React.FC = () => {
     refetchOnReconnect: false,
   });
   const localCartCount = useSelector(
-    (state: RootState) => state.cart?.totalItems || 0
+    (state: RootState) => state.cart?.totalItems || 0,
   );
 
   // Use server count for authenticated users, local count for guests
@@ -372,11 +372,11 @@ const Header: React.FC = () => {
                       ].slice(0, 5);
                       localStorage.setItem(
                         'recentSearches',
-                        JSON.stringify(updatedSearches)
+                        JSON.stringify(updatedSearches),
                       );
                       console.log(
                         'Mobile search - saved searches:',
-                        updatedSearches
+                        updatedSearches,
                       );
                     } catch (error) {
                       console.error('Error saving search term:', error);

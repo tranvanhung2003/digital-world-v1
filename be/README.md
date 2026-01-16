@@ -1,70 +1,3 @@
-# E-commerce Backend API
-
-Backend API cho website bán hàng, được xây dựng bằng Node.js, Express và Sequelize.
-
-## Tính năng
-
-- Xác thực người dùng (đăng ký, đăng nhập, quên mật khẩu)
-- Quản lý sản phẩm và danh mục
-- Giỏ hàng và thanh toán
-- Quản lý đơn hàng
-- Đánh giá sản phẩm
-- Danh sách yêu thích
-- Quản lý địa chỉ người dùng
-
-## Yêu cầu
-
-- Node.js (v16+)
-- PostgreSQL
-- Redis (tùy chọn)
-
-## Cài đặt
-
-1. Clone repository:
-
-```bash
-git clone <repository-url>
-cd backend
-```
-
-2. Cài đặt các dependencies:
-
-```bash
-npm install
-```
-
-3. Tạo file .env từ file .env.example và cấu hình các biến môi trường:
-
-```bash
-cp .env.example .env
-```
-
-4. Tạo database và chạy migrations:
-
-```bash
-npm run db:migrate
-```
-
-5. (Tùy chọn) Chạy seeders để tạo dữ liệu mẫu:
-
-```bash
-npm run db:seed
-```
-
-## Chạy ứng dụng
-
-### Development mode:
-
-```bash
-npm run dev
-```
-
-### Production mode:
-
-```bash
-npm start
-```
-
 ## API Endpoints
 
 ### Admin
@@ -265,7 +198,3 @@ src/
 ├── app.js              # Express app
 └── server.js           # Entry point
 ```
-
-## License
-
-ISC

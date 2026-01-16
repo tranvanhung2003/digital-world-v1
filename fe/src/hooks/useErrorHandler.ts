@@ -3,22 +3,22 @@ import { handleUnauthorizedError, getErrorMessage } from '@/utils/authUtils';
 import { toast } from '@/utils/toast';
 
 /**
- * Custom hook for handling API errors consistently across the application
+ * Custom hook để xử lý lỗi API một cách nhất quán trên toàn ứng dụng
  */
 export const useErrorHandler = () => {
   const handleError = useCallback((error: any, showToast: boolean = true) => {
-    // Handle 401 errors with auto logout
+    // Xử lý lỗi 401 với đăng xuất tự động
     if (handleUnauthorizedError(error)) {
-      return; // Auto logout handled, no need to show additional toast
+      return;
     }
 
-    // Handle other errors
+    // Xử lý các lỗi khác
     if (showToast) {
       const errorMessage = getErrorMessage(error);
       toast.error(errorMessage);
     }
 
-    // Log error for debugging
+    // Ghi log lỗi để debug
     console.error('API Error:', error);
   }, []);
 

@@ -26,44 +26,38 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const dispatch = useDispatch();
   const filters = useSelector((state: RootState) => state.products.filters);
 
-  // Local state for price range
   const [priceRange, setPriceRangeLocal] = useState<[number, number]>(
-    filters.priceRange
+    filters.priceRange,
   );
 
-  // Local state for selected categories
   const [selectedCategories, setSelectedCategoriesLocal] = useState<string[]>(
-    filters.categories
+    filters.categories,
   );
 
-  // Local state for selected attributes
   const [selectedAttributes, setSelectedAttributesLocal] = useState<
     Record<string, string[]>
   >(filters.attributes);
 
-  // Handle price range change
   const handlePriceChange = (index: 0 | 1, value: number) => {
     const newRange = [...priceRange] as [number, number];
     newRange[index] = value;
     setPriceRangeLocal(newRange);
   };
 
-  // Handle category selection
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
     if (checked) {
       setSelectedCategoriesLocal([...selectedCategories, categoryId]);
     } else {
       setSelectedCategoriesLocal(
-        selectedCategories.filter((id) => id !== categoryId)
+        selectedCategories.filter((id) => id !== categoryId),
       );
     }
   };
 
-  // Handle attribute selection
   const handleAttributeChange = (
     name: string,
     value: string,
-    checked: boolean
+    checked: boolean,
   ) => {
     const currentValues = selectedAttributes[name] || [];
 
@@ -103,7 +97,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     }
   };
 
-  // Format price for display
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',

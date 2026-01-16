@@ -1,8 +1,7 @@
-// Simple Progressive Product Naming Service
 export interface NameTemplate {
   baseName: string;
   selectedAttributes: Record<string, string>;
-  attributePriority?: string[]; // Thứ tự ưu tiên trong tên
+  attributePriority?: string[];
   separator?: string;
 }
 
@@ -14,13 +13,10 @@ export interface SimpleNamingResponse {
 }
 
 class SimpleNamingService {
-  // Default attribute priority for naming
   private defaultPriority = ['CPU', 'GPU', 'RAM', 'Storage', 'Color', 'Size'];
 
-  // Attribute name mapping to short names
   private nameTemplates: Record<string, Record<string, string>> = {
     CPU: {
-      // Full CPU names
       'Intel Core i3-13100': 'i3',
       'Intel Core i5-13500H': 'i5',
       'Intel Core i7-13700H': 'i7',
@@ -28,7 +24,6 @@ class SimpleNamingService {
       'AMD Ryzen 5 7600U': 'R5',
       'AMD Ryzen 7 7800U': 'R7',
       'AMD Ryzen 9 7900U': 'R9',
-      // Short CPU codes (exact API values)
       i3: 'i3',
       i5: 'i5',
       i7: 'i7',
@@ -36,7 +31,7 @@ class SimpleNamingService {
       i9: 'i9',
     },
     GPU: {
-      'Integrated Graphics': '', // Don't add to name
+      'Integrated Graphics': '',
       'NVIDIA RTX 4050': 'RTX4050',
       'NVIDIA RTX 4060': 'RTX4060',
       'NVIDIA RTX 4070': 'RTX4070',
@@ -62,8 +57,8 @@ class SimpleNamingService {
   };
 
   /**
-   * Generate product name progressively - Simple approach
-   * Just append selected attribute values to the base name
+   * Tạo tên sản phẩm theo cách đơn giản
+   * Chỉ cần nối các giá trị thuộc tính đã chọn vào tên gốc
    */
   generateName(config: NameTemplate): SimpleNamingResponse {
     const { baseName, selectedAttributes, separator = ' ' } = config;
@@ -71,7 +66,7 @@ class SimpleNamingService {
     const addedParts: string[] = [];
     const nameParts = [baseName];
 
-    // Simply append all selected attribute values
+    // Chỉ cần nối tất cả giá trị thuộc tính đã chọn
     Object.entries(selectedAttributes).forEach(([attrName, attrValue]) => {
       if (attrValue && attrValue.trim() !== '') {
         nameParts.push(attrValue);
@@ -90,21 +85,21 @@ class SimpleNamingService {
   }
 
   /**
-   * Add new attribute to existing name
+   * Thêm thuộc tính mới vào tên hiện tại
    */
   addAttribute(
     currentName: string,
     baseName: string,
     newAttribute: { type: string; value: string },
-    selectedAttributes: Record<string, string>
+    selectedAttributes: Record<string, string>,
   ): SimpleNamingResponse {
-    // Update selected attributes
+    // Cập nhật các thuộc tính đã chọn
     const updatedAttributes = {
       ...selectedAttributes,
       [newAttribute.type]: newAttribute.value,
     };
 
-    // Regenerate full name to maintain priority order
+    // Tạo lại tên đầy đủ để duy trì thứ tự ưu tiên
     return this.generateName({
       baseName,
       selectedAttributes: updatedAttributes,
@@ -112,19 +107,19 @@ class SimpleNamingService {
   }
 
   /**
-   * Remove attribute from name
+   * Xóa thuộc tính khỏi tên hiện tại
    */
   removeAttribute(
     currentName: string,
     baseName: string,
     attributeType: string,
-    selectedAttributes: Record<string, string>
+    selectedAttributes: Record<string, string>,
   ): SimpleNamingResponse {
-    // Remove attribute from selection
+    // Xóa thuộc tính khỏi lựa chọn
     const updatedAttributes = { ...selectedAttributes };
     delete updatedAttributes[attributeType];
 
-    // Regenerate name
+    // Tạo lại tên đầy đủ để duy trì thứ tự ưu tiên
     return this.generateName({
       baseName,
       selectedAttributes: updatedAttributes,
@@ -132,18 +127,18 @@ class SimpleNamingService {
   }
 
   /**
-   * Get available name templates for attribute type
+   * Lấy các mẫu tên có sẵn cho loại thuộc tính
    */
   getNameTemplates(attributeType: string): Record<string, string> {
     return this.nameTemplates[attributeType] || {};
   }
 
   /**
-   * Register new name template
+   * Đăng ký mẫu tên mới
    */
   registerNameTemplate(
     attributeType: string,
-    valueToNameMap: Record<string, string>
+    valueToNameMap: Record<string, string>,
   ) {
     this.nameTemplates[attributeType] = {
       ...this.nameTemplates[attributeType],
@@ -152,11 +147,11 @@ class SimpleNamingService {
   }
 
   /**
-   * Preview name without updating state
+   * Xem trước tên mà không cần cập nhật trạng thái
    */
   previewName(
     baseName: string,
-    potentialAttributes: Record<string, string>
+    potentialAttributes: Record<string, string>,
   ): string {
     const result = this.generateName({
       baseName,

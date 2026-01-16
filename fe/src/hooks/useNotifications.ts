@@ -6,6 +6,7 @@ import {
 } from '@/features/ui/uiSlice';
 import { AddNotificationPayload } from '@/types/ui.types';
 
+// Hook để quản lý thông báo trong ứng dụng
 export const useNotifications = () => {
   const dispatch = useDispatch();
 

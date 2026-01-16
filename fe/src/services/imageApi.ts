@@ -65,7 +65,7 @@ export interface ConvertBase64Options {
 
 export const imageApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Upload single image
+    // Tải lên một ảnh
     uploadImage: builder.mutation<
       ImageResponse,
       { file: File; options?: UploadImageOptions }
@@ -93,7 +93,7 @@ export const imageApi = api.injectEndpoints({
       invalidatesTags: ['Images'],
     }),
 
-    // Upload multiple images
+    // Tải lên nhiều ảnh
     uploadMultipleImages: builder.mutation<
       MultipleImageResponse,
       { files: File[]; options?: UploadImageOptions }
@@ -123,7 +123,7 @@ export const imageApi = api.injectEndpoints({
       invalidatesTags: ['Images'],
     }),
 
-    // Get image by ID
+    // Lấy ảnh theo ID
     getImageById: builder.query<ImageResponse, string>({
       query: (id) => ({
         url: `/images/${id}`,
@@ -132,7 +132,7 @@ export const imageApi = api.injectEndpoints({
       providesTags: ['Images'],
     }),
 
-    // Get images by product ID
+    // Lấy tất cả ảnh liên quan đến một sản phẩm
     getImagesByProductId: builder.query<ProductImagesResponse, string>({
       query: (productId) => ({
         url: `/images/product/${productId}`,
@@ -141,7 +141,7 @@ export const imageApi = api.injectEndpoints({
       providesTags: ['Images'],
     }),
 
-    // Delete image
+    // Xóa một ảnh theo ID
     deleteImage: builder.mutation<{ status: string; message: string }, string>({
       query: (id) => ({
         url: `/images/${id}`,
@@ -150,7 +150,7 @@ export const imageApi = api.injectEndpoints({
       invalidatesTags: ['Images'],
     }),
 
-    // Convert base64 to image file
+    // Chuyển đổi dữ liệu ảnh từ base64 thành file
     convertBase64ToImage: builder.mutation<
       ImageResponse,
       { base64Data: string; options?: ConvertBase64Options }
@@ -167,7 +167,7 @@ export const imageApi = api.injectEndpoints({
       invalidatesTags: ['Images'],
     }),
 
-    // Health check
+    // Health check cho image service
     imageHealthCheck: builder.query<
       { status: string; message: string; data: any },
       void
@@ -178,7 +178,7 @@ export const imageApi = api.injectEndpoints({
       }),
     }),
 
-    // Admin cleanup (admin only)
+    // Xóa các file ảnh không liên kết trong hệ thống (orphaned files)
     cleanupOrphanedFiles: builder.mutation<
       {
         status: string;

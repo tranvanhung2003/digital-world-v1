@@ -38,12 +38,12 @@ export const RESIZE_HANDLE_CLASSES = {
 
 export const GREETING_MESSAGE = {
   id: 'greeting',
-  text: 'Chào bạn! Tôi là trợ lý AI của DigitalWorld! 😊 Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?',
+  text: 'Chào bạn! Tôi là trợ lý AI của DigitalWorld! Tôi có thể giúp bạn tìm sản phẩm, xem khuyến mãi và hỗ trợ mua hàng. Bạn cần gì nhỉ?',
   sender: 'ai' as const,
   suggestions: [
-    'Tìm sản phẩm hot 🔥',
-    'Xem khuyến mãi 🎉',
-    'Sản phẩm bán chạy ⭐',
-    'Hỗ trợ mua hàng 💬',
+    'Tìm sản phẩm hot',
+    'Xem khuyến mãi',
+    'Sản phẩm bán chạy',
+    'Hỗ trợ mua hàng',
   ],
 } as const;

@@ -1,17 +1,26 @@
 import { api } from './api';
-import { News, NewsFilters, NewsResponse, SingleNewsResponse } from '@/types/news.types';
+import {
+  News,
+  NewsFilters,
+  NewsResponse,
+  SingleNewsResponse,
+} from '@/types/news.types';
 
 export const newsApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Lấy tất cả tin tức với phân trang và lọc
     getNews: builder.query<NewsResponse, NewsFilters | void>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params) {
           if (params.page) queryParams.append('page', params.page.toString());
-          if (params.limit) queryParams.append('limit', params.limit.toString());
+          if (params.limit)
+            queryParams.append('limit', params.limit.toString());
           if (params.search) queryParams.append('search', params.search);
-          if (params.isPublished !== undefined) queryParams.append('isPublished', params.isPublished.toString());
-          if (params.category && params.category !== 'Tất cả') queryParams.append('category', params.category);
+          if (params.isPublished !== undefined)
+            queryParams.append('isPublished', params.isPublished.toString());
+          if (params.category && params.category !== 'Tất cả')
+            queryParams.append('category', params.category);
         }
 
         return {
@@ -22,21 +31,25 @@ export const newsApi = api.injectEndpoints({
       providesTags: ['News'],
     }),
 
+    // Lấy tin tức theo ID
     getNewsById: builder.query<SingleNewsResponse, string>({
       query: (id) => `/news/${id}`,
       providesTags: (result, error, id) => [{ type: 'News', id }],
     }),
 
+    // Lấy tin tức theo slug
     getNewsBySlug: builder.query<SingleNewsResponse, string>({
       query: (slug) => `/news/slug/${slug}`,
       providesTags: (result, error, slug) => [{ type: 'News', id: slug }],
     }),
 
+    // Lấy tin tức liên quan
     getRelatedNews: builder.query<NewsResponse, string>({
       query: (slug) => `/news/slug/${slug}/related`,
       providesTags: ['News'],
     }),
 
+    // Tạo tin tức mới
     createNews: builder.mutation<any, any>({
       query: (data) => ({
         url: '/news',
@@ -46,15 +59,20 @@ export const newsApi = api.injectEndpoints({
       invalidatesTags: ['News'],
     }),
 
+    // Cập nhật tin tức
     updateNews: builder.mutation<any, { id: string; data: any }>({
       query: ({ id, data }) => ({
         url: `/news/${id}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => ['News', { type: 'News', id }],
+      invalidatesTags: (result, error, { id }) => [
+        'News',
+        { type: 'News', id },
+      ],
     }),
 
+    // Xóa tin tức
     deleteNews: builder.mutation<any, string>({
       query: (id) => ({
         url: `/news/${id}`,

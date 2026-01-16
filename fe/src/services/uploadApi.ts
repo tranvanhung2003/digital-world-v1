@@ -28,9 +28,9 @@ export interface MultipleUploadResponse {
   };
 }
 
-// Sử dụng api.injectEndpoints để thêm các endpoints vào API service chính
 export const uploadApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Tải lên một file
     uploadSingle: builder.mutation<
       UploadResponse,
       { type: string; file: File }
@@ -46,6 +46,7 @@ export const uploadApi = api.injectEndpoints({
       },
     }),
 
+    // Tải lên nhiều file
     uploadMultiple: builder.mutation<
       MultipleUploadResponse,
       { type: string; files: File[] }
@@ -63,6 +64,7 @@ export const uploadApi = api.injectEndpoints({
       },
     }),
 
+    // Xóa file
     deleteFile: builder.mutation<
       { status: string; message: string },
       { type: string; filename: string }

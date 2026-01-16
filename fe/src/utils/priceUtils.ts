@@ -12,7 +12,7 @@ export interface PriceInfo {
  */
 export const calculatePriceRange = (
   basePrice: number,
-  variants?: ProductVariant[]
+  variants?: ProductVariant[],
 ): PriceInfo => {
   if (variants && variants.length > 0) {
     const prices = variants.map((variant) => variant.price);
@@ -53,7 +53,7 @@ export const formatCurrency = (amount: number): string => {
  */
 export const calculateDiscountPercentage = (
   originalPrice: number,
-  salePrice: number
+  salePrice: number,
 ): number => {
   if (originalPrice <= salePrice) return 0;
   return Math.round(((originalPrice - salePrice) / originalPrice) * 100);

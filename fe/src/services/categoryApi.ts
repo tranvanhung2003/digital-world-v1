@@ -21,26 +21,31 @@ export interface UpdateCategoryRequest extends CreateCategoryRequest {
 
 export const categoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Lấy tất cả danh mục
     getAllCategories: builder.query<CategoryResponse, void>({
       query: () => '/categories',
       providesTags: ['Category'],
     }),
 
+    // Lấy cây danh mục
     getCategoryTree: builder.query<CategoryResponse, void>({
       query: () => '/categories/tree',
       providesTags: ['Category'],
     }),
 
+    // Lấy danh mục theo ID
     getCategoryById: builder.query<CategoryResponse, string>({
       query: (id) => `/categories/${id}`,
       providesTags: (_, __, id) => [{ type: 'Category', id }],
     }),
 
+    // Lấy danh mục theo slug
     getCategoryBySlug: builder.query<CategoryResponse, string>({
       query: (slug) => `/categories/slug/${slug}`,
       providesTags: (_, __, slug) => [{ type: 'Category', id: slug }],
     }),
 
+    // Tạo danh mục mới
     createCategory: builder.mutation<CategoryResponse, CreateCategoryRequest>({
       query: (category) => ({
         url: '/categories',
@@ -50,6 +55,7 @@ export const categoryApi = api.injectEndpoints({
       invalidatesTags: ['Category'],
     }),
 
+    // Cập nhật danh mục
     updateCategory: builder.mutation<CategoryResponse, UpdateCategoryRequest>({
       query: ({ id, ...category }) => ({
         url: `/categories/${id}`,
@@ -62,6 +68,7 @@ export const categoryApi = api.injectEndpoints({
       ],
     }),
 
+    // Xóa danh mục
     deleteCategory: builder.mutation<
       { status: string; message: string },
       string
@@ -73,6 +80,7 @@ export const categoryApi = api.injectEndpoints({
       invalidatesTags: ['Category'],
     }),
 
+    // Lấy sản phẩm theo danh mục
     getProductsByCategory: builder.query<
       any,
       {
@@ -96,12 +104,13 @@ export const categoryApi = api.injectEndpoints({
       ],
     }),
 
+    // Lấy các danh mục nổi bật
     getFeaturedCategories: builder.query<CategoryResponse, void>({
       query: () => '/categories/featured',
       providesTags: ['Category'],
     }),
 
-    // Giữ lại các endpoint cũ để tương thích với code hiện tại
+    // Lấy tất cả danh mục (dạng mảng)
     getCategories: builder.query<Category[], void>({
       query: () => '/categories',
       transformResponse: (response: CategoryResponse) => {
@@ -122,7 +131,6 @@ export const {
   useDeleteCategoryMutation,
   useGetProductsByCategoryQuery,
   useGetFeaturedCategoriesQuery,
-  // Giữ lại các hooks cũ để tương thích với code hiện tại
   useGetCategoriesQuery,
 } = categoryApi;
 

@@ -68,21 +68,23 @@ export interface CartCountResponse {
   };
 }
 
-// Sử dụng api.injectEndpoints để thêm các endpoints vào API service chính
 export const cartApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // Lấy giỏ hàng
     getCart: builder.query<BackendCart, void>({
       query: () => '/cart',
       transformResponse: (response: CartResponse) => response.data,
       providesTags: ['Cart'],
     }),
 
+    // Lấy số lượng sản phẩm trong giỏ hàng
     getCartCount: builder.query<number, void>({
       query: () => '/cart/count',
       transformResponse: (response: CartCountResponse) => response.data.count,
       providesTags: ['CartCount'],
     }),
 
+    // Thêm sản phẩm vào giỏ hàng
     addToCart: builder.mutation<BackendCart, AddToCartRequest>({
       query: (data) => ({
         url: '/cart',
@@ -93,6 +95,7 @@ export const cartApi = api.injectEndpoints({
       invalidatesTags: ['Cart', 'CartCount'],
     }),
 
+    // Cập nhật số lượng sản phẩm
     updateCartItem: builder.mutation<
       BackendCart,
       { id: string; data: UpdateCartItemRequest }
@@ -106,6 +109,7 @@ export const cartApi = api.injectEndpoints({
       invalidatesTags: ['Cart', 'CartCount'],
     }),
 
+    // Xóa sản phẩm khỏi giỏ hàng
     removeCartItem: builder.mutation<BackendCart, string>({
       query: (id) => ({
         url: `/cart/items/${id}`,
@@ -115,6 +119,7 @@ export const cartApi = api.injectEndpoints({
       invalidatesTags: ['Cart', 'CartCount'],
     }),
 
+    // Xóa tất cả sản phẩm trong giỏ hàng
     clearCart: builder.mutation<BackendCart, void>({
       query: () => ({
         url: '/cart',
@@ -124,6 +129,7 @@ export const cartApi = api.injectEndpoints({
       invalidatesTags: ['Cart', 'CartCount'],
     }),
 
+    // Sync giỏ hàng từ local storage lên server
     syncCart: builder.mutation<BackendCart, SyncCartRequest>({
       query: (data) => ({
         url: '/cart/sync',
@@ -134,6 +140,7 @@ export const cartApi = api.injectEndpoints({
       invalidatesTags: ['Cart', 'CartCount'],
     }),
 
+    // Gộp giỏ hàng của guest vào giỏ hàng người dùng (khi người dùng đăng nhập)
     mergeCart: builder.mutation<BackendCart, void>({
       query: () => ({
         url: '/cart/merge',

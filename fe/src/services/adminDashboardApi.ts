@@ -74,7 +74,7 @@ export interface DetailedStatsResponse {
 
 export const adminDashboardApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Get dashboard stats
+    // Thống kê tổng quan
     getDashboardStats: builder.query<DashboardResponse, void>({
       query: () => ({
         url: '/admin/dashboard',
@@ -83,7 +83,7 @@ export const adminDashboardApi = api.injectEndpoints({
       providesTags: ['AdminDashboard'],
     }),
 
-    // Get detailed stats
+    // Thống kê chi tiết trong khoảng thời gian
     getDetailedStats: builder.query<DetailedStatsResponse, DetailedStatsQuery>({
       query: (params) => ({
         url: '/admin/stats',

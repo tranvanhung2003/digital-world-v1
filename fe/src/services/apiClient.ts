@@ -5,7 +5,7 @@ import { handleUnauthorizedError } from '@/utils/authUtils';
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || 'http://localhost:8888/api';
 
-// Create axios instance
+// Tạo axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -14,36 +14,38 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor để thêm token vào header
 apiClient.interceptors.request.use(
   (config) => {
     const token = getValidToken();
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
-// Response interceptor to handle errors
+// Response interceptor để xử lý lỗi toàn cục
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    // Log error in development
+    // Log error ở development
     if (import.meta.env.DEV) {
-      console.group('🚨 API Client Error');
+      console.group('API Client Error');
       console.log('URL:', error.config?.url);
       console.log('Status:', error.response?.status);
       console.log('Data:', error.response?.data);
       console.groupEnd();
     }
 
-    // Handle 401 errors
+    // Xử lý lỗi 401
     if (error.response?.status === 401) {
       handleUnauthorizedError({
         status: 401,
@@ -52,7 +54,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

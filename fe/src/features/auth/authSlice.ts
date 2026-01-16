@@ -2,12 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types/user.types';
 import { AuthState, AuthResponse } from '@/types/auth.types';
 
-// Safely get tokens from localStorage
 const getStoredToken = (): string | null => {
   try {
     return localStorage.getItem('token');
   } catch (error) {
-    console.warn('Failed to access localStorage:', error);
+    console.warn('Truy cập localStorage thất bại:', error);
     return null;
   }
 };
@@ -16,7 +15,7 @@ const getStoredRefreshToken = (): string | null => {
   try {
     return localStorage.getItem('refreshToken');
   } catch (error) {
-    console.warn('Failed to access localStorage:', error);
+    console.warn('Truy cập localStorage thất bại:', error);
     return null;
   }
 };
@@ -26,7 +25,7 @@ const getStoredUser = (): User | null => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   } catch (error) {
-    console.warn('Failed to access localStorage:', error);
+    console.warn('Truy cập localStorage thất bại:', error);
     return null;
   }
 };
@@ -73,7 +72,7 @@ const authSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      localStorage.removeItem('cartItems'); // Clear cart items when logging out
+      localStorage.removeItem('cartItems');
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
@@ -85,7 +84,7 @@ const authSlice = createSlice({
     },
     updateTokens: (
       state,
-      action: PayloadAction<{ token: string; refreshToken: string }>
+      action: PayloadAction<{ token: string; refreshToken: string }>,
     ) => {
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;

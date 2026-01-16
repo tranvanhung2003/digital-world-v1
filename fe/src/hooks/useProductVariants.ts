@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 
 export const useProductVariants = (
   initialVariants: ProductVariant[] = [],
-  form?: any
+  form?: any,
 ) => {
   const [variants, setVariants] = useState<ProductVariant[]>(initialVariants);
   const [variantModalVisible, setVariantModalVisible] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(
-    null
+    null,
   );
 
   // Tự động cập nhật tổng số lượng tồn kho và giá trung bình khi variants thay đổi
@@ -17,6 +17,7 @@ export const useProductVariants = (
       // Tính tổng số lượng tồn kho từ tất cả các biến thể
       const totalStock = variants.reduce((total, variant) => {
         const stock = parseInt(variant.stock?.toString() || '0');
+
         return total + (isNaN(stock) ? 0 : stock);
       }, 0);
 
@@ -26,10 +27,12 @@ export const useProductVariants = (
 
       variants.forEach((variant) => {
         const stock = parseInt(variant.stock?.toString() || '0');
+
         const price = Math.min(
           parseFloat(variant.price?.toString() || '0'),
-          99999999.99
+          99999999.99,
         );
+
         if (stock > 0 && price > 0) {
           weightedPriceSum += price * stock;
           totalWeightedStock += stock;
@@ -50,16 +53,18 @@ export const useProductVariants = (
     }
   }, [variants, form]);
 
-  // Variant handlers
   const handleAddVariant = (variant: ProductVariant) => {
     if (editingVariant) {
+      // Trường hợp chỉnh sửa biến thể
       setVariants(
         variants.map((v) =>
-          v.id === editingVariant.id ? { ...variant, id: editingVariant.id } : v
-        )
+          v.id === editingVariant.id
+            ? { ...variant, id: editingVariant.id }
+            : v,
+        ),
       );
     } else {
-      // Sử dụng một ID ổn định hơn, không phụ thuộc vào thời gian
+      // Trường hợp thêm biến thể mới
       const newId = `var-${variants.length}-${Math.random().toString(36).substring(2, 9)}`;
       setVariants([...variants, { ...variant, id: variant.id || newId }]);
     }

@@ -110,7 +110,7 @@ export interface CreateOrderResponse {
 
 export const orderApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    // Get user orders with pagination
+    // Lấy danh sách đơn hàng của người dùng
     getUserOrders: builder.query<
       OrdersResponse,
       { page?: number; limit?: number }
@@ -132,7 +132,7 @@ export const orderApi = api.injectEndpoints({
           : [{ type: 'Order', id: 'LIST' }],
     }),
 
-    // Get order by ID
+    // Lấy chi tiết đơn hàng theo ID
     getOrderById: builder.query<{ status: string; data: Order }, string>({
       query: (id) => ({
         url: `/orders/${id}`,
@@ -141,7 +141,7 @@ export const orderApi = api.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Order', id }],
     }),
 
-    // Get order by number
+    // Lấy chi tiết đơn hàng theo số đơn hàng
     getOrderByNumber: builder.query<{ status: string; data: Order }, string>({
       query: (number) => ({
         url: `/orders/number/${number}`,
@@ -150,7 +150,7 @@ export const orderApi = api.injectEndpoints({
       providesTags: (result, error, number) => [{ type: 'Order', id: number }],
     }),
 
-    // Create order
+    // Tạo đơn hàng mới
     createOrder: builder.mutation<CreateOrderResponse, CreateOrderRequest>({
       query: (orderData) => ({
         url: '/orders',
@@ -163,7 +163,7 @@ export const orderApi = api.injectEndpoints({
       ],
     }),
 
-    // Cancel order
+    // Hủy đơn hàng
     cancelOrder: builder.mutation<
       { status: string; message: string; data: any },
       string
@@ -178,7 +178,7 @@ export const orderApi = api.injectEndpoints({
       ],
     }),
 
-    // Repay order
+    // Thanh toán lại đơn hàng
     repayOrder: builder.mutation<
       { status: string; message: string; data: any },
       string

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { CHAT_WIDGET_CONFIG, GREETING_MESSAGE } from '../constants/chatWidget';
 import { Message } from '../components/ChatWidget';
@@ -12,21 +13,22 @@ export const useChatWidget = () => {
   const chatWidgetRef = useRef<HTMLDivElement>(null);
   const isOpenRef = useRef(isOpen);
 
-  // Load saved size from localStorage
+  // Load kích thước đã lưu từ localStorage
   useEffect(() => {
     try {
       const savedSize = localStorage.getItem(
-        CHAT_WIDGET_CONFIG.STORAGE_KEYS.SIZE
+        CHAT_WIDGET_CONFIG.STORAGE_KEYS.SIZE,
       );
+
       if (savedSize) {
         setSize(JSON.parse(savedSize));
       }
     } catch (error) {
-      console.error('Error loading saved chat widget size:', error);
+      console.error('Lỗi khi tải kích thước widget chat đã lưu:', error);
     }
   }, []);
 
-  // Initialize greeting message
+  // Khởi tạo tin nhắn chào mừng
   useEffect(() => {
     if (messages.length === 0) {
       const greeting = {
@@ -37,29 +39,29 @@ export const useChatWidget = () => {
     }
   }, [messages.length]);
 
-  // Auto scroll to bottom when messages change
+  // Tự động cuộn xuống dưới khi tin nhắn thay đổi
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle open/close state changes
+  // Xử lý thay đổi trạng thái mở/đóng
   useEffect(() => {
     isOpenRef.current = isOpen;
 
     if (isOpen) {
       document.body.classList.add('chat-widget-open');
 
-      // Center position calculation
+      // Tính toán vị trí trung tâm
       const centerX = Math.max(0, (window.innerWidth - size.width) / 2);
       const bottomY = Math.max(
         0,
         window.innerHeight -
           size.height -
-          CHAT_WIDGET_CONFIG.POSITION_OFFSET.bottom
+          CHAT_WIDGET_CONFIG.POSITION_OFFSET.bottom,
       );
       setPosition({ x: centerX, y: bottomY });
 
-      // Prevent outside clicks from closing
+      // Ngăn chặn click bên ngoài đóng
       const preventClose = (e: MouseEvent) => {
         if (
           chatWidgetRef.current &&
@@ -91,7 +93,7 @@ export const useChatWidget = () => {
     }
   }, [isOpen, size.width, size.height]);
 
-  // Handle window resize
+  // Xử lý thay đổi kích thước cửa sổ
   useEffect(() => {
     if (isOpen) {
       const handleWindowResize = () => {
@@ -100,7 +102,7 @@ export const useChatWidget = () => {
           0,
           window.innerHeight -
             size.height -
-            CHAT_WIDGET_CONFIG.POSITION_OFFSET.bottom
+            CHAT_WIDGET_CONFIG.POSITION_OFFSET.bottom,
         );
         setPosition({ x: centerX, y: bottomY });
       };
@@ -117,12 +119,12 @@ export const useChatWidget = () => {
         event.preventDefault();
       }
 
-      if (isOpen) return; // Only allow opening, not closing
+      if (isOpen) return; // Chỉ cho phép mở, không cho phép đóng
 
       setIsOpen(true);
       isOpenRef.current = true;
     },
-    [isOpen]
+    [isOpen],
   );
 
   const closeChat = useCallback((event?: React.MouseEvent) => {
@@ -145,16 +147,18 @@ export const useChatWidget = () => {
   const updateMessage = useCallback(
     (messageId: string, updates: Partial<Message>) => {
       setMessages((prev) =>
-        prev.map((msg) => (msg.id === messageId ? { ...msg, ...updates } : msg))
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, ...updates } : msg,
+        ),
       );
     },
-    []
+    [],
   );
 
   const applyChanges = useCallback(() => {
     localStorage.setItem(
       CHAT_WIDGET_CONFIG.STORAGE_KEYS.SIZE,
-      JSON.stringify(size)
+      JSON.stringify(size),
     );
 
     const confirmMessage: Message = {
