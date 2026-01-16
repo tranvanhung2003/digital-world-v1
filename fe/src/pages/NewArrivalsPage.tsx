@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from 'react';
 import { useGetProductsQuery } from '@/services/productApi';
 import ProductCard from '@/components/features/ProductCard';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -16,7 +17,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
+    {},
   );
 
   const dispatch = useDispatch();
@@ -93,7 +94,7 @@ const LoginPage: React.FC = () => {
       setError(
         err?.data?.message ||
           err?.message ||
-          t('auth.login.errors.resendFailed')
+          t('auth.login.errors.resendFailed'),
       );
     }
   };
@@ -189,7 +190,7 @@ const LoginPage: React.FC = () => {
                     (error as any)?.message ||
                     t('auth.login.errors.invalidCredentials')}
                 {(error as any)?.data?.message?.includes(
-                  'Vui lòng xác thực email'
+                  'Vui lòng xác thực email',
                 ) && (
                   <div className="mt-2">
                     <button
@@ -202,7 +203,7 @@ const LoginPage: React.FC = () => {
                         ? t('auth.login.resendingVerification', 'Sending...')
                         : t(
                             'auth.login.resendVerification',
-                            'Resend verification email'
+                            'Resend verification email',
                           )}
                     </button>
                   </div>

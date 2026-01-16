@@ -47,11 +47,11 @@ const ProductWarrantyForm: React.FC<ProductWarrantyFormProps> = ({
 
       // Only update if current value doesn't already include free packages
       const needsUpdate = freePackageIds.some(
-        (id) => !currentValue.includes(id)
+        (id) => !currentValue.includes(id),
       );
       if (needsUpdate) {
         const newValue = Array.from(
-          new Set([...currentValue, ...freePackageIds])
+          new Set([...currentValue, ...freePackageIds]),
         );
         parentForm.setFieldValue('warrantyPackageIds', newValue);
         console.log('Auto-selected free warranty packages:', freePackageIds);
@@ -202,14 +202,6 @@ const ProductWarrantyForm: React.FC<ProductWarrantyFormProps> = ({
           </Checkbox.Group>
         </Form.Item>
       )}
-
-      <Alert
-        message="Lưu ý"
-        description="Gói bảo hành cơ bản được bao gồm mặc định. Các gói khác là tùy chọn bổ sung."
-        type="warning"
-        showIcon
-        style={{ marginTop: 16 }}
-      />
     </Card>
   );
 };

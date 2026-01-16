@@ -47,12 +47,12 @@ const ResetPasswordPage: React.FC = () => {
 
     if (!confirmPassword) {
       newErrors.confirmPassword = t(
-        'auth.resetPassword.validation.confirmPasswordRequired'
+        'auth.resetPassword.validation.confirmPasswordRequired',
       );
       isValid = false;
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = t(
-        'auth.resetPassword.validation.passwordsNotMatch'
+        'auth.resetPassword.validation.passwordsNotMatch',
       );
       isValid = false;
     }

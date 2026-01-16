@@ -60,17 +60,17 @@ const PaymentQRPage: React.FC = () => {
         // Start countdown from 3 seconds
         let currentCount = 3;
         setCountdown(currentCount);
-        
+
         const countdownInterval = setInterval(() => {
           currentCount--;
           setCountdown(currentCount);
-          
+
           if (currentCount <= 0) {
             clearInterval(countdownInterval);
             navigate('/orders');
           }
         }, 1000);
-        
+
         // Cleanup interval on unmount or when orderData changes
         return () => clearInterval(countdownInterval);
       }
@@ -82,7 +82,7 @@ const PaymentQRPage: React.FC = () => {
             type: 'warning',
             message: 'Đơn hàng đã bị hủy. Không thể thanh toán lại.',
             duration: 3000,
-          })
+          }),
         );
         navigate('/orders');
       }
@@ -249,11 +249,11 @@ const PaymentQRPage: React.FC = () => {
         <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl p-6 md:p-8 mb-8">
           {/* Success Modal - Shown when payment is detected */}
           {showSuccessMessage && (
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
               onClick={() => countdown <= 0 && navigate('/orders')} // Allow clicking background to navigate if countdown finished
             >
-              <div 
+              <div
                 className="bg-white dark:bg-neutral-800 rounded-xl shadow-xl max-w-md w-full p-6 transform transition-all"
                 onClick={(e) => e.stopPropagation()} // Prevent click from propagating to background
               >
@@ -280,7 +280,8 @@ const PaymentQRPage: React.FC = () => {
                     Đơn hàng của bạn đã được thanh toán thành công.
                   </p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6">
-                    Đang chuyển hướng đến trang đơn hàng trong <span id="countdown">{countdown}</span> giây...
+                    Đang chuyển hướng đến trang đơn hàng trong{' '}
+                    <span id="countdown">{countdown}</span> giây...
                   </p>
                 </div>
               </div>
@@ -377,7 +378,7 @@ const PaymentQRPage: React.FC = () => {
                           type: 'success',
                           message: 'Đơn hàng đã được hủy thành công',
                           duration: 3000,
-                        })
+                        }),
                       );
                       navigate('/orders');
                     } catch (error) {
@@ -386,7 +387,7 @@ const PaymentQRPage: React.FC = () => {
                           type: 'error',
                           message: 'Hủy đơn hàng thất bại',
                           duration: 3000,
-                        })
+                        }),
                       );
                     }
                   }

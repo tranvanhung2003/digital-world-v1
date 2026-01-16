@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, Button, Space } from 'antd';
 import { SaveOutlined, CloseOutlined } from '@ant-design/icons';

@@ -86,27 +86,6 @@ const ProductBasicInfoForm: React.FC<ProductBasicInfoFormProps> = ({
         </Form.Item>
         {description && <Base64ImageWarning description={description} />}
       </Col>
-
-      <Col span={24}>
-        <Alert
-          message="Mẹo tạo sản phẩm"
-          description={
-            <div>
-              <p>• Chỉ cần điền các trường bắt buộc để tạo sản phẩm nhanh</p>
-              <p>• Để trống SKU để hệ thống tự tạo mã duy nhất</p>
-              <p>
-                • Bạn có thể{' '}
-                <Button type="link" size="small" onClick={handleFillSampleData}>
-                  điền dữ liệu MacBook Pro M3 Max
-                </Button>{' '}
-                để xem ví dụ
-              </p>
-            </div>
-          }
-          type="info"
-          showIcon
-        />
-      </Col>
     </Row>
   );
 };

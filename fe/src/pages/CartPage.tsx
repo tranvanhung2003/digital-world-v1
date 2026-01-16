@@ -21,7 +21,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const CartPage: React.FC = () => {
   const { t } = useTranslation();
   const { items, subtotal, totalItems, isLoading } = useSelector(
-    (state: RootState) => state.cart
+    (state: RootState) => state.cart,
   );
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
@@ -217,8 +217,6 @@ const CartPage: React.FC = () => {
                     {shipping === 0 ? t('cart.free') : formatPrice(shipping)}
                   </span>
                 </div>
-
-
 
                 <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4 flex justify-between">
                   <span className="text-neutral-800 dark:text-neutral-200 font-semibold">

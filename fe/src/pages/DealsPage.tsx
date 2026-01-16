@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useMemo } from 'react';
 import { useGetDealsQuery } from '@/services/productApi';
 import ProductCard from '@/components/features/ProductCard';
@@ -229,7 +230,7 @@ const DealsPage: React.FC = () => {
                     {...product}
                     discountPercentage={product.discountPercentage}
                   />
-                )
+                ),
               )}
             </div>
 

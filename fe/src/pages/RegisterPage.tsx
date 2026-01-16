@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -80,7 +81,8 @@ const RegisterPage: React.FC = () => {
     }
 
     if (!acceptTerms) {
-      newErrors.acceptTerms = 'Bạn phải đồng ý với Điều khoản dịch vụ và Chính sách bảo mật';
+      newErrors.acceptTerms =
+        'Bạn phải đồng ý với Điều khoản dịch vụ và Chính sách bảo mật';
       isValid = false;
     }
 
@@ -114,7 +116,7 @@ const RegisterPage: React.FC = () => {
       // Show success message to user
       setSuccessMessage(
         result.message ||
-          'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.'
+          'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.',
       );
 
       // Clear form

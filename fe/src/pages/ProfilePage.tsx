@@ -135,7 +135,7 @@ const ProfilePage: React.FC = () => {
           lastName: updatedUser.lastName,
           phone: updatedUser.phone,
           avatar: updatedUser.avatar,
-        })
+        }),
       );
 
       // Change password if provided
@@ -151,7 +151,7 @@ const ProfilePage: React.FC = () => {
             type: 'success',
             message: 'Password changed successfully',
             duration: 3000,
-          })
+          }),
         );
       }
 
@@ -179,7 +179,7 @@ const ProfilePage: React.FC = () => {
           type: 'success',
           message: 'Profile updated successfully',
           duration: 3000,
-        })
+        }),
       );
 
       setIsEditing(false);
@@ -199,7 +199,7 @@ const ProfilePage: React.FC = () => {
           type: 'error',
           message: error.data?.message || 'Failed to update profile',
           duration: 5000,
-        })
+        }),
       );
     }
   };

@@ -49,20 +49,28 @@ const HomePage: React.FC = () => {
 
   // Newsletter subscription
   const [newsletterEmail, setNewsletterEmail] = React.useState('');
-  const [subscribeNewsletter, { isLoading: isSubscribing }] = useSubscribeNewsletterMutation();
+  const [subscribeNewsletter, { isLoading: isSubscribing }] =
+    useSubscribeNewsletterMutation();
 
   const handleNewsletterSubmit = async () => {
     if (!newsletterEmail) {
-      message.error(t('homepage.newsletter.emailRequired') || 'Vui lòng nhập email');
+      message.error(
+        t('homepage.newsletter.emailRequired') || 'Vui lòng nhập email',
+      );
       return;
     }
 
     try {
-      const response = await subscribeNewsletter({ email: newsletterEmail }).unwrap();
+      const response = await subscribeNewsletter({
+        email: newsletterEmail,
+      }).unwrap();
       message.success(response.message);
       setNewsletterEmail('');
     } catch (error: any) {
-      message.error(error?.data?.message || 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.');
+      message.error(
+        error?.data?.message ||
+          'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.',
+      );
     }
   };
 
@@ -189,7 +197,6 @@ const HomePage: React.FC = () => {
           </CategoryGrid>
         )}
       </PageSection>
-
 
       {/* News Section */}
       <HomeNewsSection />

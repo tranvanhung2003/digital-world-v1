@@ -35,7 +35,7 @@ const ProductSpecificationsForm: React.FC<ProductSpecificationsFormProps> = ({
   initialSpecifications = [],
 }) => {
   const [specifications, setSpecifications] = useState<Specification[]>(
-    initialSpecifications
+    initialSpecifications,
   );
   const form = Form.useFormInstance();
 
@@ -46,7 +46,7 @@ const ProductSpecificationsForm: React.FC<ProductSpecificationsFormProps> = ({
     if (initialSpecifications && initialSpecifications.length > 0) {
       console.log(
         'ProductSpecificationsForm - Loading initial specifications:',
-        initialSpecifications
+        initialSpecifications,
       );
       // Ensure each spec has a unique ID
       const specsWithIds = initialSpecifications.map((spec, index) => ({
@@ -93,7 +93,7 @@ const ProductSpecificationsForm: React.FC<ProductSpecificationsFormProps> = ({
         if (JSON.stringify(currentSpecs) !== JSON.stringify(specifications)) {
           console.log(
             'ProductSpecificationsForm - Interval check found specifications:',
-            currentSpecs
+            currentSpecs,
           );
           setSpecifications(currentSpecs);
           clearInterval(interval); // Stop checking once found
@@ -125,14 +125,14 @@ const ProductSpecificationsForm: React.FC<ProductSpecificationsFormProps> = ({
   const updateSpecification = (
     id: string,
     field: keyof Specification,
-    value: string
+    value: string,
   ) => {
     console.log(
-      `Updating specification ${id}, field: ${field}, value: ${value}`
+      `Updating specification ${id}, field: ${field}, value: ${value}`,
     );
     setSpecifications((specs) => {
       const updated = specs.map((spec) =>
-        spec.id === id ? { ...spec, [field]: value } : spec
+        spec.id === id ? { ...spec, [field]: value } : spec,
       );
       console.log('Updated specifications:', updated);
       return updated;
@@ -213,9 +213,6 @@ const ProductSpecificationsForm: React.FC<ProductSpecificationsFormProps> = ({
             size="large"
           >
             Thêm thông số kỹ thuật
-          </Button>
-          <Button type="default" onClick={addSampleSpecifications} size="large">
-            Thêm mẫu laptop
           </Button>
         </Space>
       </div>

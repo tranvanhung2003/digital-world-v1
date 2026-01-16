@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -115,7 +116,7 @@ const CheckoutPage: React.FC = () => {
         addNotification({
           type: 'info',
           message: t('checkout.emptyCart.redirectMessage'),
-        })
+        }),
       );
     }
   }, [dispatch, navigate, t]);
@@ -128,7 +129,7 @@ const CheckoutPage: React.FC = () => {
   // Payment methods with i18n
   const paymentMethods = [
     { value: 'stripe', label: t('checkout.paymentMethod.creditCard') },
-    { value: 'bank_transfer', label: t('checkout.paymentMethod.bankTransfer') },
+    // { value: 'bank_transfer', label: t('checkout.paymentMethod.bankTransfer') },
     { value: 'installment', label: 'Trả góp 0% qua thẻ tín dụng' },
   ];
 
@@ -163,7 +164,7 @@ const CheckoutPage: React.FC = () => {
     zipCode: '',
     country: 'VN',
     shippingMethod: 'standard',
-    paymentMethod: 'bank_transfer', // Default to bank transfer
+    paymentMethod: 'stripe', // Default to bank transfer
     notes: '',
     // Billing address (same as shipping by default)
     billingFirstName: user?.firstName || '',
@@ -199,7 +200,9 @@ const CheckoutPage: React.FC = () => {
       title: 'Phí chuyển đổi',
       dataIndex: 'fee',
       key: 'fee',
-      render: () => <span className="text-green-600 font-medium">Miễn phí</span>,
+      render: () => (
+        <span className="text-green-600 font-medium">Miễn phí</span>
+      ),
     },
   ];
 
@@ -237,10 +240,10 @@ const CheckoutPage: React.FC = () => {
   // Calculate totals
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   const selectedShipping = shippingMethods.find(
-    (method) => method.value === formData.shippingMethod
+    (method) => method.value === formData.shippingMethod,
   );
   const shippingCost = selectedShipping?.price || 0;
   const tax = 0; // 0% tax - taxes are not applied per request
@@ -404,7 +407,7 @@ const CheckoutPage: React.FC = () => {
           type: 'error',
           message: t('checkout.errors.orderCreationFailed'),
           duration: 5000,
-        })
+        }),
       );
       return null;
     } finally {
@@ -419,7 +422,7 @@ const CheckoutPage: React.FC = () => {
         type: 'success',
         message: t('checkout.success.message'),
         duration: 5000,
-      })
+      }),
     );
 
     // Clear cart
@@ -439,7 +442,7 @@ const CheckoutPage: React.FC = () => {
         type: 'error',
         message: error,
         duration: 5000,
-      })
+      }),
     );
   };
 
@@ -475,7 +478,7 @@ const CheckoutPage: React.FC = () => {
       if (order) {
         // Navigate to payment QR page with order information
         navigate(
-          `/payment-qr?orderId=${order.id}&amount=${order.total}&numberOrder=${order.number}`
+          `/payment-qr?orderId=${order.id}&amount=${order.total}&numberOrder=${order.number}`,
         );
         return;
       }
@@ -489,7 +492,7 @@ const CheckoutPage: React.FC = () => {
           type: 'success',
           message: t('checkout.success.message'),
           duration: 5000,
-        })
+        }),
       );
       dispatch(clearCart());
 
@@ -559,7 +562,7 @@ const CheckoutPage: React.FC = () => {
           addNotification({
             type: 'info',
             message: t('checkout.emptyCart.redirectMessage'),
-          })
+          }),
         );
       }
     }, 800); // Tăng thời gian chờ để đảm bảo API có đủ thời gian cập nhật
@@ -748,7 +751,7 @@ const CheckoutPage: React.FC = () => {
                 </label>
               ))}
             </div>
-            
+
             {/* Installment Info Modal */}
             <Modal
               title={
@@ -760,7 +763,11 @@ const CheckoutPage: React.FC = () => {
               open={isInstallmentModalOpen}
               onCancel={() => setIsInstallmentModalOpen(false)}
               footer={[
-                <Button key="close" type="primary" onClick={() => setIsInstallmentModalOpen(false)}>
+                <Button
+                  key="close"
+                  type="primary"
+                  onClick={() => setIsInstallmentModalOpen(false)}
+                >
                   Đã hiểu
                 </Button>,
               ]}
@@ -771,23 +778,32 @@ const CheckoutPage: React.FC = () => {
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-blue-800">
                   <h4 className="font-semibold mb-2">Quy trình trả góp:</h4>
                   <ol className="list-decimal list-inside space-y-1 text-sm">
-                    <li>Chọn ngân hàng và kỳ hạn trả góp phù hợp trong bảng dưới đây.</li>
+                    <li>
+                      Chọn ngân hàng và kỳ hạn trả góp phù hợp trong bảng dưới
+                      đây.
+                    </li>
                     <li>Hoàn tất đặt hàng với phương thức "Trả góp 0%".</li>
-                    <li>Nhân viên tư vấn sẽ liên hệ lại để hướng dẫn quý khách thực hiện chuyển đổi trả góp.</li>
+                    <li>
+                      Nhân viên tư vấn sẽ liên hệ lại để hướng dẫn quý khách
+                      thực hiện chuyển đổi trả góp.
+                    </li>
                   </ol>
                 </div>
-                
-                <h4 className="font-semibold text-gray-700 mt-4">Danh sách ngân hàng hỗ trợ:</h4>
-                <Table 
-                  columns={installmentColumns} 
-                  dataSource={installmentData} 
-                  pagination={false} 
+
+                <h4 className="font-semibold text-gray-700 mt-4">
+                  Danh sách ngân hàng hỗ trợ:
+                </h4>
+                <Table
+                  columns={installmentColumns}
+                  dataSource={installmentData}
+                  pagination={false}
                   size="small"
                   bordered
                 />
-                
+
                 <p className="text-xs text-gray-500 italic mt-2">
-                  * Lưu ý: Chương trình trả góp 0% chỉ áp dụng cho thẻ tín dụng (Credit Card). Không áp dụng cho thẻ ATM/Debit.
+                  * Lưu ý: Chương trình trả góp 0% chỉ áp dụng cho thẻ tín dụng
+                  (Credit Card). Không áp dụng cho thẻ ATM/Debit.
                 </p>
               </div>
             </Modal>

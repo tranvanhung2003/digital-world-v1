@@ -26,6 +26,10 @@
     "fe/src/features/ai/components/ChatSuggestions.tsx": true,
     "fe/src/features/ai/components/ChatToggleButton.tsx": true,
     "fe/src/features/ai/components/ChatWidgetSimple.tsx": true,
-    "fe/src/data": true
+    "fe/src/data": true,
+    "fe/src/components/features/README.md": true,
+    ".vscode": true,
+    "fe/src/pages/CheckoutPage.tsx.bak": true,
+    "fe/src/pages/admin/EditProductPage.tsx.backup": true
   }
 }
