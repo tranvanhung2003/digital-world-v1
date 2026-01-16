@@ -497,6 +497,7 @@ const createProduct = catchAsync(async (req, res) => {
     description,
     shortDescription,
     price,
+    compareAtPrice,
     comparePrice,
     stock,
     sku,
@@ -541,6 +542,10 @@ const createProduct = catchAsync(async (req, res) => {
     }
   }
 
+  const priceToCompare = req.body.hasOwnProperty('compareAtPrice')
+    ? compareAtPrice
+    : comparePrice;
+
   // Tạo sản phẩm mới
   const product = await Product.create({
     name,
@@ -561,15 +566,13 @@ const createProduct = catchAsync(async (req, res) => {
     seoTitle: seoTitle || name,
     seoDescription: seoDescription || description,
     seoKeywords: seoKeywords || [],
-    // Các trường mới cho laptop/máy tính
+
     condition,
     specifications: specifications || [],
     faqs: faqs || [],
   });
 
-  // Cập nhật compareAtPrice riêng bằng truy vấn SQL trực tiếp
-  console.log('comparePrice từ request body:', comparePrice);
-  if (comparePrice !== undefined) {
+  if (priceToCompare !== undefined) {
     const { sequelize } = require('../models');
 
     const productTableName = getTableName(Product);
@@ -579,7 +582,7 @@ const createProduct = catchAsync(async (req, res) => {
       `UPDATE ${productTableName} SET ${Product_compareAtPrice} = :comparePrice WHERE id = :id`,
       {
         replacements: {
-          comparePrice: comparePrice,
+          comparePrice: priceToCompare,
           id: product.id,
         },
         type: sequelize.QueryTypes.UPDATE,
@@ -587,7 +590,7 @@ const createProduct = catchAsync(async (req, res) => {
     );
 
     // Cập nhật lại giá trị compareAtPrice trong đối tượng product
-    product.compareAtPrice = comparePrice;
+    product.compareAtPrice = priceToCompare;
   }
 
   // Thêm categories nếu có
@@ -697,22 +700,21 @@ const createProduct = catchAsync(async (req, res) => {
           attributes: variantAttributes,
         });
 
-        // Validate variant attributes - bỏ qua validation nếu không có thuộc tính
         if (
           productAttributes.length > 0 &&
           Object.keys(variantAttributes).length > 0
         ) {
           try {
-            // Bỏ qua validation để đảm bảo biến thể được tạo
-            // const isValid = validateVariantAttributes(
-            //   productAttributes,
-            //   variantAttributes
-            // );
-            // if (!isValid) {
-            //   throw new Error(
-            //     `Thuộc tính biến thể không hợp lệ cho biến thể: ${variant.name}`
-            //   );
-            // }
+            const isValid = validateVariantAttributes(
+              productAttributes,
+              variantAttributes,
+            );
+
+            if (!isValid) {
+              throw new Error(
+                `Thuộc tính biến thể không hợp lệ cho biến thể: ${variant.name}`,
+              );
+            }
           } catch (error) {
             console.error('Lỗi khi xác thực thuộc tính biến thể:', error);
             // Không throw error, chỉ log để tiếp tục tạo biến thể
@@ -1130,22 +1132,21 @@ const updateProduct = catchAsync(async (req, res) => {
             attributes: variantAttributes,
           });
 
-          // Validate variant attributes - bỏ qua validation nếu không có thuộc tính
           if (
             productAttributes.length > 0 &&
             Object.keys(variantAttributes).length > 0
           ) {
             try {
-              // Bỏ qua validation để đảm bảo biến thể được tạo
-              // const isValid = validateVariantAttributes(
-              //   productAttributes,
-              //   variantAttributes
-              // );
-              // if (!isValid) {
-              //   throw new Error(
-              //     `Thuộc tính biến thể không hợp lệ cho biến thể: ${variant.name}`
-              //   );
-              // }
+              const isValid = validateVariantAttributes(
+                productAttributes,
+                variantAttributes,
+              );
+
+              if (!isValid) {
+                throw new Error(
+                  `Thuộc tính biến thể không hợp lệ cho biến thể: ${variant.name}`,
+                );
+              }
             } catch (error) {
               console.error('Lỗi khi xác thực thuộc tính biến thể:', error);
               // Không throw error, chỉ log để tiếp tục tạo biến thể
