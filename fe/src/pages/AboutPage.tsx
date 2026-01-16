@@ -7,11 +7,11 @@ const AboutPage: React.FC = () => {
       {/* Hero section */}
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold text-neutral-900 dark:text-white mb-4">
-          About DigitalWorld
+          Về DigitalWorld
         </h1>
         <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-3xl mx-auto">
-          We&apos;re on a mission to provide high-quality products at affordable
-          prices with exceptional customer service.
+          Chúng tôi đang nỗ lực cung cấp các sản phẩm chất lượng cao với giá cả
+          phải chăng, cùng với dịch vụ khách hàng xuất sắc.
         </p>
       </div>
 
@@ -19,25 +19,26 @@ const AboutPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20 items-center">
         <div>
           <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
-            Our Story
+            Câu chuyện của chúng tôi
           </h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-            Founded in 2023, DigitalWorld started with a simple idea: make
-            shopping easier, more enjoyable, and accessible to everyone. What
-            began as a small online store has grown into a platform offering
-            thousands of products across multiple categories.
+            Được thành lập vào năm 2025, DigitalWorld bắt đầu với một ý tưởng
+            đơn giản: làm cho việc mua sắm trở nên dễ dàng hơn, thú vị hơn và dễ
+            tiếp cận hơn với mọi người. Từ một cửa hàng trực tuyến nhỏ,
+            DigitalWorld đã phát triển thành một nền tảng cung cấp hàng ngàn sản
+            phẩm thuộc nhiều danh mục khác nhau.
           </p>
           <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-            Our team is passionate about curating the best products and creating
-            a seamless shopping experience. We carefully select each item in our
-            inventory to ensure it meets our standards for quality, value, and
-            sustainability.
+            Đội ngũ của chúng tôi đam mê tuyển chọn những sản phẩm tốt nhất và
+            tạo ra một trải nghiệm mua sắm liền mạch. Chúng tôi lựa chọn cẩn
+            thận từng mặt hàng trong kho hàng của mình để đảm bảo đáp ứng các
+            tiêu chuẩn về chất lượng, giá trị và tính bền vững.
           </p>
           <p className="text-neutral-600 dark:text-neutral-400">
-            As we continue to grow, our commitment to customer satisfaction
-            remains at the heart of everything we do. We&apos;re constantly
-            improving our platform, expanding our product range, and finding new
-            ways to delight our customers.
+            Khi chúng tôi tiếp tục phát triển, cam kết về sự hài lòng của khách
+            hàng vẫn là trọng tâm của mọi việc chúng tôi làm. Chúng tôi liên tục
+            cải thiện nền tảng, mở rộng phạm vi sản phẩm và tìm ra những cách
+            thức mới để làm hài lòng khách hàng.
           </p>
         </div>
         <div className="rounded-lg overflow-hidden shadow-lg">
@@ -57,9 +58,9 @@ const AboutPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              title: 'Quality',
+              title: 'Chất lượng',
               description:
-                'We never compromise on quality. Every product we offer is carefully selected and tested to ensure it meets our high standards.',
+                'Chúng tôi không bao giờ thỏa hiệp về chất lượng. Mỗi sản phẩm chúng tôi cung cấp đều được lựa chọn và kiểm tra kỹ lưỡng để đảm bảo đáp ứng các tiêu chuẩn cao của chúng tôi.',
               icon: (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -78,9 +79,9 @@ const AboutPage: React.FC = () => {
               ),
             },
             {
-              title: 'Customer First',
+              title: 'Khách hàng là trên hết',
               description:
-                'Our customers are at the center of everything we do. We strive to provide exceptional service and support at every step of your shopping journey.',
+                'Khách hàng của chúng tôi là trung tâm của mọi việc chúng tôi làm. Chúng tôi nỗ lực cung cấp dịch vụ và hỗ trợ xuất sắc ở mọi bước trong hành trình mua sắm của bạn.',
               icon: (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -99,9 +100,9 @@ const AboutPage: React.FC = () => {
               ),
             },
             {
-              title: 'Innovation',
+              title: 'Đổi mới',
               description:
-                'We&apos;re constantly looking for new ways to improve our platform and offer innovative products that make your life better and more convenient.',
+                'Chúng tôi không ngừng tìm kiếm những cách mới để cải thiện nền tảng và cung cấp các sản phẩm sáng tạo giúp cuộc sống của bạn tốt hơn và tiện lợi hơn.',
               icon: (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -139,31 +140,31 @@ const AboutPage: React.FC = () => {
       {/* Team section */}
       <div className="mb-20">
         <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-10 text-center">
-          Our Team
+          Gặp gỡ đội ngũ của Chúng tôi
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             {
-              name: 'Sarah Johnson',
-              role: 'Founder & CEO',
+              name: 'Nguyễn Thị Ánh',
+              role: 'Người sáng lập & Giám đốc điều hành',
               image:
                 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
             },
             {
-              name: 'Michael Chen',
-              role: 'CTO',
+              name: 'Trần Văn Bảo',
+              role: 'Giám đốc công nghệ',
               image:
                 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
             },
             {
-              name: 'Emily Rodriguez',
-              role: 'Head of Product',
+              name: 'Lê Thị Chi',
+              role: 'Trưởng bộ phận sản phẩm',
               image:
                 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
             },
             {
-              name: 'David Kim',
-              role: 'Customer Experience',
+              name: 'Phạm Minh Dũng',
+              role: 'Trải nghiệm khách hàng',
               image:
                 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
             },
@@ -190,24 +191,24 @@ const AboutPage: React.FC = () => {
       {/* CTA section */}
       <div className="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-12 text-center">
         <h2 className="text-3xl font-bold text-primary-700 dark:text-primary-400 mb-4">
-          Ready to Start Shopping?
+          Sẵn sàng để bắt đầu mua sắm?
         </h2>
         <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto mb-8">
-          Explore our wide range of products and discover why thousands of
-          customers choose DigitalWorld for their shopping needs.
+          Khám phá các sản phẩm đa dạng của chúng tôi và tìm hiểu lý do tại sao
+          hàng ngàn khách hàng chọn DigitalWorld cho nhu cầu mua sắm của họ.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             to="/shop"
             className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
           >
-            Browse Products
+            Tìm sản phẩm
           </Link>
           <Link
             to="/contact"
             className="bg-white dark:bg-neutral-800 text-primary-600 dark:text-primary-400 border border-primary-600 dark:border-primary-400 font-medium py-3 px-6 rounded-lg hover:bg-primary-50 dark:hover:bg-neutral-700 transition-colors"
           >
-            Contact Us
+            Liên hệ
           </Link>
         </div>
       </div>

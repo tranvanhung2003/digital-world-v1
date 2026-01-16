@@ -21,9 +21,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.ui.theme);
 
-  // Initialize theme from system preference if not set in Redux
+  // Khởi tạo theme từ system preference nếu không được set trong Redux
   useEffect(() => {
-    // Check system preference if theme is not already set
+    // Kiểm tra system preference nếu theme được được set
     if (!theme && typeof window !== 'undefined') {
       if (
         window.matchMedia &&
@@ -36,7 +36,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [dispatch, theme]);
 
-  // Update document class when theme changes
+  // Cập nhật class của document khi theme thay đổi
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -45,7 +45,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
-  // Toggle theme function
+  // Hàm chuyển đổi giữa light và dark theme
   const toggleTheme = () => {
     dispatch(setTheme(theme === 'light' ? 'dark' : 'light'));
   };

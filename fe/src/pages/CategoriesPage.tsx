@@ -11,7 +11,7 @@ const CategoriesPage: React.FC = () => {
 
   // Filter categories based on search term
   const filteredCategories = categories?.filter((category) =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Group categories by first letter for alphabetical display
@@ -56,7 +56,7 @@ const CategoriesPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-8 text-center">
-        Browse All Categories
+        Tất cả danh mục
       </h1>
 
       {/* Search input */}

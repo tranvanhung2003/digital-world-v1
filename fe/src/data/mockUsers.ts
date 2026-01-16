@@ -6,37 +6,37 @@ export const mockUsers: User[] = [
     email: 'john.doe@example.com',
     firstName: 'John',
     lastName: 'Doe',
-    name: 'John Doe',
-    phone: '555-123-4567',
+    name: 'Trần Văn Hưng',
+    phone: '0368228453',
     avatar: 'https://placehold.co/400x400?text=JD',
     role: 'customer',
     addresses: [
       {
         id: 'addr1',
-        name: 'Home',
-        firstName: 'John',
-        lastName: 'Doe',
-        address1: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zip: '10001',
-        country: 'US',
-        phone: '555-123-4567',
+        name: 'Nhà riêng',
+        firstName: 'Hưng',
+        lastName: 'Trần Văn',
+        address1: 'Phong Thử 2',
+        city: 'Điện Bàn',
+        state: 'Quảng Nam',
+        zip: '550000',
+        country: 'VN',
+        phone: '0368228453',
         isDefault: true,
       },
       {
         id: 'addr2',
-        name: 'Work',
-        firstName: 'John',
-        lastName: 'Doe',
-        company: 'Acme Inc',
-        address1: '456 Business Ave',
-        address2: 'Suite 200',
-        city: 'New York',
-        state: 'NY',
-        zip: '10002',
-        country: 'US',
-        phone: '555-987-6543',
+        name: 'Văn phòng',
+        firstName: 'Hưng',
+        lastName: 'Trần Văn',
+        company: 'Công ty TNHH Digital World',
+        address1: 'Địa chỉ 1',
+        address2: 'Địa chỉ 2',
+        city: 'Điện Bàn',
+        state: 'Quảng Nam',
+        zip: '550000',
+        country: 'VN',
+        phone: '0368228453',
         isDefault: false,
       },
     ],
@@ -78,7 +78,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'admin1',
-    email: 'admin@example.com',
+    email: 'admin@gmail.com',
     firstName: 'Admin',
     lastName: 'User',
     name: 'Admin User',
@@ -101,14 +101,12 @@ export const getUserByEmail = (email: string): User | undefined => {
 
 export const authenticateUser = (
   email: string,
-  password: string
+  password: string,
 ): { user: User; token: string } | null => {
-  // In a real app, you would verify the password
-  // For this mock, we'll just check if the email exists
   const user = getUserByEmail(email);
 
   if (user) {
-    // Generate a mock token
+    // Tạo mock token
     const token = `mock-jwt-token-${user.id}-${Date.now()}`;
     return { user, token };
   }

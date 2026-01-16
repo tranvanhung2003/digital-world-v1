@@ -2,9 +2,9 @@ import React, { createContext, useContext } from 'react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-// Load Stripe with your publishable key
+// Load Stripe với publishable key
 const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
 );
 
 interface StripeContextType {
@@ -15,9 +15,11 @@ const StripeContext = createContext<StripeContextType | undefined>(undefined);
 
 export const useStripe = () => {
   const context = useContext(StripeContext);
+
   if (context === undefined) {
-    throw new Error('useStripe must be used within a StripeProvider');
+    throw new Error('useStripe phải được sử dụng trong StripeProvider');
   }
+
   return context;
 };
 

@@ -1,9 +1,13 @@
-import { Product, ProductAttribute, ProductVariant } from '@/types/product.types';
+import {
+  Product,
+  ProductAttribute,
+  ProductVariant,
+} from '@/types/product.types';
 
 const createAttribute = (
   productId: string,
   name: string,
-  values: string[]
+  values: string[],
 ): ProductAttribute => ({
   id: `${productId}-${name.toLowerCase()}`,
   productId,
@@ -19,7 +23,7 @@ const createVariant = (
   sku: string,
   price: number,
   stockQuantity: number,
-  attributes: Record<string, string>
+  attributes: Record<string, string>,
 ): ProductVariant => ({
   id: `${productId}-${sku}`,
   name,
@@ -43,9 +47,9 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      'Experience exceptional audio with advanced noise cancellation and 30-hour battery life.',
+      'Trải nghiệm âm thanh tuyệt vời với công nghệ chống ồn tiên tiến và thời lượng pin lên đến 30 giờ.',
     shortDescription:
-      'High-fidelity wireless headphones with ANC and long battery life.',
+      'Tai nghe không dây chất lượng cao với chống ồn chủ động và pin lâu.',
     categoryId: '1',
     categoryName: 'Audio',
     stock: 25,
@@ -88,9 +92,9 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      'Track your health with heart-rate monitoring, GPS, sleep tracking, and water resistance up to 50m.',
+      'Theo dõi sức khỏe với cảm biến nhịp tim, GPS, theo dõi giấc ngủ và khả năng chống nước lên đến 50m.',
     shortDescription:
-      'Advanced fitness tracking with AMOLED display and 7-day battery life.',
+      'Đồng hồ thông minh theo dõi sức khỏe với màn hình AMOLED và pin 7 ngày.',
     categoryId: '2',
     categoryName: 'Wearables',
     stock: 18,
@@ -100,28 +104,14 @@ export const mockProducts: Product[] = [
       createAttribute('prod-002', 'Size', ['40mm', '44mm']),
     ],
     variants: [
-      createVariant(
-        'prod-002',
-        'Black 44mm',
-        'FW-BLK-44',
-        149.99,
-        9,
-        {
-          Color: 'Black',
-          Size: '44mm',
-        }
-      ),
-      createVariant(
-        'prod-002',
-        'Rose Gold 40mm',
-        'FW-RGLD-40',
-        154.99,
-        9,
-        {
-          Color: 'Rose Gold',
-          Size: '40mm',
-        }
-      ),
+      createVariant('prod-002', 'Black 44mm', 'FW-BLK-44', 149.99, 9, {
+        Color: 'Black',
+        Size: '44mm',
+      }),
+      createVariant('prod-002', 'Rose Gold 40mm', 'FW-RGLD-40', 154.99, 9, {
+        Color: 'Rose Gold',
+        Size: '40mm',
+      }),
     ],
     isNew: true,
     isFeatured: false,
@@ -149,8 +139,8 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      'Compact speaker with 360° sound, deep bass, and 12-hour battery life. Water-resistant IPX6 rating.',
-    shortDescription: 'Powerful portable speaker for indoor and outdoor use.',
+      'Loa nhỏ gọn với âm thanh 360°, bass mạnh và pin 12 giờ. Chống nước chuẩn IPX6.',
+    shortDescription: 'Loa di động mạnh mẽ cho cả trong nhà và ngoài trời.',
     categoryId: '1',
     categoryName: 'Audio',
     stock: 30,
@@ -193,9 +183,8 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      '14-inch ultra-slim laptop with Intel Core i7, 16GB RAM, 1TB SSD, and 12-hour battery life. Ideal for professionals.',
-    shortDescription:
-      'Lightweight performance laptop for work and creativity.',
+      'Laptop siêu mỏng 14 inch với Intel Core i7, RAM 16GB, SSD 1TB và pin 12 giờ. Lý tưởng cho dân văn phòng.',
+    shortDescription: 'Laptop hiệu năng cao, nhẹ cho công việc và sáng tạo.',
     categoryId: '3',
     categoryName: 'Computers',
     stock: 12,
@@ -232,8 +221,8 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      'Stunning 55-inch OLED panel with Dolby Vision, HDR10+, 120Hz refresh rate, and built-in voice assistant.',
-    shortDescription: 'Immersive OLED display with smart home integration.',
+      'Màn hình OLED 55 inch tuyệt đẹp với Dolby Vision, HDR10+, tần số quét 120Hz và trợ lý giọng nói tích hợp.',
+    shortDescription: 'Màn hình OLED sống động với tích hợp nhà thông minh.',
     categoryId: '5',
     categoryName: 'Televisions',
     stock: 9,
@@ -269,9 +258,9 @@ export const mockProducts: Product[] = [
       'https://images.unsplash.com/photo-1519183071298-a2962be96c85?auto=format&fit=crop&w=1000&q=80',
     ],
     description:
-      'Full-frame mirrorless camera with 45MP sensor, 8K video recording, and dual card slots.',
+      'Máy ảnh mirrorless full-frame với cảm biến 45MP, quay video 8K và hai khe thẻ nhớ.',
     shortDescription:
-      'Capture stunning photos and videos with pro-grade mirrorless camera.',
+      'Chụp ảnh và quay phim chuyên nghiệp với máy ảnh mirrorless cao cấp.',
     categoryId: '6',
     categoryName: 'Cameras',
     stock: 6,

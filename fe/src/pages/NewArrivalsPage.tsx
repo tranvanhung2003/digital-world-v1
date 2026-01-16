@@ -23,10 +23,10 @@ const NewArrivalsPage: React.FC = () => {
   });
 
   const sortOptions = [
-    { value: 'newest', label: 'Newest First' },
-    { value: 'price_asc', label: 'Price: Low to High' },
-    { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'popular', label: 'Most Popular' },
+    { value: 'newest', label: 'Mới nhất' },
+    { value: 'price_asc', label: 'Giá: Thấp đến Cao' },
+    { value: 'price_desc', label: 'Giá: Cao đến Thấp' },
+    { value: 'popular', label: 'Phổ biến' },
   ];
 
   const handleSortChange = (value: string) => {

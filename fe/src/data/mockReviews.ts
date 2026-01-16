@@ -6,7 +6,7 @@ const createReview = (overrides: Partial<Review>): Review => ({
   id: Math.random().toString(36).slice(2),
   productId: 'prod-001',
   userId: 'user1',
-  userName: 'John Doe',
+  userName: 'Trần Văn Hưng',
   userAvatar: undefined,
   rating: 5,
   title: 'Tuyệt vời!',
@@ -25,7 +25,7 @@ export const mockReviews: Record<string, Review[]> = {
     createReview({
       id: 'rev-101',
       userId: 'user1',
-      userName: 'Nguyễn Minh',
+      userName: 'Nguyễn Văn A',
       rating: 5,
       title: 'Âm thanh đỉnh cao',
       comment:
@@ -37,7 +37,7 @@ export const mockReviews: Record<string, Review[]> = {
     createReview({
       id: 'rev-102',
       userId: 'user2',
-      userName: 'Trần Anh',
+      userName: 'Trần Thị B',
       rating: 4,
       title: 'Đáng tiền',
       comment:
@@ -52,7 +52,7 @@ export const mockReviews: Record<string, Review[]> = {
       id: 'rev-201',
       productId: 'prod-002',
       userId: 'user3',
-      userName: 'Lê Hồng',
+      userName: 'Lê Văn C',
       rating: 5,
       title: 'Bạn đồng hành luyện tập',
       comment:
@@ -68,7 +68,7 @@ export const getReviewsByProductId = (productId: string): Review[] =>
   mockReviews[productId] || [];
 
 export const addReview = (
-  review: Omit<Review, 'id' | 'createdAt' | 'updatedAt' | 'likes' | 'dislikes'>
+  review: Omit<Review, 'id' | 'createdAt' | 'updatedAt' | 'likes' | 'dislikes'>,
 ): Review => {
   const newReview = createReview({
     ...review,

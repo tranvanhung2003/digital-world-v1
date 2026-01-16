@@ -2,14 +2,14 @@ import { Order } from '@/types/order.types';
 
 const sharedAddress = {
   id: 'addr-home',
-  firstName: 'John',
-  lastName: 'Doe',
-  address1: '123 Main St',
-  city: 'New York',
-  state: 'NY',
-  zip: '10001',
-  country: 'US',
-  phone: '555-123-4567',
+  firstName: 'Hưng',
+  lastName: 'Trần Văn',
+  address1: 'Phong Thử 2',
+  city: 'Điện Bàn',
+  state: 'Quảng Nam',
+  zip: '550000',
+  country: 'VN',
+  phone: '0368228453',
   isDefault: true,
 };
 
@@ -123,7 +123,7 @@ export const getOrderById = (orderId: string): Order | undefined =>
   mockOrders.find((order) => order.id === orderId);
 
 export const createOrder = (
-  order: Omit<Order, 'id' | 'number' | 'createdAt' | 'updatedAt'>
+  order: Omit<Order, 'id' | 'number' | 'createdAt' | 'updatedAt'>,
 ): Order => {
   const newOrder: Order = {
     ...order,

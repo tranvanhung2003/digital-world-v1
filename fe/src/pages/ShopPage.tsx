@@ -14,10 +14,10 @@ import { useGetProductsQuery } from '@/services/productApi';
 import { useGetCategoriesQuery } from '@/services/categoryApi';
 
 const sortOptions = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'popular', label: 'Popularity' },
+  { value: 'newest', label: 'Mới nhất' },
+  { value: 'price_asc', label: 'Giá: Thấp đến Cao' },
+  { value: 'price_desc', label: 'Giá: Cao đến Thấp' },
+  { value: 'popular', label: 'Phổ biến' },
 ];
 
 const ShopPage: React.FC = () => {
@@ -121,7 +121,7 @@ const ShopPage: React.FC = () => {
   const handleFilterChange = (
     groupId: string,
     optionId: string,
-    isSelected: boolean
+    isSelected: boolean,
   ) => {
     const updatedParams = new URLSearchParams(searchParams);
 
@@ -408,7 +408,7 @@ const ShopPage: React.FC = () => {
                       <ProductCard key={product.id} {...product} />
                     ) : (
                       <ProductListCard key={product.id} {...product} />
-                    )
+                    ),
                   )}
                 </div>
 

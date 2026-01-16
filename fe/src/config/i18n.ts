@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Import translation files
+// Import các file translation
 import enTranslations from '../locales/en.json';
 import viTranslations from '../locales/vi.json';
 
@@ -16,17 +16,17 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem('language') || 'vi', // Default to Vietnamese
+  lng: localStorage.getItem('language') || 'vi', // Mặc định ngôn ngữ là tiếng Việt
   fallbackLng: 'vi',
 
   interpolation: {
-    escapeValue: false, // React already does escaping
+    escapeValue: false,
   },
 
-  // Enable debug mode in development
+  // Bật debug mode trong môi trường development
   debug: process.env.NODE_ENV === 'development',
 
-  // Namespace configuration
+  // Cấu hình namespace
   defaultNS: 'translation',
   ns: ['translation'],
 

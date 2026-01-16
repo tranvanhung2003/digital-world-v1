@@ -23,10 +23,10 @@ const BestSellersPage: React.FC = () => {
   });
 
   const sortOptions = [
-    { value: 'popular', label: 'Most Popular' },
-    { value: 'price_asc', label: 'Price: Low to High' },
-    { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'newest', label: 'Newest' },
+    { value: 'popular', label: 'Phổ biến' },
+    { value: 'price_asc', label: 'Giá: Thấp đến Cao' },
+    { value: 'price_desc', label: 'Giá: Cao đến Thấp' },
+    { value: 'newest', label: 'Mới nhất' },
   ];
 
   const handleSortChange = (value: string) => {
