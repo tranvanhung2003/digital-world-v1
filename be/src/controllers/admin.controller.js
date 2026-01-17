@@ -514,7 +514,6 @@ const createProduct = catchAsync(async (req, res) => {
     categoryIds = [],
     attributes = [],
     variants = [],
-    // Các trường mới cho laptop/máy tính
     condition = 'new',
     specifications = {},
     warrantyPackageIds = [],
