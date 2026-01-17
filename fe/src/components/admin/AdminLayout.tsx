@@ -212,7 +212,7 @@ const AdminLayout: React.FC = () => {
                     to="/"
                     className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
-                    ← Back to Store
+                    ← Quay về cửa hàng
                   </Link>
                 </div>
               </div>
